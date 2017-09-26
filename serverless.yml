@@ -2,9 +2,9 @@ service: pennyboxapp
 
 package:
   exclude:
-      - node_modules/dynamodb-localhost/**
-      - node_modules/serverless-dynamodb-local/**
-      - node_modules/serverless-offline/**
+    - node_modules/dynamodb-localhost/**
+    - node_modules/serverless-dynamodb-local/**
+    - node_modules/serverless-offline/**
 
 plugins:
   - serverless-webpack

@@ -1,3 +1,4 @@
+import R from 'ramda';
 import { success, failure } from 'utils/response';
 import parseEvent from 'utils/parser';
 import dbClient from 'utils/db-client';
@@ -10,7 +11,11 @@ export async function get(event, context, callback) {
     const { params } = parseEvent(event);
     const data = await user.fetchOne(params.id);
 
-    callback(null, success(data));
+    if (!R.isEmpty(data)) {
+      callback(null, success(data));
+    } else {
+      callback(null, failure({ status: 'failure', message: 'No user with provided id' }, 404));
+    }
   } catch (e) {
     callback(null, failure({ status: 'failure', message: e.toString() }));
   }
