@@ -1,0 +1,6 @@
+dev:
+  DB_PREFIX: dev
+prod:
+  DB_PREFIX: prod
+test:
+  DB_PREFIX: test
