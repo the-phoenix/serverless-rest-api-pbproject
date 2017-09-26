@@ -27,3 +27,4 @@ jspm_packages
 # Serverless directories
 .serverless
 .webpack
+package-lock.json
