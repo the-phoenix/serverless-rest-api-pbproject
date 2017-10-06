@@ -1,6 +1,9 @@
 dev:
   DB_PREFIX: dev
+  COGNITO_POOL_ARN: arn:aws:cognito-idp:us-east-1:501132611696:userpool/us-east-1_TMmCoPWuF
 prod:
   DB_PREFIX: prod
+  COGNITO_POOL_ARN: arn:aws:cognito-idp:us-east-1:501132611696:userpool/us-east-1_QqqAe7XcE
 test:
   DB_PREFIX: test
+  COGNITO_POOL_ARN: arn:aws:cognito-idp:us-east-1:501132611696:userpool/us-east-1_TMmCoPWuF

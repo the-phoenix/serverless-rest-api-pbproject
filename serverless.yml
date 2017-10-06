@@ -74,6 +74,19 @@ functions:
           method: GET
           path: user/{id}
           cors: true
+          integration: lambda
+          authorizer:
+            name: authorizer
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN} 
+            claims:
+              - userName
+  preSignup:
+    handler: src/handlers/signup.preSignup
+    events:
+      - cognitoUserPool:
+          pool: PennyboxAppUsers-${self:custom.stage}
+          trigger: PreSignUp
+
           #authorizer: aws_iam
 
 #    The following are a few example events you can configure

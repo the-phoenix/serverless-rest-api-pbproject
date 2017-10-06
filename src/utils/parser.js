@@ -8,3 +8,12 @@ export default function parseEvent(event) {
     queryParams: event.queryStringParameters
   };
 }
+
+export function parseCognitoPreSignupEvent(event) {
+  return {
+    attributes: event.request.userAttributes,
+    userName: event.userName,
+    userPoolId: event.userPoolId,
+    validationData: event.validationData
+  };
+}
