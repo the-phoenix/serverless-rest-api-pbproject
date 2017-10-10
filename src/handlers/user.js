@@ -17,6 +17,7 @@ export async function get(event, context, callback) {
       callback(null, failure({ status: 'failure', message: 'No user with provided id' }, 404));
     }
   } catch (e) {
+    console.log(e);
     callback(null, failure({ status: 'failure', message: e.toString() }));
   }
 }

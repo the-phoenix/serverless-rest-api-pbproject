@@ -74,12 +74,29 @@ functions:
           method: GET
           path: user/{id}
           cors: true
-          integration: lambda
           authorizer:
             name: authorizer
-            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN} 
-            claims:
-              - userName
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+  getFamily:
+    handler: src/handlers/family.get
+    events:
+      - http:
+          method: GET
+          path: family/{id}
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+  joinFamily:
+    handler: src/handlers/family.join
+    events:
+      - http:
+          method: POST
+          path: family/join
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
   preSignup:
     handler: src/handlers/signup.preSignup
     events:

@@ -1,17 +1,29 @@
+import { path } from 'ramda';
+
 export default function parseEvent(event) {
+  let data;
+
+  try {
+    data = JSON.parse(event.body);
+  } catch (e) {
+    console.error('Error occur during parsing request body', e);
+    data = {};
+  }
+
   return {
-    data: JSON.parse(event.body || '{}'),
-    path: event.requestContext.resourcePath,
-    httpMethod: event.requestContext.httpMethod,
-    stage: event.requestContext.stage,
-    params: event.pathParameters,
-    queryParams: event.queryStringParameters
+    body: data,
+    path: path(['requestContext', 'resourcePath'], event),
+    httpMethod: path(['requestContext', 'httpMethod'], event),
+    stage: path(['requestContext', 'stage'], event),
+    params: event.pathParameters || event.path,
+    queryParams: event.queryStringParameters || event.query,
+    cognitoPoolClaims: event.cognitoPoolClaims,
   };
 }
 
 export function parseCognitoPreSignupEvent(event) {
   return {
-    attributes: event.request.userAttributes,
+    attributes: path(['request', 'userAttributes'], event),
     userName: event.userName,
     userPoolId: event.userPoolId,
     validationData: event.validationData

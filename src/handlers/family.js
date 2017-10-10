@@ -1,22 +1,34 @@
 import { success, failure } from 'utils/response';
-import dbClient from 'utils/db-client';
-import Todo from 'controllers/Family';
+import parseEvent from 'utils/parser';
+import FamilyController from 'controllers/Family';
 
-const todo = new Todo(dbClient);
+const family = new FamilyController();
 
-export async function getall(event, context, callback) {
-  // const response = {
-  //   message: 'Go Serverless v1.0! Your function executed successfully!',
-  //   input: event
-  // };
-
+export async function get(event, context, callback) {
   try {
-    const data = await todo.fetchAll();
+    const { params } = parseEvent(event);
+    const data = await family.get(params.id);
+
+    console.log('hey', event.requestContext.authorizer);
 
     callback(null, success(data));
   } catch (e) {
+    console.log('Error from getFamily', e);
     callback(null, failure({ status: 'failure', message: e.toString() }));
   }
 }
 
-export default { getall }; // Add this for test
+export async function join(event, context, callback) {
+  try {
+    const { body } = parseEvent(event);
+
+    const data = await family.join(body.targetMemberToken);
+
+    callback(null, success(data));
+  } catch (e) {
+    console.log('Error from join', e);
+    callback(null, failure({ status: 'failure', message: e.toString() }));
+  }
+}
+
+export default { get, join }; // Add this for test
