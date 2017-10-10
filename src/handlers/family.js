@@ -7,9 +7,7 @@ const family = new FamilyController();
 export async function get(event, context, callback) {
   try {
     const { params, queryParams } = parseEvent(event);
-    const data = await family.get(params.id, queryParams.scope);
-
-    console.log('hey', event.requestContext.authorizer, queryParams);
+    const data = await family.get(params.id, queryParams && queryParams.scope);
 
     callback(null, success(data));
   } catch (e) {
@@ -22,6 +20,7 @@ export async function join(event, context, callback) {
   try {
     const { body } = parseEvent(event);
 
+    console.log('hey', event.requestContext.authorizer);
     const data = await family.join(body.targetMemberToken);
 
     callback(null, success(data));
