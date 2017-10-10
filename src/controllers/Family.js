@@ -1,4 +1,4 @@
-import { isEmpty } from 'ramda';
+import { isEmpty, map, omit } from 'ramda';
 import FamilyModel from 'models/Family';
 import UserModel from 'models/User';
 
@@ -21,7 +21,7 @@ export default class FamilyController {
 
     return {
       ...respData[0].Item,
-      members: respData[1].Items
+      members: map(omit('id'), respData[1].Items)
     };
   }
 
