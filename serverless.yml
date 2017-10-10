@@ -45,6 +45,8 @@ custom:
         sources:
           - table: ${file(fixtures/migrations/family.yml):Properties.TableName}
             sources: [./fixtures/offline-seeds/family.json]
+          - table: ${file(fixtures/migrations/family-user.yml):Properties.TableName}
+            sources: [./fixtures/offline-seeds/family-user.json]
           - table: ${file(fixtures/migrations/user.yml):Properties.TableName}
             sources: [./fixtures/offline-seeds/user.json]
   # capacities:
@@ -59,14 +61,6 @@ custom:
   #       usage: 0.5        # Targeted usage percentage
 
 functions:
-  # todo:
-  #   handler: src/handlers/todo.getall
-  #   events:
-  #     - http:
-  #         method: GET
-  #         path: todos
-  #         cors: true
-          #authorizer: aws_iam
   getUser:
     handler: src/handlers/user.get
     events:
@@ -152,4 +146,5 @@ functions:
 resources:
   Resources:
     familyTable: ${file(fixtures/migrations/family.yml)}
+    familyUserTable: ${file(fixtures/migrations/family-user.yml)}
     userTable: ${file(fixtures/migrations/user.yml)}

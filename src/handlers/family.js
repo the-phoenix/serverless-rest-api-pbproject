@@ -6,10 +6,10 @@ const family = new FamilyController();
 
 export async function get(event, context, callback) {
   try {
-    const { params } = parseEvent(event);
-    const data = await family.get(params.id);
+    const { params, queryParams } = parseEvent(event);
+    const data = await family.get(params.id, queryParams.scope);
 
-    console.log('hey', event.requestContext.authorizer);
+    console.log('hey', event.requestContext.authorizer, queryParams);
 
     callback(null, success(data));
   } catch (e) {

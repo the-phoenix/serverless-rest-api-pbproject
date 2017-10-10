@@ -1,7 +1,7 @@
 import { CognitoIdentityServiceProvider } from 'aws-sdk';
 
 export default class UserModel {
-  constructor(dbClient) {
+  constructor() {
     this.cognito = new CognitoIdentityServiceProvider({ region: 'us-east-1' });
   }
 
@@ -9,9 +9,14 @@ export default class UserModel {
     return this.cognito
       .getUser({ AccessToken: accessToken })
       .promise()
-      .then(data => ({
-      	username: data.Username,
-      	attributes: data.UserAttributes
-      }));
+      .then(data => Object.assign(
+        { username: data.Username },
+        data.UserAttributes.reduce((container, attr) => {
+          const key = attr.Name === 'sub' ? 'userId' : attr.Name;
+
+          container[key] = attr.Value;  // eslint-disable-line
+          return container;
+        }, {})
+      ));
   }
 }

@@ -1,7 +1,8 @@
 import { CognitoIdentityServiceProvider } from 'aws-sdk';
 import dbClient from 'utils/db-client';
 
-const FAMILY_TABLENAME = 'families';
+const FAMILY_TABLENAME = 'Families';
+const FAMILY_USER_TABLENAME = 'FamiliesUsers';
 
 export default class FamilyModel {
   constructor() {
@@ -12,6 +13,16 @@ export default class FamilyModel {
   fetchById(id) {
     const params = {
       TableName: FAMILY_TABLENAME,
+      Key: { id }
+    };
+
+    return this
+      .dbClient('get', params);
+  }
+
+  fetchMembersById(id) {
+    const params = {
+      TableName: FAMILY_USER_TABLENAME,
       KeyConditionExpression: 'id = :hkey',
       ExpressionAttributeValues: {
         ':hkey': id

@@ -8,16 +8,21 @@ export default class FamilyController {
     this.user = new UserModel();
   }
 
-  get(id) {
-    return this.family
-      .fetchById(id)
-      .then((data) => {
-        if (isEmpty(data.Items)) {
-          return Promise.reject(new Error('No family with provided id'));
-        }
+  async get(id, scope) {
+    const promises$ = [this.family.fetchById(id)];
+    const isFull = scope && scope === 'full';
 
-        return data.Items;
-      });
+    isFull && promises$.push(this.family.fetchMembersById(id));
+    const respData = await Promise.all(promises$);
+
+    if (!isFull) {
+      return respData[0].Item;
+    }
+
+    return {
+      ...respData[0].Item,
+      members: respData[1].Items
+    };
   }
 
   join(targetMemberToken) {
@@ -27,12 +32,6 @@ export default class FamilyController {
 
     return this.user
       .getByAccessToken(targetMemberToken)
-      .then(data => {
-        const targetMember = {
-          'username': data.Username,
-          data.UserAttributes
-        }
-        console.log('hey world', data)
-      });
+      .then(data => console.log('hey world', data));
   }
 }
