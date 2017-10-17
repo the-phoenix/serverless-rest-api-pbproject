@@ -49,6 +49,11 @@ custom:
             sources: [./fixtures/offline-seeds/family-user.json]
           - table: ${file(fixtures/migrations/user.yml):Properties.TableName}
             sources: [./fixtures/offline-seeds/user.json]
+#  serverless-mocha-plugin:
+#    preTestCommands:
+#      - bash ./test/support/startOffline.sh
+#    postTestCommands:
+#      - bash ./test/support/stopOffline.sh
   # capacities:
   #   - table: ${self:custom.DB_PREFIX}-todos
   #     read:

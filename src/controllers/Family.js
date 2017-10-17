@@ -25,13 +25,28 @@ export default class FamilyController {
     };
   }
 
-  join(targetMemberToken) {
+  async join(targetMemberToken, myToken) {
     if (isEmpty(targetMemberToken)) {
       return Promise.reject(new Error('targetMemberToken is missing from parameter'));
     }
 
-    return this.user
-      .getByAccessToken(targetMemberToken)
-      .then(data => console.log('hey world', data));
+    const targetData = await this.user.getByAccessToken(targetMemberToken);
+    const me = await this.user.getByAccessToken(myToken);
+
+    if (targetData['custom:type'] !== 'parent') {
+      return Promise.reject(new Error('targetMember should be parent'));
+    }
+
+    let targetFamily;
+    const targetFamilies = await this.family.fetchMembersById(targetData.userId);
+    if (!targetFamilies.length) {
+      targetFamily = await this.family.createFamily(targetData);
+      await this.family.joinFamily(targetFamily.id, [targetData, me]);
+    } else {
+      [targetFamily] = targetFamilies;
+      await this.family.joinFamily(targetFamily.id, [me]);
+    }
+
+    return targetData;
   }
 }

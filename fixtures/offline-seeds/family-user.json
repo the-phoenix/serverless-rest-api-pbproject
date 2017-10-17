@@ -3,26 +3,25 @@
     "userId": "c64a67b1-fbcc-40fc-8183-abce228c5617",
     "created": 1506423488524,
     "userSummary": {
-        "username": "James",
-        "email": "jameslin@gmx.hk",
-        "type": "parent"
+      "username": "James",
+      "type": "parent"
     }
 }, {
     "id": "c796d733-9779-45c5-a130-20fd1fd0b652",
     "userId": "dc3e0ab5-45d9-494a-b94e-b5a9840a78c5",
     "created": 1506423488524,
     "userSummary": {
-        "username": "JamesBoy",
-        "type": "child",
-        "balance": 0
+      "username": "JamesBoy",
+      "type": "child",
+      "balance": 0
     }
 }, {
     "id": "c796d733-9779-45c5-a130-20fd1fd0b652",
     "userId": "865f6e20-01bd-4aea-b092-a035dca754cd",
     "created": 1506423488524,
     "userSummary": {
-        "username": "JamesGirl",
-        "type": "child",
-        "balance": 0
+      "username": "JamesGirl",
+      "type": "child",
+      "balance": 0
     }
 }]
