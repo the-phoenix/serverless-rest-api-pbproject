@@ -47,7 +47,9 @@
   },
   "dependencies": {
     "aws-sdk": "^2.122.0",
-    "ramda": "^0.24.1"
+    "pluralize": "^7.0.0",
+    "ramda": "^0.24.1",
+    "swearjar": "^0.2.0"
   },
   "lint-staged": {
     "src/**/*.js": [
