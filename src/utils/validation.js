@@ -1,5 +1,5 @@
 import pluralize from 'pluralize';
-import { profane } from 'swearjar';
+import swearjar from 'swearjar';
 
 const stripSpecial = str => str.replace(/[^a-zA-Z ]/g, '');
 
@@ -11,11 +11,11 @@ export const checkIfReserved = (str) => {
     'grandpa', 'granpa', 'grandma', 'granma', 'bro', 'sis', 'cuz', 'him', 'his', 'her', 'his'
   ];
 
-  return !!(reservedWords.map(word => word === stripped || pluralize(word) === stripped).length);
+  return !!(reservedWords.filter(word => word === stripped || pluralize(word) === stripped).length);
 };
 
 export const checkIfProfane = (str) => {
   const stripped = stripSpecial(str);
 
-  return profane(stripped);
+  return swearjar.profane(stripped);
 };

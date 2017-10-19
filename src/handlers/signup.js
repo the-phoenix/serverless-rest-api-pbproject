@@ -1,30 +1,39 @@
 import { parseCognitoPreSignupEvent } from 'utils/parser';
-import { checkIfReserved, checkIfProfane } from 'utils/validation';
+import UserController from 'controllers/User';
+
+const user = new UserController();
 
 export async function preSignup(event, context) {
-  const { userName } = parseCognitoPreSignupEvent(event);
-  const validExp = /^[a-zA-Z]+[\w\d\.\-_]*$/; // eslint-disable-line
+  const {
+    validationData: { pureUserName },
+    attributes
+  } = parseCognitoPreSignupEvent(event);
 
-  if (!validExp.test(userName)) {
+  const offlineValidationMsg = user.validateUserNameOffline(pureUserName);
+
+  if (offlineValidationMsg) {
     return context.done(JSON.stringify({
       errorType: 'username validation error',
-      errorMessage: 'username can only have A-Z a-z dot(.) underscore(_) and dash(-)'
+      errorMessage: offlineValidationMsg
     }), event);
-  } else if (userName.length < 3 || userName.length > 16) {
-    return context.done(JSON.stringify({
-      errorType: 'username validation error',
-      errorMessage: 'username must have length between 3 ~ 16 chars'
-    }), event);
-  } else if (checkIfReserved(userName)) {
-    return context.done(JSON.stringify({
-      errorType: 'username validation error',
-      errorMessage: 'given username is reserved one'
-    }), event);
-  } else if (checkIfProfane(userName)) {
-    return context.done(JSON.stringify({
-      errorType: 'username validation error',
-      errorMessage: 'given username is not civilized one'
-    }), event);
+  }
+
+  if (attributes['custom:type'] === 'parent') {
+    let errorMessage;
+    try {
+      if (await user.checkHasParentWithGivenEmail(attributes.email)) {
+        errorMessage = 'This email is already registered';
+      }
+    } catch (e) {
+      errorMessage = e.toString();
+    }
+
+    if (errorMessage) {
+      return context.done(JSON.stringify({
+        errorType: 'email validation error',
+        errorMessage
+      }), event);
+    }
   }
 
   event.response.autoConfirmUser = true; // eslint-disable-line

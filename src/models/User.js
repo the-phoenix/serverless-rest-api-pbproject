@@ -28,4 +28,17 @@ export default class UserModel {
         return container;
       }, {}));
   }
+
+  fetchByAttribute(attribName, attribValue, userPoolId) {
+    // Note that you can't search for custom attributes
+    const params = {
+      UserPoolId: userPoolId || process.env.COGNITO_POOL_ID,
+      Filter: `${attribName} = "${attribValue}"`
+    };
+
+    return this.cognito
+      .listUsers(params)
+      .promise()
+      .then(data => data.Users);
+  }
 }

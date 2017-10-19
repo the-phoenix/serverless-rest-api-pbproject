@@ -29,10 +29,12 @@ provider:
   environment:
     SERVICE_NAME: ${self:service}
     DB_PREFIX: ${self:custom.DB_PREFIX}
+    COGNITO_POOL_ID: ${self:custom.COGNITO_POOL_ID}
 
 custom:
   stage: ${opt:stage, self:provider.stage}
   DB_PREFIX: ${self:service}-${file(./config.yml):${self:custom.stage}.DB_PREFIX}
+  COGNITO_POOL_ID: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ID}
   webpackIncludeModules: true
   dynamodb:
     start:
