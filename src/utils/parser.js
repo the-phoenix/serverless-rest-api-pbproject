@@ -26,6 +26,6 @@ export function parseCognitoPreSignupEvent(event) {
     attributes: path(['request', 'userAttributes'], event),
     userName: event.userName,
     userPoolId: event.userPoolId,
-    validationData: event.validationData
+    validationData: path(['request', 'validationData'], event) || {}
   };
 }

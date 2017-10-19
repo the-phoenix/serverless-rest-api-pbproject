@@ -68,16 +68,16 @@ custom:
   #       usage: 0.5        # Targeted usage percentage
 
 functions:
-  getUser:
-    handler: src/handlers/user.get
-    events:
-      - http:
-          method: GET
-          path: user/{id}
-          cors: true
-          authorizer:
-            name: authorizer
-            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+#  getUser:
+#    handler: src/handlers/user.get
+#    events:
+#      - http:
+#          method: GET
+#          path: user/{id}
+#          cors: true
+#          authorizer:
+#            name: authorizer
+#            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
   getFamily:
     handler: src/handlers/family.get
     events:
@@ -104,6 +104,7 @@ functions:
       - cognitoUserPool:
           pool: PennyboxAppUsers-${self:custom.stage}
           trigger: PreSignUp
+          timeout: 5
 
           #authorizer: aws_iam
 

@@ -10,7 +10,7 @@ export default class User {
     const validExp = /^[a-zA-Z]+[\w\d\.\-_]*$/; // eslint-disable-line
 
     if (!validExp.test(userName)) {
-      return 'username can only have A-Z a-z dot(.) underscore(_) and dash(-)';
+      return 'username can only have a-z dot(.) underscore(_) and dash(-)';
     } else if (userName.length < 3 || userName.length > 16) {
       return 'username must have length between 3 ~ 16 chars';
     } else if (checkIfReserved(userName)) {

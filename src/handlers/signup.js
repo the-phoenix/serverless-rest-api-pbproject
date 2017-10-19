@@ -1,3 +1,4 @@
+import { path } from 'ramda';
 import { parseCognitoPreSignupEvent } from 'utils/parser';
 import UserController from 'controllers/User';
 
@@ -5,10 +6,19 @@ const user = new UserController();
 
 export async function preSignup(event, context) {
   const {
-    attributes
+    attributes,
+    validationData,
   } = parseCognitoPreSignupEvent(event);
 
-  const pureUserName = attributes.preferred_username;
+  const pureUserName = path(['pureUserName'], validationData);
+
+  if (!pureUserName) {
+    return context.done(JSON.stringify({
+      errorType: 'username validation error',
+      errorMessage: 'pureUserName is missing in validationData',
+    }), event);
+  }
+
   const offlineValidationMsg = user.validateUserNameOffline(pureUserName);
 
   if (offlineValidationMsg) {
