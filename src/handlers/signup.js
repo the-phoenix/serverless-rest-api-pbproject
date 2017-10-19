@@ -5,10 +5,10 @@ const user = new UserController();
 
 export async function preSignup(event, context) {
   const {
-    validationData: { pureUserName },
     attributes
   } = parseCognitoPreSignupEvent(event);
 
+  const pureUserName = attributes.preferred_username;
   const offlineValidationMsg = user.validateUserNameOffline(pureUserName);
 
   if (offlineValidationMsg) {

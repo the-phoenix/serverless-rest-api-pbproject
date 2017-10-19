@@ -1,9 +1,7 @@
 {
   "userName": "james-funnyrandom",
   "userPoolId": "us-east-1_TMmCoPWuF",
-  "validationData": {
-    "pureUserName": "james"
-  },
+  "validationData": null,
   "request": {
     "userAttributes": {
       "custom:type": "parent",
