@@ -25,6 +25,12 @@ provider:
         - "dynamodb:*"
       Resource:
         - "arn:aws:dynamodb:us-east-1:*"
+    - Effect: Allow
+      Action:
+        - "cognito-idp:*"
+      Resource:
+        - "arn:aws:cognito-idp:us-east-1:*"
+
 # you can define service wide environment variables here
   environment:
     SERVICE_NAME: ${self:service}

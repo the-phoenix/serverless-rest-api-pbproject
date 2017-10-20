@@ -5,15 +5,22 @@ import FamilyController from 'controllers/Family';
 const family = new FamilyController();
 
 export async function get(event, context, callback) {
+  let response;
+
   try {
     const { params, queryParams } = parseEvent(event);
     const data = await family.get(params.id, queryParams && queryParams.scope);
-
-    callback(null, success(data));
+    if (!data) {
+      response = failure(new Error('Not existing family'), 404);
+    } else {
+      response = success(JSON.stringify(data));
+    }
   } catch (e) {
     console.log('Error from getFamily', e);
-    callback(null, failure({ status: 'failure', message: e.toString() }));
+    response = failure(e);
   }
+
+  callback(null, response);
 }
 
 export async function join(event, context, callback) {
