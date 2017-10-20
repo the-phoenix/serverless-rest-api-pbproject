@@ -28,22 +28,24 @@ export async function preSignup(event, context) {
     }), event);
   }
 
-  if (attributes['custom:type'] === 'parent') {
-    let errorMessage;
-    try {
-      if (await user.checkHasParentWithGivenEmail(attributes.email)) {
-        errorMessage = 'This email is already registered';
-      }
-    } catch (e) {
-      errorMessage = e.toString();
-    }
-
-    if (errorMessage) {
+  try {
+    if (await user.checkUsedPreferredName(pureUserName)) {
+      return context.done(JSON.stringify({
+        errorType: 'username validation error',
+        errorMessage: 'This username is already registered'
+      }), event);
+    } else if (attributes['custom:type'] === 'parent'
+      && await user.checkHasParentWithGivenEmail(attributes.email)) {
       return context.done(JSON.stringify({
         errorType: 'email validation error',
-        errorMessage
+        errorMessage: 'This email is already registered'
       }), event);
     }
+  } catch (e) {
+    return context.done(JSON.stringify({
+      errorType: 'validation error',
+      errorMessage: e.toString()
+    }), event);
   }
 
   event.response.autoConfirmUser = true; // eslint-disable-line

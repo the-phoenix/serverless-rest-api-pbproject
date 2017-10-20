@@ -36,4 +36,10 @@ export default class User {
             (attrib.Name === 'email' && attrib.Value === email)).length === 2);
       });
   }
+
+  async checkUsedPreferredName(preferredUsername) {
+    return this.user
+      .fetchByAttribute('preferred_username', preferredUsername)
+      .then(Users => !!Users.length);
+  }
 }

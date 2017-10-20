@@ -1,15 +1,15 @@
 {
   "userName": "james-funnyrandom",
   "userPoolId": "us-east-1_TMmCoPWuF",
-  "validationData": {
-    "pureUserName": "james"
-  },
   "request": {
     "userAttributes": {
       "custom:type": "parent",
       "name": "James",
       "phone_number": "+12345550100",
       "email": "jameslin@gmx.hk"
+    },
+    "validationData": {
+      "pureUserName": "james"
     }
   },
   "response": {}
