@@ -42,4 +42,9 @@ export default class User {
       .fetchByAttribute('preferred_username', preferredUsername)
       .then(Users => !!Users.length);
   }
+
+  async addUserToGroup(...args) {
+    return this.user
+      .addUserToGroup(...args);
+  }
 }

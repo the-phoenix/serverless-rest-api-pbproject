@@ -41,4 +41,16 @@ export default class UserModel {
       .promise()
       .then(data => data.Users);
   }
+
+  addUserToGroup(userName, groupName, userPoolId) {
+    const params = {
+      UserPoolId: userPoolId || process.env.COGNITO_POOL_ID,
+      GroupName: groupName,
+      Username: userName
+    };
+
+    return this.cognito
+      .adminAddUserToGroup(params)
+      .promise();
+  }
 }

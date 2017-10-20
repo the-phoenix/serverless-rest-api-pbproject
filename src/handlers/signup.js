@@ -1,5 +1,5 @@
-import { path } from 'ramda';
-import { parseCognitoPreSignupEvent } from 'utils/parser';
+import { path, pathOr } from 'ramda';
+import { parseCognitoEvent } from 'utils/parser';
 import UserController from 'controllers/User';
 
 const user = new UserController();
@@ -8,7 +8,7 @@ export async function preSignup(event, context) {
   const {
     attributes,
     validationData,
-  } = parseCognitoPreSignupEvent(event);
+  } = parseCognitoEvent(event);
 
   const pureUserName = path(['pureUserName'], validationData);
 
@@ -53,4 +53,28 @@ export async function preSignup(event, context) {
   return context.done(null, event);
 }
 
-export default { preSignup }; // Add this for test
+export async function postConfirmation(event, context) {
+  const {
+    attributes,
+    userPoolId,
+    userName
+  } = parseCognitoEvent(event);
+
+  console.log('Want to see event', JSON.stringify(event));
+  try {
+    const groupName = pathOr('child', ['custom:type'], attributes) === 'child'
+      ? 'Child' : 'Parent';
+    console.log('Target Group', groupName);
+
+    await user.addUserToGroup(userName, groupName, userPoolId);
+  } catch (e) {
+    return context.done(JSON.stringify({
+      errorType: 'add user to group',
+      errorMessage: e.toString()
+    }), event);
+  }
+
+  return context.done(null, event);
+}
+
+export default { preSignup, postConfirmation }; // Add this for test

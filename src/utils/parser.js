@@ -21,7 +21,7 @@ export default function parseEvent(event) {
   };
 }
 
-export function parseCognitoPreSignupEvent(event) {
+export function parseCognitoEvent(event) {
   return {
     attributes: path(['request', 'userAttributes'], event),
     userName: event.userName,

@@ -19,6 +19,10 @@ provider:
   stage: dev
 # stage: prod
   region: us-east-1
+  environment:
+    SERVICE_NAME: ${self:service}
+    DB_PREFIX: ${self:custom.DB_PREFIX}
+    COGNITO_POOL_ID: ${self:custom.COGNITO_POOL_ID}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -30,12 +34,6 @@ provider:
         - "cognito-idp:*"
       Resource:
         - "arn:aws:cognito-idp:us-east-1:*"
-
-# you can define service wide environment variables here
-  environment:
-    SERVICE_NAME: ${self:service}
-    DB_PREFIX: ${self:custom.DB_PREFIX}
-    COGNITO_POOL_ID: ${self:custom.COGNITO_POOL_ID}
 
 custom:
   stage: ${opt:stage, self:provider.stage}
@@ -101,6 +99,7 @@ functions:
           method: POST
           path: family/join
           cors: true
+          #authorizer: aws_iam
           authorizer:
             name: authorizer
             arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
@@ -112,7 +111,12 @@ functions:
           trigger: PreSignUp
           timeout: 5
 
-          #authorizer: aws_iam
+  postConfirmation:
+    handler: src/handlers/signup.postConfirmation
+    events:
+      - cognitoUserPool:
+          pool: PennyboxAppUsers-${self:custom.stage}
+          trigger: PostConfirmation
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
