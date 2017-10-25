@@ -72,16 +72,14 @@ custom:
   #       usage: 0.5        # Targeted usage percentage
 
 functions:
-#  getUser:
-#    handler: src/handlers/user.get
-#    events:
-#      - http:
-#          method: GET
-#          path: user/{id}
-#          cors: true
-#          authorizer:
-#            name: authorizer
-#            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+  checkHealth:
+    handler: src/handlers/misc.health
+    events:
+      - http:
+          method: GET
+          path: health
+          cors: true
+          #authorizer: aws_iam
   getMe:
     handler: src/handlers/user.getMe
     events:

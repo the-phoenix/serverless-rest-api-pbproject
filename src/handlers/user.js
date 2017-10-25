@@ -8,10 +8,8 @@ export async function getMe(event, context, callback) {
   let response;
   try {
     const { currentUser, queryParams } = parseEvent(event);
-    console.log('query params', queryParams);
     if (queryParams.scope === 'full') {
       const familyInfo = await family.fetchByUserId(currentUser.userId);
-      console.log('family', familyInfo);
       currentUser.family = familyInfo;
     }
 
