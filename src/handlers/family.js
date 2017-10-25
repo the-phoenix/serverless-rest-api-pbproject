@@ -6,10 +6,10 @@ const family = new FamilyController();
 
 export async function get(event, context, callback) {
   let response;
-
+  // console.log('HEY Show me event', JSON.stringify(event));
   try {
     const { params, queryParams } = parseEvent(event);
-    const data = await family.get(params.id, queryParams && queryParams.scope);
+    const data = await family.get(params.id, queryParams.scope);
     if (!data) {
       response = failure(new Error('Not existing family'), 404);
     } else {

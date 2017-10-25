@@ -37,7 +37,7 @@ export default class FamilyModel {
 
   fetchByMember(memberId) {
     const params = {
-      TableName: FAMILY_TABLENAME,
+      TableName: FAMILY_USER_TABLENAME,
       IndexName: 'id-userId-index',
       KeyConditionExpression: 'userId = :hkey',
       ExpressionAttributeValues: {

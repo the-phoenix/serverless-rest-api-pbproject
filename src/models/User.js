@@ -5,13 +5,21 @@ export default class UserModel {
     this.cognito = new CognitoIdentityServiceProvider({ region: 'us-east-1' });
   }
 
-  attribNameMapper(origin) { // eslint-disable-line
+  static attribNameMapper(origin) { // eslint-disable-line
     if (origin === 'sub') {
       return 'userId';
     }
 
     if (origin === 'preferred_username') {
       return 'username';
+    }
+
+    if (origin === 'custom:type') {
+      return 'type';
+    }
+
+    if (origin === 'cognito:groups') {
+      return 'groups';
     }
 
     return origin;

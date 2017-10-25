@@ -82,6 +82,16 @@ functions:
 #          authorizer:
 #            name: authorizer
 #            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+  getMe:
+    handler: src/handlers/user.getMe
+    events:
+      - http:
+          method: GET
+          path: user/me
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
   getFamily:
     handler: src/handlers/family.get
     events:

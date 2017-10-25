@@ -25,6 +25,13 @@ export default class FamilyController {
     };
   }
 
+  async fetchByUserId(id) {
+    const familyUserData = await this.family.fetchByMember(id);
+    const promises$ = familyUserData.Items.map(family => this.get(family.id));
+
+    return Promise.all(promises$);
+  }
+
   async join(targetMemberToken, myToken) {
     if (isEmpty(targetMemberToken)) {
       return Promise.reject(new Error('targetMemberToken is missing from parameter'));
