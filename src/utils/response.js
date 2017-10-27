@@ -10,8 +10,8 @@ function buildResponse(statusCode, body) {
   };
 }
 
-export function success(body) {
-  return buildResponse(200, body);
+export function success(body, isCreated) {
+  return buildResponse(isCreated ? 201 : 200, body);
 }
 
 export function failure(err, statusCode = 500) {

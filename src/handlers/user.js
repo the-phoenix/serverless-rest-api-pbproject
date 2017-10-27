@@ -6,6 +6,7 @@ const family = new FamilyController();
 
 export async function getMe(event, context, callback) {
   let response;
+  console.log('Get event obj', JSON.stringify(event));
   try {
     const { currentUser, queryParams } = parseEvent(event);
     if (queryParams.scope === 'full') {

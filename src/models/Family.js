@@ -48,43 +48,37 @@ export default class FamilyModel {
     return this.dbClient('query', params);
   }
 
-  createFamily(familyAdminUser) {
-    const WHITE_LIST = ['userId', 'email'];
+  create(familyAdminUser) {
+    const SUMMARY_WHITE_LIST = ['userId', 'email'];
     const params = {
       TableName: FAMILY_TABLENAME,
       Item: {
         id: uuidv1(),
         name: `${familyAdminUser.name}'s Family`,
         created: new Date(),
-        adminSummary: pick(WHITE_LIST, familyAdminUser)
+        adminSummary: pick(SUMMARY_WHITE_LIST, familyAdminUser)
       }
     };
 
     return this.dbClient('put', params);
   }
 
-  joinFamily(familyId, members) {
-    const joinPromises = members.map((member) => {
-      const params = {
-        TableName: FAMILY_USER_TABLENAME,
-        Item: {
-          id: familyId,
-          userId: member.userId,
-          created: new Date(),
-          userSummary: {
-            username: members.username,
-            type: members['custom:type'],
-          }
-        }
-      };
-
-      if (members['custom:type'] === 'child') {
-        params.Item.userSummary.balance = 0;
+  join(familyId, member) {
+    const SUMMARY_WHITE_LIST = ['username', 'type'];
+    const params = {
+      TableName: FAMILY_USER_TABLENAME,
+      Item: {
+        id: familyId,
+        userId: member.userId,
+        created: new Date(),
+        userSummary: pick(SUMMARY_WHITE_LIST, member)
       }
+    };
 
-      return this.dbClient('put', params);
-    });
+    if (member.type === 'child') {
+      params.Item.userSummary.balance = 0;
+    }
 
-    return Promise.all(joinPromises);
+    return this.dbClient('put', params);
   }
 }

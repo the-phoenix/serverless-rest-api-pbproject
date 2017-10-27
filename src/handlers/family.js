@@ -1,5 +1,6 @@
+import { decode } from 'jsonwebtoken';
 import { success, failure } from 'utils/response';
-import parseEvent from 'utils/parser';
+import parseEvent, { parseCognitoUser } from 'utils/parser';
 import FamilyController from 'controllers/Family';
 
 const family = new FamilyController();
@@ -23,18 +24,40 @@ export async function get(event, context, callback) {
   callback(null, response);
 }
 
-export async function join(event, context, callback) {
+export async function create(event, context, callback) {
   try {
-    const { body } = parseEvent(event);
+    const { currentUser } = parseEvent(event);
 
-    console.log('hey', event.requestContext.authorizer);
-    const data = await family.join(body.targetMemberToken);
+    if (currentUser.type !== 'parent') {
+      return callback(null, failure(new Error('Only Parent user can create family'), 400));
+    }
 
-    callback(null, success(data));
+    const data = await family.create(currentUser);
+
+    return callback(null, success(JSON.stringify(data), true));
   } catch (e) {
-    console.log('Error from join', e);
-    callback(null, failure({ status: 'failure', message: e.toString() }));
+    console.log('Error from createFamily', e);
+
+    return callback(null, failure(e));
   }
 }
 
-export default { get, join }; // Add this for test
+export async function join(event, context, callback) {
+  try {
+    const { currentUser, body } = parseEvent(event);
+
+    if (!body.familyId) {
+      return callback(null, failure(new Error('familyId is missing'), 400));
+    }
+
+    await this.family.join(currentUser, body.familyId);
+
+    return callback(null, success(JSON.stringify({ message: 'joined ' })));
+  } catch (e) {
+    console.log('Error from join', e);
+
+    return callback(null, failure(e));
+  }
+}
+
+export default { get, create, join }; // Add this for test

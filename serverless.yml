@@ -100,6 +100,16 @@ functions:
           authorizer:
             name: authorizer
             arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+  createFamily:
+    handler: src/handlers/family.create
+    events:
+      - http:
+          method: POST
+          path: family
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
   joinFamily:
     handler: src/handlers/family.join
     events:
@@ -107,7 +117,6 @@ functions:
           method: POST
           path: family/join
           cors: true
-          #authorizer: aws_iam
           authorizer:
             name: authorizer
             arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}

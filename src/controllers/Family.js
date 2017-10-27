@@ -1,4 +1,4 @@
-import { isEmpty, map, omit } from 'ramda';
+import { map, omit } from 'ramda';
 import FamilyModel from 'models/Family';
 import UserModel from 'models/User';
 
@@ -25,35 +25,32 @@ export default class FamilyController {
     };
   }
 
-  async fetchByUserId(id) {
-    const familyUserData = await this.family.fetchByMember(id);
+  async fetchByUserId(userId) {
+    const familyUserData = await this.family.fetchByMember(userId);
     const promises$ = familyUserData.Items.map(family => this.get(family.id));
 
     return Promise.all(promises$);
   }
 
-  async join(targetMemberToken, myToken) {
-    if (isEmpty(targetMemberToken)) {
-      return Promise.reject(new Error('targetMemberToken is missing from parameter'));
+  async create(familyAdmin) {
+    const familyUserData = await this.family.fetchByMember(familyAdmin.userId);
+    if (familyUserData.length > 2) {
+      return Promise.reject(new Error('maximum available families are 2'));
     }
 
-    const targetData = await this.user.getByAccessToken(targetMemberToken);
-    const me = await this.user.getByAccessToken(myToken);
+    const newFamily = await this.family.create(familyAdmin);
+    await this.family.join(newFamily.id, familyAdmin);
 
-    if (targetData['custom:type'] !== 'parent') {
-      return Promise.reject(new Error('targetMember should be parent'));
+    return newFamily;
+  }
+
+  async join(user, targetFamilyId) {
+    const familyUserData = await this.family.fetchByMember(user.userId);
+
+    if (familyUserData.length > 2) {
+      return Promise.reject(new Error('maximum available families are 2'));
     }
 
-    let targetFamily;
-    const targetFamilies = await this.family.fetchMembersById(targetData.userId);
-    if (!targetFamilies.length) {
-      targetFamily = await this.family.createFamily(targetData);
-      await this.family.joinFamily(targetFamily.id, [targetData, me]);
-    } else {
-      [targetFamily] = targetFamilies;
-      await this.family.joinFamily(targetFamily.id, [me]);
-    }
-
-    return targetData;
+    return this.family.join(targetFamilyId, user);
   }
 }
