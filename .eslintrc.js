@@ -9,7 +9,8 @@ module.exports = {
     "react/require-extension" : "off",
     "import/no-extraneous-dependencies" : "off",
     "comma-dangle": "off",
-    "no-unused-expressions": "off"
+    "no-unused-expressions": "off",
+    "no-console": 'off'
   },
   "env": {
     "mocha": true

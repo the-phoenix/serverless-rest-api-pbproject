@@ -61,4 +61,16 @@ export default class UserModel {
       .adminAddUserToGroup(params)
       .promise();
   }
+
+  updateAttribute(user, attributes, userPoolId) {
+    const params = {
+      UserPoolId: userPoolId || process.env.COGNITO_POOL_ID,
+      Username: user['cognito:username'],
+      UserAttributes: attributes
+    };
+
+    return this.cognito
+      .adminUpdateUserAttributes(params)
+      .promise();
+  }
 }

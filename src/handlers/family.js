@@ -1,13 +1,12 @@
-import { decode } from 'jsonwebtoken';
 import { success, failure } from 'utils/response';
-import parseEvent, { parseCognitoUser } from 'utils/parser';
+import parseEvent from 'utils/parser';
 import FamilyController from 'controllers/Family';
 
 const family = new FamilyController();
 
 export async function get(event, context, callback) {
   let response;
-  // console.log('HEY Show me event', JSON.stringify(event));
+
   try {
     const { params, queryParams } = parseEvent(event);
     const data = await family.get(params.id, queryParams.scope);
@@ -50,7 +49,7 @@ export async function join(event, context, callback) {
       return callback(null, failure(new Error('familyId is missing'), 400));
     }
 
-    await this.family.join(currentUser, body.familyId);
+    await family.join(currentUser, body.familyId);
 
     return callback(null, success(JSON.stringify({ message: 'joined ' })));
   } catch (e) {

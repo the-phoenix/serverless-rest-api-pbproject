@@ -60,11 +60,12 @@ export default class FamilyModel {
       }
     };
 
-    return this.dbClient('put', params);
+    return this.dbClient('put', params).then(() => params.Item);
   }
 
   join(familyId, member) {
     const SUMMARY_WHITE_LIST = ['username', 'type'];
+
     const params = {
       TableName: FAMILY_USER_TABLENAME,
       Item: {

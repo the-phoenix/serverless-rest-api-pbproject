@@ -14,7 +14,7 @@ export async function preSignup(event, context) {
 
   if (!pureUserName) {
     return context.done(JSON.stringify({
-      errorType: 'username validation error',
+      errorType: 'validation error',
       errorMessage: 'pureUserName is missing in validationData',
     }), event);
   }

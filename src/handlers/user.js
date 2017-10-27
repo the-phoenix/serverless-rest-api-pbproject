@@ -7,12 +7,12 @@ const family = new FamilyController();
 export async function getMe(event, context, callback) {
   let response;
   console.log('Get event obj', JSON.stringify(event));
+
   try {
-    const { currentUser, queryParams } = parseEvent(event);
-    if (queryParams.scope === 'full') {
-      const familyInfo = await family.fetchByUserId(currentUser.userId);
-      currentUser.family = familyInfo;
-    }
+    const { currentUser } = parseEvent(event);
+
+    const familyInfo = await family.fetchByUserId(currentUser.userId);
+    currentUser.family = familyInfo;
 
     response = success(JSON.stringify(currentUser));
   } catch (e) {

@@ -2,7 +2,7 @@ import { path, pathOr, pick } from 'ramda';
 import User from 'models/User';
 
 export function parseCognitoUser(user) {
-  const WHITE_LIST = ['sub', 'custom:type', 'cognito:groups', 'email', 'preferred_username', 'phone_number', 'name'];
+  const WHITE_LIST = ['sub', 'cognito:username', 'custom:type', 'cognito:groups', 'email', 'preferred_username', 'phone_number', 'name'];
 
   return Object.keys(pick(WHITE_LIST, user)).reduce((container, attribName) => {
     const newAttribName = User.attribNameMapper(attribName);
@@ -13,13 +13,15 @@ export function parseCognitoUser(user) {
 }
 
 export default function parseEvent(event) {
-  let data;
+  let data = {};
 
-  try {
-    data = JSON.parse(event.body);
-  } catch (e) {
-    console.error('Error occur during parsing request body', e);
-    data = {};
+  if (event.body) {
+    try {
+      data = JSON.parse(event.body);
+    } catch (e) {
+      console.error('Error occur during parsing request body', e);
+      data = {};
+    }
   }
 
   return {

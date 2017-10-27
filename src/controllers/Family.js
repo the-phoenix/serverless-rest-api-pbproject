@@ -1,4 +1,4 @@
-import { map, omit } from 'ramda';
+import { map, omit, isEmpty } from 'ramda';
 import FamilyModel from 'models/Family';
 import UserModel from 'models/User';
 
@@ -34,23 +34,49 @@ export default class FamilyController {
 
   async create(familyAdmin) {
     const familyUserData = await this.family.fetchByMember(familyAdmin.userId);
-    if (familyUserData.length > 2) {
+    if (familyUserData.Count > 2) {
       return Promise.reject(new Error('maximum available families are 2'));
     }
 
     const newFamily = await this.family.create(familyAdmin);
+
     await this.family.join(newFamily.id, familyAdmin);
 
     return newFamily;
   }
 
   async join(user, targetFamilyId) {
-    const familyUserData = await this.family.fetchByMember(user.userId);
-
-    if (familyUserData.length > 2) {
-      return Promise.reject(new Error('maximum available families are 2'));
+    const family = await this.family.fetchById(targetFamilyId);
+    if (isEmpty(family.Item)) {
+      return Promise.reject(new Error('not existing family'));
     }
 
-    return this.family.join(targetFamilyId, user);
+    const familyUserData = await this.family.fetchByMember(user.userId);
+
+    if (familyUserData.Count > 2) {
+      return Promise.reject(new Error('maximum available families are 2'));
+    } else if (familyUserData.Items.find(item => item.id === targetFamilyId)) {
+      return Promise.reject(new Error('already member of target family'));
+    }
+
+    const promises$ = [
+      this.family.join(targetFamilyId, user)
+    ];
+
+    // copy family admin email to child's email
+    if (user.type === 'child' && !user.email) {
+      promises$.push(this.user.updateAttribute(user, [
+        {
+          Name: 'email',
+          Value: family.Item.adminSummary.email
+        },
+        {
+          Name: 'email_verified',
+          Value: 'true'
+        }
+      ]));
+    }
+
+    return Promise.all(promises$);
   }
 }
