@@ -54,8 +54,8 @@ export default class FamilyModel {
       TableName: FAMILY_TABLENAME,
       Item: {
         id: uuidv1(),
-        name: `${familyAdminUser.name}'s Family`,
-        created: new Date(),
+        name: `${familyAdminUser.name || familyAdminUser.username}'s Family`,
+        created: (new Date()).getTime(),
         adminSummary: pick(SUMMARY_WHITE_LIST, familyAdminUser)
       }
     };

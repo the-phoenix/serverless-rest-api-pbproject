@@ -23,4 +23,11 @@ export async function getMe(event, context, callback) {
   callback(null, response);
 }
 
+export async function remove(event, context, callback) {
+  callback(null, {
+    statusCode: 200,
+    body: 'Not implemented yet',
+  });
+}
+
 export default { getMe };

@@ -73,4 +73,13 @@ export default class UserModel {
       .adminUpdateUserAttributes(params)
       .promise();
   }
+
+  deleteUser(cognitoUserName, userPoolId) {
+    const params = {
+      UserPoolId: userPoolId || process.env.COGNITO_POOL_ID,
+      Username: cognitoUserName
+    };
+
+    return this.cognito.adminDeleteUser(params);
+  }
 }
