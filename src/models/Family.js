@@ -1,7 +1,7 @@
-import { CognitoIdentityServiceProvider } from 'aws-sdk';
 import { pick } from 'ramda';
 import uuidv1 from 'uuid/v1';
 import dbClient from 'utils/db-client';
+import UserModel from './User';
 
 const FAMILY_TABLENAME = 'Families';
 const FAMILY_USER_TABLENAME = 'FamiliesUsers';
@@ -9,7 +9,7 @@ const FAMILY_USER_TABLENAME = 'FamiliesUsers';
 export default class FamilyModel {
   constructor() {
     this.dbClient = dbClient;
-    this.cognito = new CognitoIdentityServiceProvider();
+    this.user = new UserModel();
   }
 
   fetchById(id) {
@@ -18,11 +18,12 @@ export default class FamilyModel {
       Key: { id }
     };
 
-    return this
-      .dbClient('get', params);
+    return this.dbClient('get', params);
   }
 
   fetchMembersById(id) {
+    const PULL_FROM_COGNITO = ['picture', 'username', 'email'];
+
     const params = {
       TableName: FAMILY_USER_TABLENAME,
       KeyConditionExpression: 'id = :hkey',
@@ -32,7 +33,21 @@ export default class FamilyModel {
     };
 
     return this
-      .dbClient('query', params);
+      .dbClient('query', params)
+      .then(({ Items }) => {
+        const promises = Items.map(member =>
+          this.user
+            .getByCognitoUsername(member.userSummary['cognito:username'])
+            .then(cognitoUser => ({
+              ...member,
+              userSummary: {
+                ...member.userSummary,
+                ...pick(PULL_FROM_COGNITO, cognitoUser)
+              }
+            })));
+
+        return Promise.all(promises);
+      });
   }
 
   fetchByMember(memberId) {
@@ -64,7 +79,7 @@ export default class FamilyModel {
   }
 
   join(familyId, member) {
-    const SUMMARY_WHITE_LIST = ['username', 'type'];
+    const SUMMARY_WHITE_LIST = ['username', 'type', 'cognito:username'];
 
     const params = {
       TableName: FAMILY_USER_TABLENAME,
@@ -77,9 +92,22 @@ export default class FamilyModel {
     };
 
     if (member.type === 'child') {
-      params.Item.userSummary.balance = 0;
+      params.Item.userSummary = {
+        ...params.Item.userSummary,
+        balance: 0,
+        completedJobs: 0
+      };
     }
 
     return this.dbClient('put', params);
+  }
+
+  checkIsFamilyMember(familyId, userId) {
+    const isInFamily = fMembers => !!(fMembers
+      .find(fmem => fmem.userId === userId));
+
+    return this
+      .fetchMembersById(familyId)
+      .then(isInFamily);
   }
 }

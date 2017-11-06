@@ -3,7 +3,7 @@
     "userId": "a2f5acbc-6e3e-4acf-b13f-9ea98e474237",
     "created": 1506423488524,
     "userSummary": {
-      "username": "James",
+      "cognito:username": "james-randomstring",
       "type": "parent"
     }
 }, {
@@ -11,17 +11,19 @@
     "userId": "dc3e0ab5-45d9-494a-b94e-b5a9840a78c5",
     "created": 1506423488524,
     "userSummary": {
-      "username": "JamesBoy",
+      "cognito:username": "james_boy-randomstring",
       "type": "child",
-      "balance": 0
+      "balance": 0,
+      "completedJobs": 0
     }
 }, {
     "id": "c796d733-9779-45c5-a130-20fd1fd0b652",
     "userId": "865f6e20-01bd-4aea-b092-a035dca754cd",
     "created": 1506423488524,
     "userSummary": {
-      "username": "JamesGirl",
+      "cognito:username": "james_girl-randomstring",
       "type": "child",
-      "balance": 0
+      "balance": 0,
+      "completedJobs": 0
     }
 }]

@@ -25,12 +25,29 @@ export default class UserModel {
     return origin;
   }
 
+  getByCognitoUsername(cognitoUserName, userPoolId) {
+    const params = {
+      UserPoolId: userPoolId || process.env.COGNITO_POOL_ID,
+      Username: cognitoUserName
+    };
+
+    return this.cognito
+      .adminGetUser(params)
+      .promise()
+      .then(data => data.UserAttributes.reduce((container, attr) => {
+        const key = UserModel.attribNameMapper(attr.Name);
+
+        container[key] = attr.Value;  // eslint-disable-line
+        return container;
+      }, {}));
+  }
+
   getByAccessToken(accessToken) {
     return this.cognito
       .getUser({ AccessToken: accessToken })
       .promise()
       .then(data => data.UserAttributes.reduce((container, attr) => {
-        const key = this.attribNameMapper(attr.Name);
+        const key = UserModel.attribNameMapper(attr.Name);
 
         container[key] = attr.Value;  // eslint-disable-line
         return container;

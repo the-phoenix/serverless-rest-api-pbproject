@@ -1,8 +1,10 @@
 import { success, failure } from 'utils/response';
 import parseEvent from 'utils/parser';
 import FamilyController from 'controllers/Family';
+import JobController from 'controllers/Job';
 
 const family = new FamilyController();
+const job = new JobController();
 
 export async function get(event, context, callback) {
   let response;
@@ -59,4 +61,35 @@ export async function join(event, context, callback) {
   }
 }
 
-export default { get, create, join }; // Add this for test
+export async function listJobs(event, context, callback) {
+  let response;
+
+  try {
+    const { params, currentUser, body } = parseEvent(event);
+    if (currentUser.type === 'child') {
+      response = failure(new Error('Only parent can get family data'), 400);
+      return;
+    }
+
+    const ctrlParams = [
+      currentUser.userId, params.familyId, body.lastEvaluatedKey, body.limit
+    ];
+
+    const data = await job.listByFamily(...ctrlParams);
+
+    if (!data) {
+      response = failure(new Error('No jobs existing'), 404);
+    } else {
+      response = success(JSON.stringify(data));
+    }
+  } catch (e) {
+    console.log('Error from family.listJobs', e);
+    response = failure(e);
+  }
+
+  callback(null, response);
+}
+
+export default {
+  get, create, join, listJobs
+};

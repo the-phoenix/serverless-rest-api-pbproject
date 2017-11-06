@@ -53,8 +53,8 @@ custom:
             sources: [./fixtures/offline-seeds/family.json]
           - table: ${file(fixtures/migrations/family-user.yml):Properties.TableName}
             sources: [./fixtures/offline-seeds/family-user.json]
-          - table: ${file(fixtures/migrations/user.yml):Properties.TableName}
-            sources: [./fixtures/offline-seeds/user.json]
+          - table: ${file(fixtures/migrations/job.yml):Properties.TableName}
+            sources: [./fixtures/offline-seeds/job.json]
 #  serverless-mocha-plugin:
 #    preTestCommands:
 #      - bash ./test/support/startOffline.sh
@@ -90,6 +90,23 @@ functions:
           authorizer:
             name: authorizer
             arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+  listJobsByFamilyMember:
+    handler: src/handlers/user.listJobs
+    events:
+      - http:
+          method: POST
+          path: user/me/jobs/{familyId}
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+      - http:
+          method: POST
+          path: user/{userId}/jobs/{familyId}
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
   getFamily:
     handler: src/handlers/family.get
     events:
@@ -120,6 +137,16 @@ functions:
           authorizer:
             name: authorizer
             arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+  listJobsByFamily:
+    handler: src/handlers/family.listJobs
+    events:
+      - http:
+          method: POST
+          path: family/{familyId}/jobs
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
   preSignup:
     handler: src/handlers/signup.preSignup
     events:
@@ -134,6 +161,16 @@ functions:
       - cognitoUserPool:
           pool: PennyboxAppUsers-${self:custom.stage}
           trigger: PostConfirmation
+  getJob:
+    handler: src/handlers/job.get
+    events:
+      - http:
+          method: GET
+          path: job/{id}
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
@@ -182,4 +219,4 @@ resources:
   Resources:
     familyTable: ${file(fixtures/migrations/family.yml)}
     familyUserTable: ${file(fixtures/migrations/family-user.yml)}
-    userTable: ${file(fixtures/migrations/user.yml)}
+    jobTable: ${file(fixtures/migrations/job.yml)}

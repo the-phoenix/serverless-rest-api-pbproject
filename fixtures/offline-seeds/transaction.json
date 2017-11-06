@@ -1,0 +1,25 @@
+[{
+  "id": "1506423488524-c796d733-9779-45c5-a130-20fd1fd0b652",
+  "familyId": "c796d733-9779-45c5-a130-20fd1fd0b652",
+  "description": "Walk the dog",
+  "childUserId": "a2f5acbc-6e3e-4acf-b13f-9ea98e474237",
+  "balanceBefore": 0,
+  "amount": 10,
+  "timestamp": 1506423488524,
+  "meta": {
+    "referenceTable": "jobs",
+    "referenceId": "c796d733-9779-45c5-a130-20fd1fd0b652",
+  }
+}, {
+  "id": "c796d733-9779-45c5-a130-20fd1fd0b653",
+  "familyId": "c796d733-9779-45c5-a130-20fd1fd0b652",
+  "description": "Brush the teeth of dog",
+  "childUserId": "a2f5acbc-6e3e-4acf-b13f-9ea98e474237",
+  "balanceBefore": 10,
+  "amount": 3,
+  "timestamp": 1506423498524,
+  "meta": {
+    "referenceTable": "jobs",
+    "referenceId": "c796d733-9779-45c5-a130-20fd1fd0b652",
+  }
+}]

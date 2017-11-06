@@ -21,7 +21,7 @@ export default class FamilyController {
 
     return {
       ...respData[0].Item,
-      members: map(omit('id'), respData[1].Items)
+      members: map(omit('id'), respData[1])
     };
   }
 
