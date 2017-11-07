@@ -2,6 +2,9 @@ import { pick } from 'ramda';
 import JobModel from 'models/Job';
 import { isOffline } from 'utils/db-client';
 import FamilyModel from 'models/Family';
+import {
+  checkAllowedJobStatusSafeUpdate as checkSafeStatus
+} from 'utils/validation';
 
 export default class JobController {
   constructor() {
@@ -34,27 +37,58 @@ export default class JobController {
   }
 
   async create(currentUser, reqParam) {
-    const now = new Date();
-    let jobData = {
-      ...pick(['familyId', 'jobSummary'], reqParam),
-      modified: now.toISOString(),
-      modifiedTimestamp__familyId: `${now.getTime()}__${data.familyId}`
-    };
+    // check if user is family member
+    if (!(isOffline() ||
+      await this.family.checkIsFamilyMember(reqParam.familyId, currentUser.userId)
+    )) {
+      return Promise.reject(new Error('Disallowed to set other family\'s data'));
+    }
+
+    let jobData = pick(['familyId', 'jobSummary', 'childUserId'], reqParam);
 
     if (currentUser.type === 'parent') {
       jobData = {
         ...jobData,
-        status: 'CREATED_BY_PARENT',
-        childUserId: data.childUserId,
-        childUserId__modifiedTimestamp: `${data.childUserId}__${now.getTime()}`
+        status: 'CREATED_BY_PARENT'
       };
     } else if (currentUser.type === 'child') {
       jobData = {
         ...jobData,
         status: 'CREATED_BY_CHILD',
-        childUserId: currentUser.userId,
-        childUserId__modifiedTimestamp: `${data.childUserId}__${now.getTime()}`
+        childUserId: currentUser.userId
       };
     }
+
+    let newJob = await this.job.create(currentUser.userId, jobData);
+    if (currentUser.type === 'parent') {
+      newJob = await this.job.updateStatus(currentUser.userId, {
+        status: 'START_APPROVED'
+      }, newJob);
+    }
+
+    return newJob;
+  }
+
+  async safeUpdateStatus(currentUser, jobId, reqParam) {
+    const jobData = await this.job.fetchById(jobId);
+    if (!jobData) {
+      const error = {
+        statusCode: 404,
+        body: 'Not existing job'
+      };
+      throw error;
+    }
+
+    const safetyError = checkSafeStatus(currentUser.type, jobData.status, reqParam.status);
+    if (safetyError.error) {
+      const error = {
+        statusCode: 400,
+        body: safetyError.error.details
+      };
+      throw error;
+    }
+
+    const updated = await this.job.updateStatus(currentUser.userId, reqParam, jobData);
+    return updated;
   }
 }

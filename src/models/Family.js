@@ -70,7 +70,7 @@ export default class FamilyModel {
       Item: {
         id: uuidv1(),
         name: `${familyAdminUser.name || familyAdminUser.username}'s Family`,
-        created: (new Date()).getTime(),
+        created: (new Date()).toISOString(),
         adminSummary: pick(SUMMARY_WHITE_LIST, familyAdminUser)
       }
     };
@@ -86,7 +86,7 @@ export default class FamilyModel {
       Item: {
         id: familyId,
         userId: member.userId,
-        created: new Date(),
+        created: (new Date()).toISOString(),
         userSummary: pick(SUMMARY_WHITE_LIST, member)
       }
     };

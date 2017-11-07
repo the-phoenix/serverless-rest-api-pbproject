@@ -15,5 +15,5 @@ export function success(body, isCreated) {
 }
 
 export function failure(err, statusCode = 500) {
-  return buildResponse(statusCode || err.statusCode, err.toString());
+  return buildResponse(statusCode || err.statusCode, err);
 }

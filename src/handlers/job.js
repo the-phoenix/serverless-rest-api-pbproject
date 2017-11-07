@@ -1,7 +1,10 @@
 import { success, failure } from 'utils/response';
 import parseEvent from 'utils/parser';
 import JobController from 'controllers/Job';
-import { pick } from 'ramda';
+import {
+  checkCreateJobDataSchema,
+  checkUpdateJobStatusSchema,
+} from 'utils/validation';
 
 const job = new JobController();
 
@@ -10,7 +13,7 @@ export async function get(event, context, callback) {
 
   try {
     const { params } = parseEvent(event);
-    const data = await job.get(params.id);
+    const data = await job.get(params.jobId);
 
     if (!data) {
       response = failure(new Error('Not existing job'), 404);
@@ -28,30 +31,58 @@ export async function get(event, context, callback) {
 export async function create(event, context, callback) {
   let response;
 
-  const now = new Date();
-  const { data, currentUser } = parseEvent(event);
-  // todos: check if currentUser is member of given familyId
-  let jobData = {
-    ...pick(['familyId', 'jobSummary'], data),
-    modified: now.toISOString(),
-    modifiedTimestamp__familyId: `${now.getTime()}__${data.familyId}`
-  };
+  try {
+    const { currentUser, body } = parseEvent(event);
+    const { error } = checkCreateJobDataSchema(body);
 
-  if (currentUser.type === 'parent') {
-    jobData = {
-      ...jobData,
-      status: 'CREATED_BY_PARENT',
-      childUserId: data.childUserId,
-      childUserId__modifiedTimestamp: `${data.childUserId}__${now.getTime()}`
-    };
-  } else {
-    jobData = {
-      ...jobData,
-      status: 'CREATED_BY_CHILD',
-      childUserId: currentUser.userId,
-      childUserId__modifiedTimestamp: `${data.childUserId}__${now.getTime()}`
-    };
+    if (error) {
+      response = failure({
+        errorType: 'validation error',
+        errorMessage: error.details,
+      }, 400);
+    } else if (currentUser.type === 'parent' && !body.childUserId) {
+      response = failure({
+        errorType: 'validation error',
+        errorMessage: 'childUserId is required',
+      }, 400);
+    } else {
+      const created = await job.create(currentUser, body);
+
+      response = success(JSON.stringify(created), true);
+    }
+  } catch (e) {
+    console.log('Error from create', e);
+
+    response = failure(e);
+  }
+
+  callback(null, response);
+}
+
+export async function updateStatus(event, context, callback) {
+  try {
+    const { currentUser, body, params } = parseEvent(event);
+
+    const schemaError = checkUpdateJobStatusSchema(body);
+    if (schemaError.error) {
+      callback(null, failure({
+        errorType: 'validation error',
+        errorMessage: schemaError.error.details,
+      }, 400));
+      return;
+    }
+
+    const updated = await job.safeUpdateStatus(currentUser, params.jobId, body);
+    callback(null, success(JSON.stringify(updated)));
+  } catch (e) {
+    console.log('Error from job.updateStatus', e);
+
+    if (e.statusCode) {
+      callback(null, failure(e.body, e.statusCode));
+    } else {
+      callback(null, failure(e));
+    }
   }
 }
 
-export default { get };
+export default { get, create, updateStatus };

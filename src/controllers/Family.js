@@ -64,7 +64,7 @@ export default class FamilyController {
     ];
 
     // copy family admin email to child's email
-    if (user.type === 'child' && !user.email) {
+    if (user.type === 'child'/* && !user.email */) {
       promises$.push(this.user.updateAttribute(user, [
         {
           Name: 'email',

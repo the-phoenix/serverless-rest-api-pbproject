@@ -1,5 +1,7 @@
 import pluralize from 'pluralize';
 import swearjar from 'swearjar';
+import joi from 'joi';
+import { availableJobStatus } from 'models/Job';
 
 const stripSpecial = str => str.replace(/[^a-zA-Z ]/g, '');
 
@@ -18,4 +20,48 @@ export const checkIfProfane = (str) => {
   const stripped = stripSpecial(str);
 
   return swearjar.profane(stripped);
+};
+
+export const checkCreateJobDataSchema = (rawData) => {
+  const schema = joi.object().keys({
+    familyId: joi.string().uuid().required(),
+    childUserId: joi.string().uuid(),
+    jobSummary: joi.object().keys({
+      title: joi.string().required(),
+      price: joi.number().required(),
+      backdropResource: joi.string().uri()
+    }),
+  });
+
+
+  return joi.validate(rawData, schema);
+};
+
+export const checkUpdateJobStatusSchema = (rawData) => {
+  const schema = joi.object().keys({
+    status: joi.string().valid(Object.keys(availableJobStatus)).required(),
+    meta: joi.object()
+  });
+
+  return joi.validate(rawData, schema);
+};
+
+export const checkAllowedJobStatusSafeUpdate = (userType, original, newone) => {
+  if (!availableJobStatus[newone].allowedRole.includes(newone)) {
+    return {
+      error: {
+        details: 'This user type is not allowed to update job to target status'
+      }
+    };
+  }
+
+  if (!availableJobStatus[original].availableNextMove.includes(newone)) {
+    return {
+      error: {
+        details: 'Forbidden job status update'
+      }
+    };
+  }
+
+  return { error: null };
 };

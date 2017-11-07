@@ -8,6 +8,7 @@ module.exports = {
     "prefer-rest-params": "off",
     "react/require-extension" : "off",
     "import/no-extraneous-dependencies" : "off",
+    "prefer-promise-reject-errors": 1,
     "comma-dangle": "off",
     "no-unused-expressions": "off",
     "no-console": 'off'

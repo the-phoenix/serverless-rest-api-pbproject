@@ -16,8 +16,7 @@ plugins:
 provider:
   name: aws
   runtime: nodejs6.10
-  stage: dev
-# stage: prod
+  stage: dev # prod
   region: us-east-1
   environment:
     SERVICE_NAME: ${self:service}
@@ -112,7 +111,7 @@ functions:
     events:
       - http:
           method: GET
-          path: family/{id}
+          path: family/{familyId}
           cors: true
           authorizer:
             name: authorizer
@@ -166,7 +165,27 @@ functions:
     events:
       - http:
           method: GET
-          path: job/{id}
+          path: job/{jobId}
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+  createJob:
+    handler: src/handlers/job.create
+    events:
+      - http:
+          method: POST
+          path: job
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+  updateJobStatus:
+    handler: src/handlers/job.updateStatus
+    events:
+      - http:
+          method: PUT
+          path: job/{jobId}/status
           cors: true
           authorizer:
             name: authorizer
@@ -215,8 +234,8 @@ functions:
 #     NewOutput:
 #       Description: "Description for the output"
 #       Value: "Some output value"
-resources:
-  Resources:
-    familyTable: ${file(fixtures/migrations/family.yml)}
-    familyUserTable: ${file(fixtures/migrations/family-user.yml)}
-    jobTable: ${file(fixtures/migrations/job.yml)}
+# resources:
+#   Resources:
+#     familyTable: ${file(fixtures/migrations/family.yml)}
+#     familyUserTable: ${file(fixtures/migrations/family-user.yml)}
+#     jobTable: ${file(fixtures/migrations/job.yml)}
