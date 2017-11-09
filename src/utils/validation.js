@@ -47,7 +47,7 @@ export const checkUpdateJobStatusSchema = (rawData) => {
 };
 
 export const checkAllowedJobStatusSafeUpdate = (userType, original, newone) => {
-  if (!availableJobStatus[newone].allowedRole.includes(newone)) {
+  if (!availableJobStatus[newone].allowedRole.includes(userType)) {
     return {
       error: {
         details: 'This user type is not allowed to update job to target status'
