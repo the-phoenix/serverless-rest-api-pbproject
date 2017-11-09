@@ -5,6 +5,7 @@ package:
     - node_modules/dynamodb-localhost/**
     - node_modules/serverless-dynamodb-local/**
     - node_modules/serverless-offline/**
+    - node_modules/aws-sdk
 
 plugins:
   - serverless-webpack
@@ -192,7 +193,7 @@ functions:
             arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
 
 # you can add CloudFormation resource templates here
-#resources:
+# resources:
 #  Resources:
 #    NewResource:
 #      Type: AWS::S3::Bucket
@@ -202,8 +203,8 @@ functions:
 #     NewOutput:
 #       Description: "Description for the output"
 #       Value: "Some output value"
-# resources:
-#   Resources:
-#     familyTable: ${file(fixtures/migrations/family.yml)}
-#     familyUserTable: ${file(fixtures/migrations/family-user.yml)}
-#     jobTable: ${file(fixtures/migrations/job.yml)}
+resources:
+  Resources:
+    familyTable: ${file(fixtures/migrations/family.yml)}
+    familyUserTable: ${file(fixtures/migrations/family-user.yml)}
+    jobTable: ${file(fixtures/migrations/job.yml)}
