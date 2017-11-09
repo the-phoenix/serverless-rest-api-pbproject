@@ -154,6 +154,6 @@ export default class JobModel {
       ReturnValues: 'ALL_NEW'
     };
 
-    return this.dbClient('update', params);
+    return this.dbClient('update', params).then(data => data.Attributes);
   }
 }
