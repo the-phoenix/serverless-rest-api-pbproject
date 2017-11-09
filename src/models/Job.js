@@ -33,7 +33,7 @@ export const availableJobStatus = {
   },
   FINISH_DECLINED: {
     allowedRole: ['parent'],
-    availableNextMove: ['FINISH']
+    availableNextMove: ['FINISHED']
   },
   PAID: {
     allowedRole: ['parent'],

@@ -64,7 +64,6 @@ export async function postConfirmation(event, context) {
   try {
     const groupName = pathOr('child', ['custom:type'], attributes) === 'child'
       ? 'Child' : 'Parent';
-    console.log('Target Group', groupName);
 
     await user.addUserToGroup(userName, groupName, userPoolId);
   } catch (e) {

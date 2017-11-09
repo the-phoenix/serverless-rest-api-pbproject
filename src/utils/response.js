@@ -1,3 +1,5 @@
+import Boom from 'boom'
+
 function buildResponse(statusCode, body) {
   return {
     statusCode,
@@ -14,6 +16,10 @@ export function success(body, isCreated) {
   return buildResponse(isCreated ? 201 : 200, body);
 }
 
-export function failure(err, statusCode = 500) {
-  return buildResponse(statusCode || err.statusCode, err);
+export function failure(err) {
+  if (Boom.isBoom(err)) {
+    return buildResponse(err.statusCode, err.message);
+  }
+
+  return buildResponse(500, err);
 }

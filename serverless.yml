@@ -203,8 +203,8 @@ functions:
 #     NewOutput:
 #       Description: "Description for the output"
 #       Value: "Some output value"
-resources:
-  Resources:
-    familyTable: ${file(fixtures/migrations/family.yml)}
-    familyUserTable: ${file(fixtures/migrations/family-user.yml)}
-    jobTable: ${file(fixtures/migrations/job.yml)}
+# resources:
+#   Resources:
+#     familyTable: ${file(fixtures/migrations/family.yml)}
+#     familyUserTable: ${file(fixtures/migrations/family-user.yml)}
+#     jobTable: ${file(fixtures/migrations/job.yml)}

@@ -1,3 +1,4 @@
+import Boom from 'boom';
 import { success, failure } from 'utils/response';
 import parseEvent from 'utils/parser';
 import FamilyController from 'controllers/Family';
@@ -12,11 +13,12 @@ export async function get(event, context, callback) {
   try {
     const { params, queryParams } = parseEvent(event);
     const data = await family.get(params.familyId, queryParams.scope);
+
     if (!data) {
-      response = failure(new Error('Not existing family'), 404);
-    } else {
-      response = success(JSON.stringify(data));
+      throw Boom.notFound('Not existing family');
     }
+
+    response = success(JSON.stringify(data));
   } catch (e) {
     console.log('Error from getFamily', e);
     response = failure(e);
@@ -25,40 +27,47 @@ export async function get(event, context, callback) {
   callback(null, response);
 }
 
+
 export async function create(event, context, callback) {
+  let response;
+
   try {
     const { currentUser } = parseEvent(event);
 
     if (currentUser.type !== 'parent') {
-      return callback(null, failure(new Error('Only Parent user can create family'), 400));
+      throw Boom.badRequest('Only Parent user can create family');
     }
 
     const data = await family.create(currentUser);
 
-    return callback(null, success(JSON.stringify(data), true));
+    response = success(JSON.stringify(data), true);
   } catch (e) {
     console.log('Error from createFamily', e);
-
-    return callback(null, failure(e));
+    response = failure(e);
   }
+
+  callback(null, response);
 }
 
 export async function join(event, context, callback) {
+  let response;
+
   try {
     const { currentUser, body } = parseEvent(event);
 
     if (!body.familyId) {
-      return callback(null, failure(new Error('familyId is missing'), 400));
+      throw Boom.badRequest('familyId is missing in request body');
     }
 
     await family.join(currentUser, body.familyId);
 
-    return callback(null, success(JSON.stringify({ message: 'joined ' })));
+    response = success(JSON.stringify({ message: 'joined ' }));
   } catch (e) {
     console.log('Error from join', e);
-
-    return callback(null, failure(e));
+    response = failure(e);
   }
+
+  callback(null, response);
 }
 
 export async function listJobs(event, context, callback) {
@@ -67,8 +76,7 @@ export async function listJobs(event, context, callback) {
   try {
     const { params, currentUser, body } = parseEvent(event);
     if (currentUser.type === 'child') {
-      response = failure(new Error('Only parent can get family data'), 400);
-      return;
+      throw Boom.badRequest('Only parent can get family data');
     }
 
     const ctrlParams = [
@@ -78,10 +86,10 @@ export async function listJobs(event, context, callback) {
     const data = await job.listByFamily(...ctrlParams);
 
     if (!data) {
-      response = failure(new Error('No jobs existing'), 404);
-    } else {
-      response = success(JSON.stringify(data));
+      throw Boom.notFound('No jobs existing');
     }
+
+    response = success(JSON.stringify(data));
   } catch (e) {
     console.log('Error from family.listJobs', e);
     response = failure(e);

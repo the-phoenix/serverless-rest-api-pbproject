@@ -110,4 +110,26 @@ export default class FamilyModel {
       .fetchMembersById(familyId)
       .then(isInFamily);
   }
+
+  updateFamilyMemberAfterJobCompletion(completedJob) {
+    const primaryKeys = {
+      id: completedJob.familyId,
+      userId: completedJob.childUserId
+    };
+
+    const params = {
+      TableName: FAMILY_USER_TABLENAME,
+      Key: primaryKeys,
+      UpdateExpression: [
+        'SET userSummary.balance = userSummary.balance + :balance',
+        'userSummary.completedJobs = userSummary.completedJobs + 1'
+      ].join(', '),
+      ExpressionAttributeValues: {
+        ':balance': completedJob.jobSummary.price
+      },
+      ReturnValues: 'ALL_NEW'
+    };
+
+    return this.dbClient('update', params).then(data => data.Attributes);
+  }
 }

@@ -1,3 +1,4 @@
+import Boom from 'boom';
 import { success, failure } from 'utils/response';
 import parseEvent from 'utils/parser';
 import FamilyController from 'controllers/Family';
@@ -33,31 +34,32 @@ export async function remove(event, context, callback) {
 }
 
 export async function listJobs(event, context, callback) {
+  let response;
+
   try {
     const { params, currentUser, body } = parseEvent(event);
     const userId = params.userId || currentUser.userId;
     if (currentUser.type === 'parent') {
-      callback(null, failure(new Error('No jobs for parent'), 400));
-      return;
+      throw Boom.badRequest('Parent doesn\'t have jobs');
     }
 
     const ctrlParams = [
       userId, params.familyId, body.lastEvaluatedKey, body.limit
     ];
 
-    console.log('HEY', ctrlParams);
-
     const data = await job.listByFamilyMember(...ctrlParams);
 
     if (!data) {
-      callback(null, failure(new Error('No jobs existing'), 404));
-    } else {
-      callback(null, success(JSON.stringify(data)));
+      throw Boom.notFound('No jobs existing');
     }
+
+    response = success(JSON.stringify(data));
   } catch (e) {
     console.log('Error from family.listJobs', e);
-    callback(null, failure(e));
+    response = failure(e);
   }
+
+  callback(null, response);
 }
 
 export default { getMe, listJobs };

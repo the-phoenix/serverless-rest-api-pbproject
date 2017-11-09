@@ -1,6 +1,8 @@
+import Boom from 'boom';
 import { map, omit, isEmpty } from 'ramda';
 import FamilyModel from 'models/Family';
 import UserModel from 'models/User';
+
 
 export default class FamilyController {
   constructor() {
@@ -35,7 +37,7 @@ export default class FamilyController {
   async create(familyAdmin) {
     const familyUserData = await this.family.fetchByMember(familyAdmin.userId);
     if (familyUserData.Count > 2) {
-      return Promise.reject(new Error('maximum available families are 2'));
+      return Promise.reject(Boom.badRequest('maximum available families are 2'));
     }
 
     const newFamily = await this.family.create(familyAdmin);
@@ -48,15 +50,15 @@ export default class FamilyController {
   async join(user, targetFamilyId) {
     const family = await this.family.fetchById(targetFamilyId);
     if (isEmpty(family.Item)) {
-      return Promise.reject(new Error('not existing family'));
+      return Promise.reject(Boom.notFound('not existing family'));
     }
 
     const familyUserData = await this.family.fetchByMember(user.userId);
 
     if (familyUserData.Count > 2) {
-      return Promise.reject(new Error('maximum available families are 2'));
+      return Promise.reject(Boom.badRequest('can\'t join more than 2 families'));
     } else if (familyUserData.Items.find(item => item.id === targetFamilyId)) {
-      return Promise.reject(new Error('already member of target family'));
+      return Promise.reject(Boom.badRequest('already member of target family'));
     }
 
     const promises$ = [

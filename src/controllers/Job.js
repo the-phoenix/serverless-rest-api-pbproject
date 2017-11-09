@@ -1,3 +1,4 @@
+import Boom from 'boom';
 import { pick } from 'ramda';
 import JobModel from 'models/Job';
 import { isOffline } from 'utils/db-client';
@@ -21,7 +22,7 @@ export default class JobController {
   async listByFamily(userId, familyId, lastEvaluatedKey, limit) {
     // check if user is family member
     if (!(isOffline() || await this.family.checkIsFamilyMember(familyId, userId))) {
-      return Promise.reject(new Error('Disallowed to see other family\'s data'));
+      throw Boom.badRequest('Disallowed to see other family\'s data');
     }
 
     return this.job.fetchByFamilyId(familyId, lastEvaluatedKey, limit);
@@ -30,7 +31,7 @@ export default class JobController {
   async listByFamilyMember(userId, familyId, lastEvaluatedKey, limit) {
     // check if user is family member
     if (!(isOffline() || await this.family.checkIsFamilyMember(familyId, userId))) {
-      return Promise.reject(new Error('Disallowed to see other family\'s data'));
+      throw Boom.badRequest('Disallowed to see other family\'s data');
     }
 
     return this.job.fetchByFamilyMember(familyId, userId, lastEvaluatedKey, limit);
@@ -41,7 +42,7 @@ export default class JobController {
     if (!(isOffline() ||
       await this.family.checkIsFamilyMember(reqParam.familyId, currentUser.userId)
     )) {
-      return Promise.reject(new Error('Disallowed to set other family\'s data'));
+      throw Boom.badRequest('Disallowed to set other family\'s data');
     }
 
     let jobData = pick(['familyId', 'jobSummary', 'childUserId'], reqParam);
@@ -72,23 +73,19 @@ export default class JobController {
   async safeUpdateStatus(currentUser, jobId, reqParam) {
     const jobData = await this.job.fetchById(jobId);
     if (!jobData) {
-      const error = {
-        statusCode: 404,
-        body: 'Not existing job'
-      };
-      throw error;
+      throw Boom.notFound('Not existing job');
     }
 
     const safetyError = checkSafeStatus(currentUser.type, jobData.status, reqParam.status);
     if (safetyError.error) {
-      const error = {
-        statusCode: 400,
-        body: safetyError.error.details
-      };
-      throw error;
+      throw Boom.badRequest(safetyError.error.details);
     }
 
     const updated = await this.job.updateStatus(currentUser.userId, reqParam, jobData);
+    if (updated.status === 'PAID') {
+      await this.family.updateFamilyMemberAfterJobCompletion(updated);
+    }
+
     return updated;
   }
 }
