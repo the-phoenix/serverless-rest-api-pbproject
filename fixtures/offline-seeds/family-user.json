@@ -13,7 +13,7 @@
     "userSummary": {
       "cognito:username": "james_boy-randomstring",
       "type": "child",
-      "balance": 0,
+      "balance": 10,
       "completedJobs": 0
     }
 }, {
@@ -23,7 +23,7 @@
     "userSummary": {
       "cognito:username": "james_girl-randomstring",
       "type": "child",
-      "balance": 0,
+      "balance": 10,
       "completedJobs": 0
     }
 }]

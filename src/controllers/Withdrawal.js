@@ -1,7 +1,9 @@
 import Boom from 'boom';
 import { pick } from 'ramda';
 import WithdrawalModel from 'models/Withdrawal';
+import TransactionModel from 'models/Transaction';
 import FamilyModel from 'models/Family';
+
 import { isOffline } from 'utils/db-client';
 
 import {
@@ -12,6 +14,7 @@ export default class WithdrawalController {
   constructor() {
     this.withdrawal = new WithdrawalModel();
     this.family = new FamilyModel();
+    this.transaction = new TransactionModel();
   }
 
   async get(id) {
@@ -20,22 +23,30 @@ export default class WithdrawalController {
     return data;
   }
 
-  async listByFamily(userId, familyId, lastEvaluatedKey, limit) {
+  async listByFamily(userId, familyId, status, lastEvaluatedKey, limit) {
     // check if user is family member
     if (!(isOffline() || await this.family.checkIsFamilyMember(familyId, userId))) {
       throw Boom.badRequest('Disallowed to see other family\'s data');
     }
 
-    return this.withdrawal.fetchByFamilyId(familyId, lastEvaluatedKey, limit);
+    const wanted = Array.isArray(status)
+      ? status.map(one => one.toUpperCase())
+      : [status.toUpperCase()];
+
+    return this.withdrawal.fetchByFamilyId(familyId, wanted, lastEvaluatedKey, limit);
   }
 
-  async listByFamilyMember(userId, familyId, lastEvaluatedKey, limit) {
+  async listByFamilyMember(userId, familyId, status, lastEvaluatedKey, limit) {
     // check if user is family member
     if (!(isOffline() || await this.family.checkIsFamilyMember(familyId, userId))) {
       throw Boom.badRequest('Disallowed to see other family\'s data');
     }
 
-    return this.withdrawal.fetchByFamilyMember(familyId, userId, lastEvaluatedKey, limit);
+    const wanted = Array.isArray(status)
+      ? status.map(one => one.toUpperCase())
+      : [status.toUpperCase()];
+
+    return this.withdrawal.fetchByFamilyMember(familyId, userId, wanted, lastEvaluatedKey, limit);
   }
 
   async getAvailableBalance(familyId, childUserId) {
@@ -55,6 +66,10 @@ export default class WithdrawalController {
       throw Boom.badRequest('Disallowed to set other family\'s data');
     }
 
+    if (currentUser.type === 'child') {
+      withdrawalData.childUserId = currentUser.userId;
+    }
+
     // check if available to withdraw
     const availableBalance = await this
       .getAvailableBalance(withdrawalData.familyId, withdrawalData.childUserId);
@@ -66,6 +81,8 @@ export default class WithdrawalController {
     let newWithdrawal = await this.withdrawal.create(currentUser.userId, withdrawalData);
     if (currentUser.type === 'parent') {
       newWithdrawal = await this.withdrawal.updateStatus(currentUser.userId, 'APPROVED', newWithdrawal);
+      const { userSummary } = await this.family.updateFamilyMemberAfterWithdrawal(newWithdrawal);
+      await this.transaction.createFromWithdrawal(userSummary.balance, newWithdrawal);
     }
 
     return newWithdrawal;

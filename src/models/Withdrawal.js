@@ -38,15 +38,28 @@ export default class WithdrawalModel {
       .then(data => data.Items[0]);
   }
 
-  fetchByFamilyId(familyId, lastEvaluatedKey, limit = 10) {
+  fetchByFamilyId(familyId, statusList, lastEvaluatedKey, limit = 10) {
+    const safeStatus = statusList
+      .filter(one => Object.keys(availableWithdrawalStatus).includes(one))
+      .reduce((acc, curr, idx) => {
+        acc[`:status${idx + 1}`] = curr;
+
+        return acc;
+      }, {});
+
     const params = {
       TableName: WITHDRAWAL_TABLENAME,
       Limit: limit,
       ScanIndexForward: false,
       IndexName: 'familyId-modified-index',
       KeyConditionExpression: 'familyId = :hkey',
+      FilterExpression: `#st IN (${Object.keys(safeStatus).toString()})`,
+      ExpressionAttributeNames: {
+        '#st': 'status'
+      },
       ExpressionAttributeValues: {
-        ':hkey': familyId
+        ':hkey': familyId,
+        ...safeStatus
       },
       ExclusiveStartKey: lastEvaluatedKey
     };
@@ -56,15 +69,28 @@ export default class WithdrawalModel {
       .then(data => ({ ...data, Limit: limit }));
   }
 
-  fetchByFamilyMember(familyId, userId, lastEvaluatedKey, limit = 10) {
+  fetchByFamilyMember(familyId, userId, statusList, lastEvaluatedKey, limit = 10) {
+    const safeStatus = statusList
+      .filter(one => Object.keys(availableWithdrawalStatus).includes(one))
+      .reduce((acc, curr, idx) => {
+        acc[`:status${idx + 1}`] = curr;
+
+        return acc;
+      }, {});
+
     const params = {
       TableName: WITHDRAWAL_TABLENAME,
       Limit: limit,
       ScanIndexForward: false,
       KeyConditionExpression: 'familyId = :hkey AND begins_with(childUserId__createdTimestamp, :rkey)',
+      FilterExpression: `#st IN (${Object.keys(safeStatus).toString()})`,
+      ExpressionAttributeNames: {
+        '#st': 'status'
+      },
       ExpressionAttributeValues: {
         ':hkey': familyId,
-        ':rkey': userId
+        ':rkey': userId,
+        ...safeStatus
       },
       ExclusiveStartKey: lastEvaluatedKey
     };

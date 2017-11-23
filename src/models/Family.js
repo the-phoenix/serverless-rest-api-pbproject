@@ -140,7 +140,7 @@ export default class FamilyModel {
 
   updateFamilyMemberAfterJobCompletion(completedJob) {
     const primaryKeys = {
-      id: completedJob.familyId,
+      familyId: completedJob.familyId,
       userId: completedJob.childUserId
     };
 
@@ -163,7 +163,7 @@ export default class FamilyModel {
 
   updateFamilyMemberAfterWithdrawal(approvedWithdrawal) {
     const primaryKeys = {
-      id: approvedWithdrawal.familyId,
+      familyId: approvedWithdrawal.familyId,
       userId: approvedWithdrawal.childUserId
     };
 
