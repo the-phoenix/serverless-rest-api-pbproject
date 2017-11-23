@@ -2,6 +2,7 @@ import pluralize from 'pluralize';
 import swearjar from 'swearjar';
 import joi from 'joi';
 import { availableJobStatus } from 'models/Job';
+import { availableWithdrawalStatus } from 'models/Withdrawal';
 
 const stripSpecial = str => str.replace(/[^a-zA-Z ]/g, '');
 
@@ -33,7 +34,6 @@ export const checkCreateJobDataSchema = (rawData) => {
     }),
   });
 
-
   return joi.validate(rawData, schema);
 };
 
@@ -64,4 +64,50 @@ export const checkAllowedJobStatusSafeUpdate = (userType, original, newone) => {
   }
 
   return { error: null };
+};
+
+export const checkCreateWithdrawalDataSchema = (rawData) => {
+  const schema = joi.object().keys({
+    familyId: joi.string().uuid().required(),
+    childUserId: joi.string().uuid(),
+    amount: joi.number().required()
+  });
+
+  return joi.validate(rawData, schema);
+};
+
+export const checkUpdateWithdrawalStatusSchema = (rawData) => {
+  const schema = joi.object().keys({
+    status: joi.string().valid(Object.keys(availableWithdrawalStatus)).required(),
+  });
+
+  return joi.validate(rawData, schema);
+};
+
+export const checkAllowedWithdrawalStatusSafeUpdate = (userType, original, newone) => {
+  if (original !== 'PENDING') {
+    return {
+      error: {
+        details: 'Withdrawal request is already disposed'
+      }
+    };
+  }
+
+  if (!availableWithdrawalStatus[newone].allowedRole.includes(userType)) {
+    return {
+      error: {
+        details: 'This user type is not allowed to update withdrawal request to target status'
+      }
+    };
+  }
+
+  return { error: null };
+};
+
+export const checkGetFamilyMemberUsernamesSchema = (rawData) => {
+  const schema = joi.object().keys({
+    email: joi.string().email().required()
+  });
+
+  return joi.validate(rawData, schema);
 };

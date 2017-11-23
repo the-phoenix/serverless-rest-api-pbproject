@@ -1,51 +1,31 @@
-import { omit, pick } from 'ramda';
+import { pick } from 'ramda';
 import uuidv1 from 'uuid/v1';
 import dbClient from 'utils/db-client';
 
-const JOB_TABLENAME = 'Jobs';
-export const availableJobStatus = {
-  CREATED_BY_PARENT: {
-    allowedRole: ['parent'],
-    availableNextMove: ['START_APPROVED', 'START_DECLINED']
+export const availableWithdrawalStatus = {
+  PENDING: {
+    allowedRole: ['parent', 'child']
   },
-  CREATED_BY_CHILD: {
-    allowedRole: ['child'],
-    availableNextMove: ['START_APPROVED', 'START_DECLINED']
+  APPROVED: {
+    allowedRole: ['parent']
   },
-  START_APPROVED: {
-    allowedRole: ['parent'],
-    availableNextMove: ['STARTED']
+  REJECTED: {
+    allowedRole: ['parent']
   },
-  START_DECLINED: {
-    allowedRole: ['parent'],
-    availableNextMove: []
-  },
-  STARTED: {
-    allowedRole: ['child'],
-    availableNextMove: ['FINISHED']
-  },
-  FINISHED: {
-    allowedRole: ['child'],
-    availableNextMove: ['FINISH_DECLINED', 'PAID']
-  },
-  FINISH_DECLINED: {
-    allowedRole: ['parent'],
-    availableNextMove: ['FINISHED']
-  },
-  PAID: {
-    allowedRole: ['parent'],
-    availableNextMove: []
+  CANCELED: {
+    allowedRole: ['child']
   }
 };
+const WITHDRAWAL_TABLENAME = 'Withdrawals';
 
-export default class JobModel {
+export default class WithdrawalModel {
   constructor() {
     this.dbClient = dbClient;
   }
 
   fetchById(id) {
     const params = {
-      TableName: JOB_TABLENAME,
+      TableName: WITHDRAWAL_TABLENAME,
       IndexName: 'id-index',
       KeyConditionExpression: 'id = :hkey',
       ExpressionAttributeValues: {
@@ -60,7 +40,7 @@ export default class JobModel {
 
   fetchByFamilyId(familyId, lastEvaluatedKey, limit = 10) {
     const params = {
-      TableName: JOB_TABLENAME,
+      TableName: WITHDRAWAL_TABLENAME,
       Limit: limit,
       ScanIndexForward: false,
       IndexName: 'familyId-modified-index',
@@ -78,11 +58,10 @@ export default class JobModel {
 
   fetchByFamilyMember(familyId, userId, lastEvaluatedKey, limit = 10) {
     const params = {
-      TableName: JOB_TABLENAME,
+      TableName: WITHDRAWAL_TABLENAME,
       Limit: limit,
       ScanIndexForward: false,
-      IndexName: 'familyId-childUserId__modifiedTimestamp-index',
-      KeyConditionExpression: 'familyId = :hkey AND begins_with(childUserId__modifiedTimestamp, :rkey)',
+      KeyConditionExpression: 'familyId = :hkey AND begins_with(childUserId__createdTimestamp, :rkey)',
       ExpressionAttributeValues: {
         ':hkey': familyId,
         ':rkey': userId
@@ -93,25 +72,24 @@ export default class JobModel {
     return this.dbClient('query', params);
   }
 
-  create(currentUserId, jobData) {
+  create(currentUserId, payload) {
     const now = new Date();
     const timestamp = now.getTime();
+    const WHITE_LIST = ['familyId', 'amount', 'childUserId'];
 
     const params = {
-      TableName: JOB_TABLENAME,
+      TableName: WITHDRAWAL_TABLENAME,
       Item: {
-        ...omit(['meta'], jobData),
+        ...pick(WHITE_LIST, payload),
         id: uuidv1(),
         modified: now.toISOString(),
-        modifiedTimestamp__familyId: `${timestamp}__${jobData.familyId}`,
-        childUserId__createdTimestamp: `${jobData.childUserId}__${timestamp}`,
-        childUserId__modifiedTimestamp: `${jobData.childUserId}__${timestamp}`,
+        childUserId__createdTimestamp: `${payload.childUserId}__${timestamp}`,
+        status: 'PENDING',
         history: [
           {
-            status: jobData.status,
+            status: 'PENDING',
             issuedAt: timestamp,
-            issuedBy: currentUserId,
-            meta: jobData.meta
+            issuedBy: currentUserId
           }
         ]
       }
@@ -120,37 +98,54 @@ export default class JobModel {
     return this.dbClient('put', params).then(() => params.Item);
   }
 
-  updateStatus(currentUserId, newData, currentJob) {
+  updateStatus(currentUserId, newStatus, currentWithdrawal) {
     const now = new Date();
     const primaryKeys = ['familyId', 'childUserId__createdTimestamp'];
 
     const params = {
-      TableName: JOB_TABLENAME,
-      Key: pick(primaryKeys, currentJob),
+      TableName: WITHDRAWAL_TABLENAME,
+      Key: pick(primaryKeys, currentWithdrawal),
       UpdateExpression: [
         'SET history = list_append(history, :h)',
         '#st = :s',
         'modified = :m',
-        'childUserId__modifiedTimestamp = :cm',
-        'modifiedTimestamp__familyId = :mf'
       ].join(', '),
       ExpressionAttributeNames: {
         '#st': 'status'
       },
       ExpressionAttributeValues: {
         ':h': [{
-          ...newData,
+          status: newStatus,
           issuedAt: now.getTime(),
           issuedBy: currentUserId
         }],
-        ':s': newData.status,
+        ':s': newStatus,
         ':m': now.toISOString(),
-        ':cm': `${currentJob.childUserId}__${now.getTime()}`,
-        ':mf': `${now.getTime()}__${currentJob.familyId}`
       },
       ReturnValues: 'ALL_NEW'
     };
 
     return this.dbClient('update', params).then(data => data.Attributes);
+  }
+
+  getPendingAmount(familyId, childUserId) {
+    const params = {
+      TableName: WITHDRAWAL_TABLENAME,
+      ScanIndexForward: false,
+      KeyConditionExpression: 'familyId = :hkey AND begins_with(childUserId__createdTimestamp, :rkey)',
+      FilterExpression: '#st = :s',
+      ExpressionAttributeNames: {
+        '#st': 'status'
+      },
+      ExpressionAttributeValues: {
+        ':s': 'PENDING',
+        ':hkey': familyId,
+        ':rkey': childUserId
+      }
+    };
+
+    return this.dbClient('query', params)
+      .then(({ Items }) =>
+        Items.reduce((acc, curr) => (curr.amount + acc), 0));
   }
 }

@@ -1,5 +1,5 @@
 [{
-    "id": "c796d733-9779-45c5-a130-20fd1fd0b652",
+    "familyId": "c796d733-9779-45c5-a130-20fd1fd0b652",
     "userId": "a2f5acbc-6e3e-4acf-b13f-9ea98e474237",
     "created": 1506423488524,
     "userSummary": {
@@ -7,7 +7,7 @@
       "type": "parent"
     }
 }, {
-    "id": "c796d733-9779-45c5-a130-20fd1fd0b652",
+    "familyId": "c796d733-9779-45c5-a130-20fd1fd0b652",
     "userId": "dc3e0ab5-45d9-494a-b94e-b5a9840a78c5",
     "created": 1506423488524,
     "userSummary": {
@@ -17,7 +17,7 @@
       "completedJobs": 0
     }
 }, {
-    "id": "c796d733-9779-45c5-a130-20fd1fd0b652",
+    "familyId": "c796d733-9779-45c5-a130-20fd1fd0b652",
     "userId": "865f6e20-01bd-4aea-b092-a035dca754cd",
     "created": 1506423488524,
     "userSummary": {

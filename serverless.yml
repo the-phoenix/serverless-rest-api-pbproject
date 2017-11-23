@@ -55,6 +55,10 @@ custom:
             sources: [./fixtures/offline-seeds/family-user.json]
           - table: ${file(fixtures/migrations/job.yml):Properties.TableName}
             sources: [./fixtures/offline-seeds/job.json]
+          - table: ${file(fixtures/migrations/withdrawal.yml):Properties.TableName}
+            sources: [./fixtures/offline-seeds/withdrawal.json]
+          - table: ${file(fixtures/migrations/transaction.yml):Properties.TableName}
+            sources: [./fixtures/offline-seeds/transaction.json]
 #  serverless-mocha-plugin:
 #    preTestCommands:
 #      - bash ./test/support/startOffline.sh
@@ -90,23 +94,6 @@ functions:
           authorizer:
             name: authorizer
             arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
-  listJobsByFamilyMember:
-    handler: src/handlers/user.listJobs
-    events:
-      - http:
-          method: POST
-          path: user/me/jobs/{familyId}
-          cors: true
-          authorizer:
-            name: authorizer
-            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
-      - http:
-          method: POST
-          path: user/{userId}/jobs/{familyId}
-          cors: true
-          authorizer:
-            name: authorizer
-            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
   getFamily:
     handler: src/handlers/family.get
     events:
@@ -133,16 +120,6 @@ functions:
       - http:
           method: POST
           path: family/join
-          cors: true
-          authorizer:
-            name: authorizer
-            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
-  listJobsByFamily:
-    handler: src/handlers/family.listJobs
-    events:
-      - http:
-          method: POST
-          path: family/{familyId}/jobs
           cors: true
           authorizer:
             name: authorizer
@@ -191,6 +168,126 @@ functions:
           authorizer:
             name: authorizer
             arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+  listJobsByFamilyMember:
+    handler: src/handlers/job.listByFamilyMember
+    events:
+      - http:
+          method: POST
+          path: user/me/jobs/{familyId}
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+      - http:
+          method: POST
+          path: user/{userId}/jobs/{familyId}
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+  listJobsByFamily:
+    handler: src/handlers/job.listByFamily
+    events:
+      - http:
+          method: POST
+          path: family/{familyId}/jobs
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+  getWithdrawal:
+    handler: src/handlers/withdrawal.get
+    events:
+      - http:
+          method: GET
+          path: withdrawal/{withdrawalId}
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+  createWithdrawal:
+    handler: src/handlers/withdrawal.create
+    events:
+      - http:
+          method: POST
+          path: withdrawal
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+  updateWithdrawalStatus:
+    handler: src/handlers/withdrawal.updateStatus
+    events:
+      - http:
+          method: PUT
+          path: withdrawal/{withdrawalId}/status
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+  listWithdrawalsByFamilyMember:
+    handler: src/handlers/withdrawal.listByFamilyMember
+    events:
+      - http:
+          method: POST
+          path: user/me/withdrawals/{familyId}
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+      - http:
+          method: POST
+          path: user/{userId}/withdrawals/{familyId}
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+  listWithdrawalsByFamily:
+    handler: src/handlers/withdrawal.listByFamily
+    events:
+      - http:
+          method: POST
+          path: family/{familyId}/withdrawals
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+  listTransactionsByFamilyMember:
+    handler: src/handlers/transaction.listByFamilyMember
+    events:
+      - http:
+          method: POST
+          path: user/me/transactions/{familyId}
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+      - http:
+          method: POST
+          path: user/{userId}/transactions/{familyId}
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+  listTransactionsByFamily:
+    handler: src/handlers/transaction.listByFamily
+    events:
+      - http:
+          method: POST
+          path: family/{familyId}/transactions
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+  forgotUsername:
+    handler: src/handlers/remind.forgotUsername
+    events:
+      - http:
+          method: POST
+          path: remind/family_usernames
+          cors: true
+          #authorizer: aws_iam
+
 
 # you can add CloudFormation resource templates here
 # resources:
@@ -203,8 +300,10 @@ functions:
 #     NewOutput:
 #       Description: "Description for the output"
 #       Value: "Some output value"
-# resources:
-#   Resources:
-#     familyTable: ${file(fixtures/migrations/family.yml)}
-#     familyUserTable: ${file(fixtures/migrations/family-user.yml)}
-#     jobTable: ${file(fixtures/migrations/job.yml)}
+resources:
+  Resources:
+    FamilyDynamoDBTable: ${file(fixtures/migrations/family.yml)}
+    FamilyUserDynamoDBTable: ${file(fixtures/migrations/family-user.yml)}
+    JobDynamoDBTable: ${file(fixtures/migrations/job.yml)}
+    WithdrawalDynamoDBTable: ${file(fixtures/migrations/withdrawal.yml)}
+    TransactionDynamoDBTable: ${file(fixtures/migrations/transaction.yml)}

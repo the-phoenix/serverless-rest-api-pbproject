@@ -18,15 +18,45 @@ export default class FamilyModel {
       Key: { id }
     };
 
-    return this.dbClient('get', params);
+    return this
+      .dbClient('get', params)
+      .then(data => data.Item);
   }
 
-  fetchMembersById(id) {
+  fetchByFamilyEmail(email) {
+    const params = {
+      TableName: FAMILY_TABLENAME,
+      IndexName: 'familyEmail-id-index',
+      KeyConditionExpression: 'familyEmail = :hkey',
+      ExpressionAttributeValues: {
+        ':hkey': email
+      }
+    };
+
+    return this.dbClient('query', params);
+  }
+
+  fetchMember(familyId, userId) {
+    const params = {
+      TableName: FAMILY_USER_TABLENAME,
+      KeyConditionExpression: 'familyId = :hkey AND userId = :rkey',
+      ExpressionAttributeValues: {
+        ':hkey': familyId,
+        ':rkey': userId
+      }
+    };
+
+    return this
+      .dbClient('query', params)
+      .then(data => data.Items[0]);
+  }
+
+  fetchMembersByFamilyId(id) {
     const PULL_FROM_COGNITO = ['picture', 'username', 'email'];
 
     const params = {
       TableName: FAMILY_USER_TABLENAME,
-      KeyConditionExpression: 'id = :hkey',
+      KeyConditionExpression: 'familyId = :hkey',
       ExpressionAttributeValues: {
         ':hkey': id
       }
@@ -53,7 +83,7 @@ export default class FamilyModel {
   fetchByMember(memberId) {
     const params = {
       TableName: FAMILY_USER_TABLENAME,
-      IndexName: 'id-userId-index',
+      IndexName: 'userId-familyId-index',
       KeyConditionExpression: 'userId = :hkey',
       ExpressionAttributeValues: {
         ':hkey': memberId
@@ -84,7 +114,7 @@ export default class FamilyModel {
     const params = {
       TableName: FAMILY_USER_TABLENAME,
       Item: {
-        id: familyId,
+        familyId,
         userId: member.userId,
         created: (new Date()).toISOString(),
         userSummary: pick(SUMMARY_WHITE_LIST, member)
@@ -103,12 +133,9 @@ export default class FamilyModel {
   }
 
   checkIsFamilyMember(familyId, userId) {
-    const isInFamily = fMembers => !!(fMembers
-      .find(fmem => fmem.userId === userId));
-
     return this
-      .fetchMembersById(familyId)
-      .then(isInFamily);
+      .fetchMember(familyId, userId)
+      .then(member => !!member);
   }
 
   updateFamilyMemberAfterJobCompletion(completedJob) {
@@ -122,10 +149,32 @@ export default class FamilyModel {
       Key: primaryKeys,
       UpdateExpression: [
         'SET userSummary.balance = userSummary.balance + :balance',
-        'userSummary.completedJobs = userSummary.completedJobs + 1'
+        'userSummary.completedJobs = userSummary.completedJobs + :cjIncrement'
       ].join(', '),
       ExpressionAttributeValues: {
-        ':balance': completedJob.jobSummary.price
+        ':balance': completedJob.jobSummary.price,
+        ':cjIncrement': 1
+      },
+      ReturnValues: 'ALL_NEW'
+    };
+
+    return this.dbClient('update', params).then(data => data.Attributes);
+  }
+
+  updateFamilyMemberAfterWithdrawal(approvedWithdrawal) {
+    const primaryKeys = {
+      id: approvedWithdrawal.familyId,
+      userId: approvedWithdrawal.childUserId
+    };
+
+    const params = {
+      TableName: FAMILY_USER_TABLENAME,
+      Key: primaryKeys,
+      UpdateExpression: [
+        'SET userSummary.balance = userSummary.balance - :balance'
+      ].join(', '),
+      ExpressionAttributeValues: {
+        ':balance': approvedWithdrawal.amount
       },
       ReturnValues: 'ALL_NEW'
     };

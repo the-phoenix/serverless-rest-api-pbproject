@@ -1,0 +1,55 @@
+1. Forgot password
+
+do this - child without email wants to reset pin and they enter their username in forgot PIN page.
+1. Send the family email (should reach the parent) an email saying 'Your child <username> has forgotten their PIN for Pennybox. You can reset it for them by logging into Pennybox, going to their profile and changing it for them'.
+2. Parent logs in, goes to child's profile, presses change PIN - trigger Cognito verification code to parents email for that child and show reset pop up
+3. Parent changes child's pin
+4. Parent then shares the new pin with the child, and child logs in.
+
+2. Send email logic
+Sendinblue login details
+Username: hello@pennybox.com
+Password: Penny6666
+
+For these automated emails related to account info/password reset, verification etc, please use `noreply@pennybox.com`
+
+For any informational emails like Welcome to Pennybox etc (which is already there and needs to be plugged into the new back end), use `hello@pennybox.com`
+
+
+3. Job create/edit permission
+Job creator + any parent can edit all job details, including photo while status is not started.
+Job creator + any parent can only edit title and photo after starting and before completed and paid status. Cannot edit amount or allocated child.
+Job creator can delete any task while status is not started.
+Any parent can delete any task before status is completed and paid.
+
+
+4. Cash balance
+
+Two ways for cash balances to reduce right now:
+
+1. Parent goes to a child's profile screen and clicks 'pay cash' and enters an amount.
+That amount is removed immediately, no approval required,
+but with a notification to the child.
+This is where a parent is buying something for their child and
+but the child is paying for it.
+
+2. Child, in their app profile page clicks 'request cash' and enters an amount.
+It doesn't reduce the balance immediately in the child's account,
+but is sent for an approval from the parent (notification to parent).
+If the parent approves, the balance is reduced for that child and
+the child receives a notification saying its been approved and to collect the cash.
+
+2a. In the future, same as scenario 2 above, but a parent can also reject the request.
+  Then the amount is not reduced and a notification is sent to child saying it was rejected.
+  There is no front end button for this yet but we can add that easily.
+2b. In the future, we'll show pending cash out requests on the child's profile -
+  a child will be able to click into it and cancel it if it hasn't already been approved/rejected.
+
+A note: say a child has a $3 balance and sends a request for $2 but hasn't been approved yet. 
+Before that approval their balance still shows $3, so they can send another request for $2.
+If both are approved at the same time by the parent,
+then the child's balance goes into negative -$1 which is not allowed.
+Right now we handle this on the front end,
+but it'd be useful in the future to have an check in the back end
+for Actual Balance - Pending Withdrawals = Available Balance.
+So any check before a child can send a request under scenario 2 would be on available balance.

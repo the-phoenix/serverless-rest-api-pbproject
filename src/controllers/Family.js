@@ -1,5 +1,5 @@
 import Boom from 'boom';
-import { map, omit, isEmpty } from 'ramda';
+import * as R from 'ramda';
 import FamilyModel from 'models/Family';
 import UserModel from 'models/User';
 
@@ -14,22 +14,22 @@ export default class FamilyController {
     const promises$ = [this.family.fetchById(id)];
     const isFull = scope && scope === 'full';
 
-    isFull && promises$.push(this.family.fetchMembersById(id));
+    isFull && promises$.push(this.family.fetchMembersByFamilyId(id));
     const respData = await Promise.all(promises$);
 
     if (!isFull) {
-      return respData[0].Item;
+      return respData[0];
     }
 
     return {
-      ...respData[0].Item,
-      members: map(omit('id'), respData[1])
+      ...respData[0],
+      members: R.map(R.omit('id'), respData[1])
     };
   }
 
   async fetchByUserId(userId) {
     const familyUserData = await this.family.fetchByMember(userId);
-    const promises$ = familyUserData.Items.map(family => this.get(family.id));
+    const promises$ = familyUserData.Items.map(family => this.get(family.familyId));
 
     return Promise.all(promises$);
   }
@@ -49,7 +49,7 @@ export default class FamilyController {
 
   async join(user, targetFamilyId) {
     const family = await this.family.fetchById(targetFamilyId);
-    if (isEmpty(family.Item)) {
+    if (R.isEmpty(family.Item)) {
       return Promise.reject(Boom.notFound('not existing family'));
     }
 
@@ -57,7 +57,7 @@ export default class FamilyController {
 
     if (familyUserData.Count > 2) {
       return Promise.reject(Boom.badRequest('can\'t join more than 2 families'));
-    } else if (familyUserData.Items.find(item => item.id === targetFamilyId)) {
+    } else if (familyUserData.Items.find(item => item.familyId === targetFamilyId)) {
       return Promise.reject(Boom.badRequest('already member of target family'));
     }
 
@@ -67,7 +67,7 @@ export default class FamilyController {
 
     // copy family admin email to child's email
     if (user.type === 'child'/* && !user.email */) {
-      promises$.push(this.user.updateAttribute(user, [
+      promises$.push(this.user.updateAttribute(user['cognito:username'], [
         {
           Name: 'email',
           Value: family.Item.adminSummary.email
@@ -80,5 +80,32 @@ export default class FamilyController {
     }
 
     return Promise.all(promises$);
+  }
+
+  async emailFamilyUsernames(familyEmail) {
+    const users = await this.user.fetchByAttribute('email', familyEmail);
+
+    if (!users.length) {
+      return Promise.reject(Boom.notFound('Not found family with given family email'));
+    }
+
+    const getAttribValue = attribName => R.compose(
+      R.path(['Value']),
+      R.find(R.propEq('Name', attribName)),
+    );
+
+    const sort = R.sortWith([
+      R.descend(R.prop('type')),
+      R.ascend(R.prop('username')),
+    ]);
+
+    const data = users
+      .filter(user => user.Enabled)
+      .map(user => ({
+        username: getAttribValue('preferred_username')(user.Attributes),
+        type: getAttribValue('custom:type')(user.Attributes)
+      }));
+
+    return sort(data);
   }
 }

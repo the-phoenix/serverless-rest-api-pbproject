@@ -1,8 +1,10 @@
 import Boom from 'boom';
 import { pick } from 'ramda';
-import JobModel from 'models/Job';
 import { isOffline } from 'utils/db-client';
+import JobModel from 'models/Job';
 import FamilyModel from 'models/Family';
+import TransactionModel from 'models/Transaction';
+
 import {
   checkAllowedJobStatusSafeUpdate as checkSafeStatus
 } from 'utils/validation';
@@ -11,6 +13,7 @@ export default class JobController {
   constructor() {
     this.job = new JobModel();
     this.family = new FamilyModel();
+    this.transaction = new TransactionModel();
   }
 
   async get(id) {
@@ -81,11 +84,12 @@ export default class JobController {
       throw Boom.badRequest(safetyError.error.details);
     }
 
-    const updated = await this.job.updateStatus(currentUser.userId, reqParam, jobData);
-    if (updated.status === 'PAID') {
-      await this.family.updateFamilyMemberAfterJobCompletion(updated);
+    const updatedJob = await this.job.updateStatus(currentUser.userId, reqParam, jobData);
+    if (updatedJob.status === 'PAID') {
+      const { userSummary } = await this.family.updateFamilyMemberAfterJobCompletion(updatedJob);
+      await this.transaction.createFromJobCompletion(userSummary.balance, updatedJob);
     }
 
-    return updated;
+    return updatedJob;
   }
 }

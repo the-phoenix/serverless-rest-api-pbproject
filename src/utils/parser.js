@@ -39,7 +39,7 @@ export default function parseEvent(event) {
 export function parseCognitoEvent(event) {
   return {
     attributes: path(['request', 'userAttributes'], event),
-    userName: event.userName,
+    cognitoUserName: event.userName,
     userPoolId: event.userPoolId,
     validationData: path(['request', 'validationData'], event) || {}
   };

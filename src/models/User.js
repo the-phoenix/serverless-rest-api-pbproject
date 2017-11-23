@@ -67,11 +67,11 @@ export default class UserModel {
       .then(data => data.Users);
   }
 
-  addUserToGroup(userName, groupName, userPoolId) {
+  addUserToGroup(cognitoUserName, groupName, userPoolId) {
     const params = {
       UserPoolId: userPoolId || process.env.COGNITO_POOL_ID,
       GroupName: groupName,
-      Username: userName
+      Username: cognitoUserName
     };
 
     return this.cognito
@@ -79,10 +79,10 @@ export default class UserModel {
       .promise();
   }
 
-  updateAttribute(user, attributes, userPoolId) {
+  updateAttribute(cognitoUserName, attributes, userPoolId) {
     const params = {
       UserPoolId: userPoolId || process.env.COGNITO_POOL_ID,
-      Username: user['cognito:username'],
+      Username: cognitoUserName,
       UserAttributes: attributes
     };
 

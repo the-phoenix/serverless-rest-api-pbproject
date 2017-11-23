@@ -1,29 +1,28 @@
 Type: AWS::DynamoDB::Table
 DeletionPolicy : Retain
 Properties:
-  TableName: ${self:custom.DB_PREFIX}-FamiliesUsers
+  TableName: ${self:custom.DB_PREFIX}-Transactions
   AttributeDefinitions:
     - AttributeName: familyId
       AttributeType: S
-    - AttributeName: userId
+    - AttributeName: created
+      AttributeType: S
+    - AttributeName: childUserId__createdTimestamp
       AttributeType: S
   KeySchema:
     - AttributeName: familyId
       KeyType: HASH
-    - AttributeName: userId
+    - AttributeName: childUserId__createdTimestamp
       KeyType: RANGE
   ProvisionedThroughput:
     ReadCapacityUnits: 5
     WriteCapacityUnits: 5
-  GlobalSecondaryIndexes:
-    - IndexName: userId-familyId-index
+  LocalSecondaryIndexes:
+    - IndexName: familyId-created-index
       KeySchema:
-        - AttributeName: userId
-          KeyType: HASH
         - AttributeName: familyId
+          KeyType: HASH
+        - AttributeName: created
           KeyType: RANGE
       Projection:
         ProjectionType: ALL
-      ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5

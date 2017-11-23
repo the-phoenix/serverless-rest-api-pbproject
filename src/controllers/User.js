@@ -1,3 +1,4 @@
+import { pathOr } from 'ramda';
 import UserModel from 'models/User';
 import { checkIfReserved, checkIfProfane } from 'utils/validation';
 
@@ -33,7 +34,7 @@ export default class User {
         return Users.find(user =>
           user.Attributes.filter(attrib =>
             (attrib.Name === 'custom:type' && attrib.Value === 'parent') ||
-            (attrib.Name === 'email' && attrib.Value === email)).length === 2);
+            (attrib.Name === 'email' && attrib.Value === email)).length === 2); // Todos: no need of this line
       });
   }
 
@@ -43,8 +44,17 @@ export default class User {
       .then(Users => !!Users.length);
   }
 
-  async addUserToGroup(...args) {
-    return this.user
-      .addUserToGroup(...args);
+  async postConfirmation(cognitoUserName, attributes, userPoolId) {
+    const groupName = pathOr('child', ['custom:type'], attributes) === 'child'
+      ? 'Child' : 'Parent';
+
+    if (groupName === 'Parent') {
+      await this.user.updateAttribute(cognitoUserName, {
+        Name: 'email_verified',
+        Value: 'true'
+      });
+    }
+
+    return this.user.addUserToGroup(cognitoUserName, groupName, userPoolId);
   }
 }

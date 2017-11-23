@@ -1,4 +1,4 @@
-import { path, pathOr } from 'ramda';
+import { path } from 'ramda';
 import { parseCognitoEvent } from 'utils/parser';
 import UserController from 'controllers/User';
 
@@ -57,15 +57,11 @@ export async function postConfirmation(event, context) {
   const {
     attributes,
     userPoolId,
-    userName
+    cognitoUserName
   } = parseCognitoEvent(event);
 
-  console.log('Want to see event', JSON.stringify(event));
   try {
-    const groupName = pathOr('child', ['custom:type'], attributes) === 'child'
-      ? 'Child' : 'Parent';
-
-    await user.addUserToGroup(userName, groupName, userPoolId);
+    await user.postConfirmation(cognitoUserName, attributes, userPoolId);
   } catch (e) {
     return context.done(JSON.stringify({
       errorType: 'add user to group',

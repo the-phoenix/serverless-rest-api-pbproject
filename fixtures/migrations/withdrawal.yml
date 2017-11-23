@@ -1,20 +1,14 @@
 Type: AWS::DynamoDB::Table
 DeletionPolicy : Retain
 Properties:
-  TableName: ${self:custom.DB_PREFIX}-Jobs
+  TableName: ${self:custom.DB_PREFIX}-Withdrawals
   AttributeDefinitions:
     - AttributeName: familyId
       AttributeType: S
-#    - AttributeName: childUserId
-#      AttributeType: S
     - AttributeName: modified
       AttributeType: S
     - AttributeName: childUserId__createdTimestamp
       AttributeType: S
-    - AttributeName: childUserId__modifiedTimestamp
-      AttributeType: S
-#    - AttributeName: modifiedTimestamp_familyId
-#      AttributeType: S
     - AttributeName: id
       AttributeType: S
   KeySchema:
@@ -31,14 +25,6 @@ Properties:
         - AttributeName: familyId
           KeyType: HASH
         - AttributeName: modified
-          KeyType: RANGE
-      Projection:
-        ProjectionType: ALL
-    - IndexName: familyId-childUserId__modifiedTimestamp-index
-      KeySchema:
-        - AttributeName: familyId
-          KeyType: HASH
-        - AttributeName: childUserId__modifiedTimestamp
           KeyType: RANGE
       Projection:
         ProjectionType: ALL

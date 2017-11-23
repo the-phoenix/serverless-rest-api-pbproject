@@ -1,20 +1,21 @@
 import Boom from 'boom';
 import { success, failure } from 'utils/response';
 import parseEvent from 'utils/parser';
-import JobController from 'controllers/Job';
+import WithdrawalController from 'controllers/Withdrawal';
 import {
-  checkCreateJobDataSchema,
-  checkUpdateJobStatusSchema,
+  checkCreateWithdrawalDataSchema,
+  checkUpdateWithdrawalStatusSchema,
 } from 'utils/validation';
 
-const job = new JobController();
+const withdrawal = new WithdrawalController();
 
 export async function get(event, context, callback) {
   let response;
 
   try {
     const { params } = parseEvent(event);
-    const data = await job.get(params.jobId);
+    console.log('hey', params);
+    const data = await withdrawal.get(params.withdrawalId);
 
     if (!data) {
       throw Boom.notFound('Not existing job');
@@ -34,7 +35,7 @@ export async function create(event, context, callback) {
 
   try {
     const { currentUser, body } = parseEvent(event);
-    const { error } = checkCreateJobDataSchema(body);
+    const { error } = checkCreateWithdrawalDataSchema(body);
 
     if (error) {
       throw Boom.badRequest({
@@ -48,11 +49,11 @@ export async function create(event, context, callback) {
       });
     }
 
-    const created = await job.create(currentUser, body);
+    const created = await withdrawal.create(currentUser, body);
 
     response = success(JSON.stringify(created), true);
   } catch (e) {
-    console.log('Error from job.create', e);
+    console.log('Error from withdrawal.create', e);
     response = failure(e);
   }
 
@@ -65,7 +66,7 @@ export async function updateStatus(event, context, callback) {
   try {
     const { currentUser, body, params } = parseEvent(event);
 
-    const schemaError = checkUpdateJobStatusSchema(body);
+    const schemaError = checkUpdateWithdrawalStatusSchema(body);
     if (schemaError.error) {
       throw failure(Boom.badRequest({
         errorType: 'validation error',
@@ -73,10 +74,10 @@ export async function updateStatus(event, context, callback) {
       }));
     }
 
-    const updated = await job.safeUpdateStatus(currentUser, params.jobId, body);
+    const updated = await withdrawal.safeUpdateStatus(currentUser, params.withdrawalId, body);
     response = success(JSON.stringify(updated));
   } catch (e) {
-    console.log('Error from job.updateStatus', e);
+    console.log('Error from withdrawal.updateStatus', e);
     response = failure(e);
   }
 
@@ -96,7 +97,7 @@ export async function listByFamily(event, context, callback) {
       currentUser.userId, params.familyId, body.lastEvaluatedKey, body.limit
     ];
 
-    const data = await job.listByFamily(...ctrlParams);
+    const data = await withdrawal.listByFamily(...ctrlParams);
 
     if (!data) {
       throw Boom.notFound('No jobs existing');
@@ -104,7 +105,7 @@ export async function listByFamily(event, context, callback) {
 
     response = success(JSON.stringify(data));
   } catch (e) {
-    console.log('Error from job.listByFamily', e);
+    console.log('Error from withdrawal.listByFamily', e);
     response = failure(e);
   }
 
@@ -125,15 +126,15 @@ export async function listByFamilyMember(event, context, callback) {
       userId, params.familyId, body.lastEvaluatedKey, body.limit
     ];
 
-    const data = await job.listByFamilyMember(...ctrlParams);
+    const data = await withdrawal.listByFamilyMember(...ctrlParams);
 
     if (!data) {
-      throw Boom.notFound('No jobs existing');
+      throw Boom.notFound('No withdrawal request existing');
     }
 
     response = success(JSON.stringify(data));
   } catch (e) {
-    console.log('Error from job.listByFamilyMember', e);
+    console.log('Error from withdrawal.listByFamilyMember', e);
     response = failure(e);
   }
 
@@ -141,5 +142,5 @@ export async function listByFamilyMember(event, context, callback) {
 }
 
 export default {
-  get, create, updateStatus, listByFamily, listByFamilyMember
+  get, create, updateStatus, listByFamilyMember, listByFamily
 };
