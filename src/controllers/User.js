@@ -49,10 +49,10 @@ export default class User {
       ? 'Child' : 'Parent';
 
     if (groupName === 'Parent') {
-      await this.user.updateAttribute(cognitoUserName, {
+      await this.user.updateAttributes(cognitoUserName, [{
         Name: 'email_verified',
         Value: 'true'
-      });
+      }]);
     }
 
     return this.user.addUserToGroup(cognitoUserName, groupName, userPoolId);

@@ -67,10 +67,10 @@ export default class FamilyController {
 
     // copy family admin email to child's email
     if (user.type === 'child'/* && !user.email */) {
-      promises$.push(this.user.updateAttribute(user['cognito:username'], [
+      promises$.push(this.user.updateAttributes(user['cognito:username'], [
         {
           Name: 'email',
-          Value: family.Item.adminSummary.email
+          Value: family.adminSummary.email
         },
         {
           Name: 'email_verified',

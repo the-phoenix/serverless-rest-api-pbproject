@@ -79,7 +79,7 @@ export default class UserModel {
       .promise();
   }
 
-  updateAttribute(cognitoUserName, attributes, userPoolId) {
+  updateAttributes(cognitoUserName, attributes, userPoolId) {
     const params = {
       UserPoolId: userPoolId || process.env.COGNITO_POOL_ID,
       Username: cognitoUserName,
