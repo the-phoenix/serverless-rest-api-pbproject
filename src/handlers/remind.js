@@ -24,9 +24,8 @@ export async function forgotUsername(event, context, callback) {
 
     const data = await family.emailFamilyUsernames(body.email);
 
-    response = success(JSON.stringify(data), true);
+    response = success(data, true);
   } catch (e) {
-    console.log('Error from getFamilyMemberUsernames', e);
     response = failure(e);
   }
 

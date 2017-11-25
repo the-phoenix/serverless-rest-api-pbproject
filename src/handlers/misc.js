@@ -6,7 +6,7 @@ export function health(event, context, callback) {
     requiredVersion: '1.1.0'
   };
 
-  const response = success(JSON.stringify(healthData));
+  const response = success(healthData);
 
   callback(null, response);
 }

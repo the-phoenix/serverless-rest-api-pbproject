@@ -16,9 +16,8 @@ export async function get(event, context, callback) {
       throw Boom.notFound('Not existing family');
     }
 
-    response = success(JSON.stringify(data));
+    response = success(data);
   } catch (e) {
-    console.log('Error from getFamily', e);
     response = failure(e);
   }
 
@@ -38,9 +37,8 @@ export async function create(event, context, callback) {
 
     const data = await family.create(currentUser);
 
-    response = success(JSON.stringify(data), true);
+    response = success(data, true);
   } catch (e) {
-    console.log('Error from createFamily', e);
     response = failure(e);
   }
 
@@ -59,9 +57,8 @@ export async function join(event, context, callback) {
 
     await family.join(currentUser, body.familyId);
 
-    response = success(JSON.stringify({ message: 'joined ' }));
+    response = success({ message: 'joined ' });
   } catch (e) {
-    console.log('Error from join', e);
     response = failure(e);
   }
 

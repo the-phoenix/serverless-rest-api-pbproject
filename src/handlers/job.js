@@ -20,9 +20,8 @@ export async function get(event, context, callback) {
       throw Boom.notFound('Not existing job');
     }
 
-    response = success(JSON.stringify(data));
+    response = success(data);
   } catch (e) {
-    console.log('Error from job.get', e);
     response = failure(e);
   }
 
@@ -50,9 +49,8 @@ export async function create(event, context, callback) {
 
     const created = await job.create(currentUser, body);
 
-    response = success(JSON.stringify(created), true);
+    response = success(created, true);
   } catch (e) {
-    console.log('Error from job.create', e);
     response = failure(e);
   }
 
@@ -74,9 +72,8 @@ export async function updateStatus(event, context, callback) {
     }
 
     const updated = await job.safeUpdateStatus(currentUser, params.jobId, body);
-    response = success(JSON.stringify(updated));
+    response = success(updated);
   } catch (e) {
-    console.log('Error from job.updateStatus', e);
     response = failure(e);
   }
 
@@ -102,9 +99,8 @@ export async function listByFamily(event, context, callback) {
       throw Boom.notFound('No jobs existing');
     }
 
-    response = success(JSON.stringify(data));
+    response = success(data);
   } catch (e) {
-    console.log('Error from job.listByFamily', e);
     response = failure(e);
   }
 
@@ -131,9 +127,8 @@ export async function listByFamilyMember(event, context, callback) {
       throw Boom.notFound('No jobs existing');
     }
 
-    response = success(JSON.stringify(data));
+    response = success(data);
   } catch (e) {
-    console.log('Error from job.listByFamilyMember', e);
     response = failure(e);
   }
 

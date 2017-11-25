@@ -16,9 +16,8 @@ export async function get(event, context, callback) {
       throw Boom.notFound('Not existing transaction history');
     }
 
-    response = success(JSON.stringify(data));
+    response = success(data);
   } catch (e) {
-    console.log('Error from transaction.get', e);
     response = failure(e);
   }
 
@@ -44,9 +43,8 @@ export async function listByFamily(event, context, callback) {
       throw Boom.notFound('No transaction history existing');
     }
 
-    response = success(JSON.stringify(data));
+    response = success(data);
   } catch (e) {
-    console.log('Error from transaction.listByFamily', e);
     response = failure(e);
   }
 
@@ -73,9 +71,8 @@ export async function listByFamilyMember(event, context, callback) {
       throw Boom.notFound('No transaction history existing');
     }
 
-    response = success(JSON.stringify(data));
+    response = success(data);
   } catch (e) {
-    console.log('Error from transaction.listByFamilyMember', e);
     response = failure(e);
   }
 

@@ -113,7 +113,7 @@ export default class WithdrawalController {
     if (updatedWithdrawal.status === 'APPROVED') {
       const { userSummary } = await this.family
         .updateFamilyMemberAfterWithdrawal(updatedWithdrawal);
-      await this.transaction.createFromJobCompletion(userSummary.balance, updatedWithdrawal);
+      await this.transaction.createFromWithdrawal(userSummary.balance, updatedWithdrawal);
     }
 
     return updatedWithdrawal;
