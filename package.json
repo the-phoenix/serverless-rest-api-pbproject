@@ -42,7 +42,7 @@
     "serverless-dynamodb-local": "^0.2.25",
     "serverless-mocha-plugin": "^1.7.0",
     "serverless-offline": "^3.16.0",
-    "serverless-webpack": "^4.0.0",
+    "serverless-webpack": "^4.1.0",
     "webpack": "^3.6.0",
     "webpack-node-externals": "^1.6.0"
   },
@@ -52,6 +52,7 @@
     "jsonwebtoken": "^8.1.0",
     "pluralize": "^7.0.0",
     "ramda": "^0.24.1",
+    "sendinblue-api": "^1.0.8",
     "swearjar": "^0.2.0"
   },
   "lint-staged": {

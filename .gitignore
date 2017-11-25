@@ -28,3 +28,4 @@ jspm_packages
 .serverless
 .webpack
 package-lock.json
+cred.yml

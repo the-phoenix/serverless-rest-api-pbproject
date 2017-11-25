@@ -1,4 +1,4 @@
-import Boom from 'boom';
+import boom from 'boom';
 
 const DEBUG_BOOM = process.env.DEBUG_BOOM;  // eslint-disable-line
 const DEBUG_INTERNAL = process.env.DEBUG_INTERNAL;  // eslint-disable-line
@@ -19,7 +19,7 @@ export function success(body, isCreated) {
 }
 
 export function failure(err) {
-  if (Boom.isBoom(err)) {
+  if (boom.isBoom(err)) {
     DEBUG_BOOM && console.log(err);
     return buildResponse(err.statusCode, err.message);
   }

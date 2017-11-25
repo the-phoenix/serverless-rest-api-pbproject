@@ -5,6 +5,9 @@ import FamilyController from 'controllers/Family';
 import {
   checkGetFamilyMemberUsernamesSchema
 } from 'utils/validation';
+import {
+  sendFamilyUsernamesReminder
+} from 'utils/mailer';
 
 const family = new FamilyController();
 
@@ -22,9 +25,12 @@ export async function forgotUsername(event, context, callback) {
       });
     }
 
-    const data = await family.emailFamilyUsernames(body.email);
+    const data = await family.getFamilyUsernames(body.email);
 
-    response = success(data, true);
+    const usernames = data.map(one => one.username);
+    await sendFamilyUsernamesReminder(body.email, usernames.join('<br/>'));
+
+    response = success('Email sent');
   } catch (e) {
     response = failure(e);
   }

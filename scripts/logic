@@ -11,9 +11,11 @@ Sendinblue login details
 Username: hello@pennybox.com
 Password: Penny6666
 
-For these automated emails related to account info/password reset, verification etc, please use `noreply@pennybox.com`
+For these automated emails related to account info/password reset, verification etc,
+please use `noreply@pennybox.com`
 
-For any informational emails like Welcome to Pennybox etc (which is already there and needs to be plugged into the new back end), use `hello@pennybox.com`
+For any informational emails like Welcome to Pennybox etc
+(which is already there and needs to be plugged into the new back end), use `hello@pennybox.com`
 
 
 3. Job create/edit permission
@@ -45,7 +47,7 @@ the child receives a notification saying its been approved and to collect the ca
 2b. In the future, we'll show pending cash out requests on the child's profile -
   a child will be able to click into it and cancel it if it hasn't already been approved/rejected.
 
-A note: say a child has a $3 balance and sends a request for $2 but hasn't been approved yet. 
+A note: say a child has a $3 balance and sends a request for $2 but hasn't been approved yet.
 Before that approval their balance still shows $3, so they can send another request for $2.
 If both are approved at the same time by the parent,
 then the child's balance goes into negative -$1 which is not allowed.

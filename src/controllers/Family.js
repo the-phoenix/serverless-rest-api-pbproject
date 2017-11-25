@@ -82,7 +82,7 @@ export default class FamilyController {
     return Promise.all(promises$);
   }
 
-  async emailFamilyUsernames(familyEmail) {
+  async getFamilyUsernames(familyEmail) {
     const users = await this.user.fetchByAttribute('email', familyEmail);
 
     if (!users.length) {
