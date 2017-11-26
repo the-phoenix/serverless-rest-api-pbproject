@@ -288,6 +288,14 @@ functions:
           path: remind/family_usernames
           cors: true
           #authorizer: aws_iam
+  forgotPincode:
+    handler: src/handlers/remind.forgotPincode
+    events:
+      - http:
+          method: POST
+          path: remind/forgot_pincode
+          cors: true
+          #authorizer: aws_iam
 
 
 # you can add CloudFormation resource templates here

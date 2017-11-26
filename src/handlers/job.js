@@ -33,18 +33,12 @@ export async function create(event, context, callback) {
 
   try {
     const { currentUser, body } = parseEvent(event);
-    const { error } = checkCreateJobDataSchema(body);
+    const validationError = checkCreateJobDataSchema(body);
 
-    if (error) {
-      throw Boom.badRequest({
-        errorType: 'validation error',
-        errorMessage: error.details,
-      });
+    if (validationError) {
+      throw Boom.preconditionFailed(validationError);
     } else if (currentUser.type === 'parent' && !body.childUserId) {
-      throw Boom.badRequest({
-        errorType: 'validation error',
-        errorMessage: 'childUserId is required',
-      });
+      throw Boom.preconditionFailed('"childUserId" is required');
     }
 
     const created = await job.create(currentUser, body);
@@ -63,12 +57,9 @@ export async function updateStatus(event, context, callback) {
   try {
     const { currentUser, body, params } = parseEvent(event);
 
-    const schemaError = checkUpdateJobStatusSchema(body);
-    if (schemaError.error) {
-      throw failure(Boom.badRequest({
-        errorType: 'validation error',
-        errorMessage: schemaError.error.details,
-      }));
+    const validationError = checkUpdateJobStatusSchema(body);
+    if (validationError) {
+      throw Boom.preconditionFailed(validationError);
     }
 
     const updated = await job.safeUpdateStatus(currentUser, params.jobId, body);

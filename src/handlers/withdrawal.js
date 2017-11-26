@@ -33,18 +33,12 @@ export async function create(event, context, callback) {
 
   try {
     const { currentUser, body } = parseEvent(event);
-    const { error } = checkCreateWithdrawalDataSchema(body);
+    const validationError = checkCreateWithdrawalDataSchema(body);
 
-    if (error) {
-      throw Boom.badRequest({
-        errorType: 'validation error',
-        errorMessage: error.details,
-      });
+    if (validationError) {
+      throw Boom.preconditionFailed(validationError);
     } else if (currentUser.type === 'parent' && !body.childUserId) {
-      throw Boom.badRequest({
-        errorType: 'validation error',
-        errorMessage: 'childUserId is required',
-      });
+      throw Boom.preconditionFailed('"childUserId" is required');
     }
 
     const created = await withdrawal.create(currentUser, body);
@@ -65,10 +59,7 @@ export async function updateStatus(event, context, callback) {
 
     const schemaError = checkUpdateWithdrawalStatusSchema(body);
     if (schemaError.error) {
-      throw failure(Boom.badRequest({
-        errorType: 'validation error',
-        errorMessage: schemaError.error.details,
-      }));
+      throw Boom.badRequest(schemaError.error.details);
     }
 
     const updated = await withdrawal.safeUpdateStatus(currentUser, params.withdrawalId, body);

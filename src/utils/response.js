@@ -21,7 +21,7 @@ export function success(body, isCreated) {
 export function failure(err) {
   if (boom.isBoom(err)) {
     DEBUG_BOOM && console.log(err);
-    return buildResponse(err.statusCode, err.message);
+    return buildResponse(err.output.statusCode, err.output.payload);
   }
 
   DEBUG_INTERNAL && console.log(err);

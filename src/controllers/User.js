@@ -38,10 +38,10 @@ export default class User {
       });
   }
 
-  async checkUsedPreferredName(preferredUsername) {
+  async getByPreferredUsername(preferredUsername) {
     return this.user
       .fetchByAttribute('preferred_username', preferredUsername)
-      .then(Users => !!Users.length);
+      .then(Users => (Users || [])[0]);
   }
 
   async postConfirmation(cognitoUserName, attributes, userPoolId) {

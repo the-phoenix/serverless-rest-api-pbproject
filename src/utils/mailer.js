@@ -7,7 +7,7 @@ const sendin = new SendinBlue({
 
 export const sendFamilyUsernamesReminder = (familyAdminEmail, usernames) => {
   const params = {
-    id: 31, // sendinblue id of forgot username email template 
+    id: 31, // sendinblue id of forgot username email template
     to: familyAdminEmail,
     attr: {
       USERNAMES: usernames
@@ -22,6 +22,24 @@ export const sendFamilyUsernamesReminder = (familyAdminEmail, usernames) => {
   });
 };
 
+export const sendForgotPincodeReminder = (familyAdminEmail, username) => {
+  const params = {
+    id: 32, // sendinblue id of forgot username email template
+    to: familyAdminEmail,
+    attr: {
+      USERNAME: username
+    }
+  };
+
+  return new Promise((resolve, reject) => {
+    sendin.send_transactional_template(params, (error, result) => {
+      if (error) reject(error);
+      else resolve(result);
+    });
+  });
+};
+
 export default {
-  sendFamilyUsernamesReminder
+  sendFamilyUsernamesReminder,
+  sendForgotPincodeReminder
 };

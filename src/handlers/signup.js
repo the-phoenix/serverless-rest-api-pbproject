@@ -29,7 +29,7 @@ export async function preSignup(event, context) {
   }
 
   try {
-    if (await user.checkUsedPreferredName(pureUserName)) {
+    if (await user.getByPreferredUsername(pureUserName)) {
       return context.done(JSON.stringify({
         errorType: 'username validation error',
         errorMessage: 'This username is already registered'

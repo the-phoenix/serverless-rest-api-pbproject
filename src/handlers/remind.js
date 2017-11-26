@@ -1,28 +1,30 @@
 import Boom from 'boom';
+import * as R from 'ramda';
 import { success, failure } from 'utils/response';
 import parseEvent from 'utils/parser';
 import FamilyController from 'controllers/Family';
+import UserController from 'controllers/User';
 import {
-  checkGetFamilyMemberUsernamesSchema
+  checkforgotUsernameSchema,
+  checkforgotPasswordSchema
 } from 'utils/validation';
 import {
-  sendFamilyUsernamesReminder
+  sendFamilyUsernamesReminder,
+  sendForgotPincodeReminder
 } from 'utils/mailer';
 
 const family = new FamilyController();
+const user = new UserController();
 
 export async function forgotUsername(event, context, callback) {
   let response;
 
   try {
     const { body } = parseEvent(event);
-    const { error } = checkGetFamilyMemberUsernamesSchema(body);
+    const validationError = checkforgotUsernameSchema(body);
 
-    if (error) {
-      throw Boom.badRequest({
-        errorType: 'validation error',
-        errorMessage: error.details,
-      });
+    if (validationError) {
+      throw Boom.preconditionFailed(validationError);
     }
 
     const data = await family.getFamilyUsernames(body.email);
@@ -38,4 +40,43 @@ export async function forgotUsername(event, context, callback) {
   callback(null, response);
 }
 
-export default { forgotUsername };
+export async function forgotPincode(event, context, callback) {
+  let response;
+
+  try {
+    const { body } = parseEvent(event);
+    const validationError = checkforgotPasswordSchema(body);
+
+    if (validationError) {
+      throw Boom.preconditionFailed(validationError);
+    }
+
+    const wantedUser = await user.getByPreferredUsername(body.username);
+    if (!wantedUser) {
+      throw Boom.notFound('Not existing user');
+    }
+
+    const getAttribValue = attribName => R.compose(
+      R.path(['Value']),
+      R.find(R.propEq('Name', attribName)),
+    );
+    const userType = getAttribValue('custom:type')(wantedUser.Attributes);
+    const email = getAttribValue('email')(wantedUser.Attributes);
+
+    if (userType === 'parent') {
+      throw Boom.badRequest('parent user is not allowed.');
+    } else if (userType === 'child' && !email) {
+      throw Boom.badRequest('child user with no family. please contact pennybox admin.');
+    }
+
+    await sendForgotPincodeReminder(email, body.username);
+
+    response = success('Email sent');
+  } catch (e) {
+    response = failure(e);
+  }
+
+  callback(null, response);
+}
+
+export default { forgotUsername, forgotPincode };

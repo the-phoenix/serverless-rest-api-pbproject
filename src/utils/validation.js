@@ -1,8 +1,15 @@
 import pluralize from 'pluralize';
 import swearjar from 'swearjar';
 import joi from 'joi';
+import * as R from 'ramda';
 import { availableJobStatus } from 'models/Job';
 import { availableWithdrawalStatus } from 'models/Withdrawal';
+
+// const getPlainError = joiError => R.compose(
+//   R.map(R.prop('message')),
+//   R.path(['error', 'details'])
+// )(joiError).join('\n');
+const getPlainError = joiError => R.path(['error', 'details', 0, 'message'], joiError);
 
 const stripSpecial = str => str.replace(/[^a-zA-Z ]/g, '');
 
@@ -34,7 +41,7 @@ export const checkCreateJobDataSchema = (rawData) => {
     }),
   });
 
-  return joi.validate(rawData, schema);
+  return getPlainError(joi.validate(rawData, schema));
 };
 
 export const checkUpdateJobStatusSchema = (rawData) => {
@@ -43,27 +50,19 @@ export const checkUpdateJobStatusSchema = (rawData) => {
     meta: joi.object()
   });
 
-  return joi.validate(rawData, schema);
+  return getPlainError(joi.validate(rawData, schema));
 };
 
 export const checkAllowedJobStatusSafeUpdate = (userType, original, newone) => {
   if (!availableJobStatus[newone].allowedRole.includes(userType)) {
-    return {
-      error: {
-        details: 'This user type is not allowed to update job to target status'
-      }
-    };
+    return 'This user type is not allowed to update job to target status';
   }
 
   if (!availableJobStatus[original].availableNextMove.includes(newone)) {
-    return {
-      error: {
-        details: 'Forbidden job status update'
-      }
-    };
+    return 'Forbidden job status update';
   }
 
-  return { error: null };
+  return null;
 };
 
 export const checkCreateWithdrawalDataSchema = (rawData) => {
@@ -73,7 +72,7 @@ export const checkCreateWithdrawalDataSchema = (rawData) => {
     amount: joi.number().required()
   });
 
-  return joi.validate(rawData, schema);
+  return getPlainError(joi.validate(rawData, schema));
 };
 
 export const checkUpdateWithdrawalStatusSchema = (rawData) => {
@@ -81,33 +80,33 @@ export const checkUpdateWithdrawalStatusSchema = (rawData) => {
     status: joi.string().valid(Object.keys(availableWithdrawalStatus)).required(),
   });
 
-  return joi.validate(rawData, schema);
+  return getPlainError(joi.validate(rawData, schema));
 };
 
 export const checkAllowedWithdrawalStatusSafeUpdate = (userType, original, newone) => {
   if (original !== 'PENDING') {
-    return {
-      error: {
-        details: 'Withdrawal request is already disposed'
-      }
-    };
+    return 'Withdrawal request is already disposed';
   }
 
   if (!availableWithdrawalStatus[newone].allowedRole.includes(userType)) {
-    return {
-      error: {
-        details: 'This user type is not allowed to update withdrawal request to target status'
-      }
-    };
+    return 'This user type is not allowed to update withdrawal request to target status';
   }
 
-  return { error: null };
+  return null;
 };
 
-export const checkGetFamilyMemberUsernamesSchema = (rawData) => {
+export const checkforgotUsernameSchema = (rawData) => {
   const schema = joi.object().keys({
     email: joi.string().email().required()
   });
 
-  return joi.validate(rawData, schema);
+  return getPlainError(joi.validate(rawData, schema));
+};
+
+export const checkforgotPasswordSchema = (rawData) => {
+  const schema = joi.object().keys({
+    username: joi.string().required()
+  });
+
+  return getPlainError(joi.validate(rawData, schema));
 };

@@ -1,8 +1,14 @@
 1. Forgot password
 
 do this - child without email wants to reset pin and they enter their username in forgot PIN page.
-1. Send the family email (should reach the parent) an email saying 'Your child <username> has forgotten their PIN for Pennybox. You can reset it for them by logging into Pennybox, going to their profile and changing it for them'.
-2. Parent logs in, goes to child's profile, presses change PIN - trigger Cognito verification code to parents email for that child and show reset pop up
+1. Send the family email (should reach the parent) an email saying
+'Your child <username> has forgotten their PIN for Pennybox.
+You can reset it for them by logging into Pennybox, going to their profile and changing it for them'.
+
+2. Parent logs in, goes to child's profile,
+presses change PIN - trigger Cognito verification code to parents email for
+that child and show reset pop up
+
 3. Parent changes child's pin
 4. Parent then shares the new pin with the child, and child logs in.
 
