@@ -1,7 +1,7 @@
 import boom from 'boom';
 
-const DEBUG_BOOM = process.env.DEBUG_BOOM;  // eslint-disable-line
-const DEBUG_INTERNAL = process.env.DEBUG_INTERNAL;  // eslint-disable-line
+const needBoomLogging = process.env.ERROR_LEVEL === 'VERBOSE';
+const needCriticalLogging = needBoomLogging || process.env.DEBUG_BOOM === 'CRITICAL';
 
 function buildResponse(statusCode, body) {
   return {
@@ -20,10 +20,10 @@ export function success(body, isCreated) {
 
 export function failure(err) {
   if (boom.isBoom(err)) {
-    DEBUG_BOOM && console.log(err);
+    needBoomLogging && console.log(err);
     return buildResponse(err.output.statusCode, err.output.payload);
   }
 
-  DEBUG_INTERNAL && console.log(err);
+  needCriticalLogging && console.log(err);
   return buildResponse(500, err);
 }

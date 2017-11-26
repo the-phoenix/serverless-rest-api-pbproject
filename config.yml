@@ -2,11 +2,14 @@ dev:
   DB_PREFIX: dev
   COGNITO_POOL_ARN: arn:aws:cognito-idp:us-east-1:501132611696:userpool/us-east-1_TMmCoPWuF
   COGNITO_POOL_ID: us-east-1_TMmCoPWuF
+  ERROR_LEVEL: VERBOSE
 prod:
   DB_PREFIX: prod
   COGNITO_POOL_ARN: arn:aws:cognito-idp:us-east-1:501132611696:userpool/us-east-1_QqqAe7XcE
   COGNITO_POOL_ID: us-east-1_QqqAe7XcE
+  ERROR_LEVEL: CRITICAL
 test:
   DB_PREFIX: test
   COGNITO_POOL_ARN: arn:aws:cognito-idp:us-east-1:501132611696:userpool/us-east-1_TMmCoPWuF
   COGNITO_POOL_ID: us-east-1_TMmCoPWuF
+  ERROR_LEVEL: NONE

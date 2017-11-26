@@ -24,6 +24,7 @@ provider:
     DB_PREFIX: ${self:custom.DB_PREFIX}
     COGNITO_POOL_ID: ${self:custom.COGNITO_POOL_ID}
     SEND_IN_BLUE: ${file(./cred.yml):${self:custom.stage}.SEND_IN_BLUE}
+    ERROR_LEVEL: ${file(./config.yml):${self:custom.stage}.ERROR_LEVEL}
   iamRoleStatements:
     - Effect: Allow
       Action:

@@ -30,9 +30,9 @@ export async function forgotUsername(event, context, callback) {
     const data = await family.getFamilyUsernames(body.email);
 
     const usernames = data.map(one => one.username);
-    await sendFamilyUsernamesReminder(body.email, usernames.join('<br/>'));
+    const emailResp = await sendFamilyUsernamesReminder(body.email, usernames.join('<br/>'));
 
-    response = success('Email sent');
+    response = success(emailResp);
   } catch (e) {
     response = failure(e);
   }
@@ -69,9 +69,9 @@ export async function forgotPincode(event, context, callback) {
       throw Boom.badRequest('child user with no family. please contact pennybox admin.');
     }
 
-    await sendForgotPincodeReminder(email, body.username);
+    const emailResp = await sendForgotPincodeReminder(email, body.username);
 
-    response = success('Email sent');
+    response = success(emailResp);
   } catch (e) {
     response = failure(e);
   }
