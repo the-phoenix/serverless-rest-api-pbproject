@@ -80,8 +80,8 @@ export default class JobController {
     }
 
     const safetyError = checkSafeStatus(currentUser.type, jobData.status, reqParam.status);
-    if (safetyError.error) {
-      throw Boom.badRequest(safetyError.error.details);
+    if (safetyError) {
+      throw Boom.badRequest(safetyError);
     }
 
     const updatedJob = await this.job.updateStatus(currentUser.userId, reqParam, jobData);

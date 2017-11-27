@@ -57,9 +57,9 @@ export async function updateStatus(event, context, callback) {
   try {
     const { currentUser, body, params } = parseEvent(event);
 
-    const schemaError = checkUpdateWithdrawalStatusSchema(body);
-    if (schemaError.error) {
-      throw Boom.badRequest(schemaError.error.details);
+    const validationError = checkUpdateWithdrawalStatusSchema(body);
+    if (validationError) {
+      throw Boom.preconditionFailed(validationError);
     }
 
     const updated = await withdrawal.safeUpdateStatus(currentUser, params.withdrawalId, body);

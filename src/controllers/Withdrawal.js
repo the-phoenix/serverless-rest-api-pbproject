@@ -103,8 +103,8 @@ export default class WithdrawalController {
     }
 
     const safetyError = checkSafeStatus(currentUser.type, withdrawalData.status, reqParam.status);
-    if (safetyError.error) {
-      throw Boom.badRequest(safetyError.error.details);
+    if (safetyError) {
+      throw Boom.badRequest(safetyError);
     }
 
     const updatedWithdrawal = await this.withdrawal
