@@ -39,7 +39,22 @@ export const sendForgotPincodeReminder = (familyAdminEmail, username) => {
   });
 };
 
+export const sendWelcome = (email) => {
+  const params = {
+    id: 5, // sendinblue id of welcome email
+    to: email
+  };
+
+  return new Promise((resolve, reject) => {
+    sendin.send_transactional_template(params, (error, result) => {
+      if (error) reject(error);
+      else resolve(result);
+    });
+  });
+};
+
 export default {
   sendFamilyUsernamesReminder,
-  sendForgotPincodeReminder
+  sendForgotPincodeReminder,
+  sendWelcome
 };

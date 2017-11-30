@@ -90,7 +90,7 @@ export default class FamilyModel {
       }
     };
 
-    return this.dbClient('query', params);
+    return this.dbClient('query', params).then(({ Items }) => Items);
   }
 
   create(familyAdminUser) {

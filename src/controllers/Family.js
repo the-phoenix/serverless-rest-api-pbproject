@@ -11,35 +11,33 @@ export default class FamilyController {
   }
 
   async get(id, scope) {
-    const promises$ = [this.family.fetchById(id)];
     const isFull = scope && scope === 'full';
+    const family = await this.family.fetchById(id);
 
-    isFull && promises$.push(this.family.fetchMembersByFamilyId(id));
-    const respData = await Promise.all(promises$);
-
-    if (!isFull) {
-      return respData[0];
+    if (!family) {
+      throw Boom.notFound('Not existing family');
     }
 
-    return {
-      ...respData[0],
-      members: R.map(R.omit('id'), respData[1])
-    };
+    if (isFull) {
+      const members = await this.family.fetchMembersByFamilyId(id);
+
+      return {
+        ...family,
+        members: R.map(R.omit('familyId'), members)
+      };
+    }
+
+    return family;
   }
 
   async fetchByUserId(userId) {
-    const familyUserData = await this.family.fetchByMember(userId);
-    const promises$ = familyUserData.Items.map(family => this.get(family.familyId));
+    const families = await this.family.fetchByMember(userId);
+    const promises$ = families.map(family => this.get(family.familyId));
 
     return Promise.all(promises$);
   }
 
   async create(familyAdmin) {
-    const familyUserData = await this.family.fetchByMember(familyAdmin.userId);
-    if (familyUserData.Count > 2) {
-      return Promise.reject(Boom.badRequest('maximum available families are 2'));
-    }
-
     const newFamily = await this.family.create(familyAdmin);
 
     await this.family.join(newFamily.id, familyAdmin);
@@ -50,62 +48,46 @@ export default class FamilyController {
   async join(user, targetFamilyId) {
     const family = await this.family.fetchById(targetFamilyId);
     if (R.isEmpty(family.Item)) {
-      return Promise.reject(Boom.notFound('not existing family'));
+      throw Boom.notFound('not existing family');
     }
 
-    const familyUserData = await this.family.fetchByMember(user.userId);
+    await this.family.join(targetFamilyId, user);
 
-    if (familyUserData.Count > 2) {
-      return Promise.reject(Boom.badRequest('can\'t join more than 2 families'));
-    } else if (familyUserData.Items.find(item => item.familyId === targetFamilyId)) {
-      return Promise.reject(Boom.badRequest('already member of target family'));
-    }
+    // Update cognito user attribute
+    const newAttribs = {
+      familyIds: user.familyIds.conat([targetFamilyId]),
+    };
 
-    const promises$ = [
-      this.family.join(targetFamilyId, user)
-    ];
-
-    // copy family admin email to child's email
     if (user.type === 'child'/* && !user.email */) {
-      promises$.push(this.user.updateAttributes(user['cognito:username'], [
-        {
-          Name: 'email',
-          Value: family.adminSummary.email
-        },
-        {
-          Name: 'email_verified',
-          Value: 'true'
-        }
-      ]));
+      newAttribs.email = family.adminSummary.email;
+      newAttribs.email_verified = 'true';
     }
 
-    return Promise.all(promises$);
+    return this.user.updateAttributes(user['cognito:username'], newAttribs);
   }
 
-  async getFamilyUsernames(familyEmail) {
-    const users = await this.user.fetchByAttribute('email', familyEmail);
-
-    if (!users.length) {
-      return Promise.reject(Boom.notFound('Not found family with given family email'));
+  async getFamilyUsernames(parentEmail) {
+    const [parentUser] = await this.user.fetchByAttribute('email', parentEmail);
+    if (!parentUser) {
+      throw Boom.notFound('Not found any user with given email');
     }
 
-    const getAttribValue = attribName => R.compose(
-      R.path(['Value']),
-      R.find(R.propEq('Name', attribName)),
-    );
+    const { familyIds } = parentUser;
+    if (!familyIds.length) {
+      throw Boom.notFound('Given user has no family yet');
+    }
 
     const sort = R.sortWith([
       R.descend(R.prop('type')),
       R.ascend(R.prop('username')),
     ]);
 
-    const data = users
-      .filter(user => user.Enabled)
-      .map(user => ({
-        username: getAttribValue('preferred_username')(user.Attributes),
-        type: getAttribValue('custom:type')(user.Attributes)
-      }));
+    const fetchMembersPromises = familyIds
+      .map(familyId => this.family
+        .fetchMembersByFamilyId(familyId, false)
+        .then(members => members.map(member => R.pick(['username', 'type'])(member.userSummary)))
+        .then(sort));
 
-    return sort(data);
+    return Promise.all(fetchMembersPromises);
   }
 }

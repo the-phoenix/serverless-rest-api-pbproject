@@ -12,10 +12,6 @@ export async function get(event, context, callback) {
     const { params, queryParams } = parseEvent(event);
     const data = await family.get(params.familyId, queryParams.scope);
 
-    if (!data) {
-      throw Boom.notFound('Not existing family');
-    }
-
     response = success(data);
   } catch (e) {
     response = failure(e);
@@ -33,6 +29,8 @@ export async function create(event, context, callback) {
 
     if (currentUser.type !== 'parent') {
       throw Boom.badRequest('Only Parent user can create family');
+    } else if (currentUser.familyIds.join(',').length > 2) {
+      throw Boom.badRequest('maximum available families are 2');
     }
 
     const data = await family.create(currentUser);
@@ -53,6 +51,10 @@ export async function join(event, context, callback) {
 
     if (!body.familyId) {
       throw Boom.badRequest('familyId is missing in request body');
+    } else if (currentUser.familyIds.join(',').length > 2) {
+      throw Boom.badRequest('can\'t join more than 2 families');
+    } else if (currentUser.familyIds.includes(body.familyId)) {
+      throw Boom.badRequest('already member of target family');
     }
 
     await family.join(currentUser, body.familyId);

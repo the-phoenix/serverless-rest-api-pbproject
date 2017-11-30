@@ -49,10 +49,9 @@ export default class User {
       ? 'Child' : 'Parent';
 
     if (groupName === 'Parent') {
-      await this.user.updateAttributes(cognitoUserName, [{
-        Name: 'email_verified',
-        Value: 'true'
-      }]);
+      await this.user.updateAttributes(cognitoUserName, {
+        email_verified: 'true'
+      });
     }
 
     return this.user.addUserToGroup(cognitoUserName, groupName, userPoolId);

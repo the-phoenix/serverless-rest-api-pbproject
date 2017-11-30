@@ -1,28 +1,49 @@
 import { CognitoIdentityServiceProvider } from 'aws-sdk';
+import * as R from 'ramda';
 
 export default class UserModel {
   constructor() {
     this.cognito = new CognitoIdentityServiceProvider({ region: 'us-east-1' });
   }
 
-  static attribNameMapper(origin) { // eslint-disable-line
-    if (origin === 'sub') {
-      return 'userId';
+  static attribNameMapper(origin, inversed) { // eslint-disable-line
+    const mapping = {
+      'sub': 'userId', // eslint-disable-line
+      'preferred_username': 'username', // eslint-disable-line
+      'custom:type': 'type',
+      'cognito:groups': 'groups',
+      'custom:familyIds': 'familyIds'
+    };
+
+    if (inversed) {
+      const nMapping = R.invertObj(mapping);
+      return nMapping[origin] || origin;
     }
 
-    if (origin === 'preferred_username') {
-      return 'username';
+    return mapping[origin] || origin;
+  }
+
+  static extractAttribFromCognitoUser(cognitoUser, attributesKey = 'UserAttributes') {
+    if (!cognitoUser[attributesKey] || !Array.isArray(cognitoUser[attributesKey])) {
+      return cognitoUser;
     }
 
-    if (origin === 'custom:type') {
-      return 'type';
-    }
+    const plainObjAttribs = cognitoUser[attributesKey].reduce((container, attr) => {
+      const key = UserModel.attribNameMapper(attr.Name);
 
-    if (origin === 'cognito:groups') {
-      return 'groups';
-    }
+      if (key === 'familyIds') {
+        container[key] = attr.Value ? attr.Value.split(',') : []; // eslint-disable-line
+      } else {
+        container[key] = attr.Value;  // eslint-disable-line
+      }
 
-    return origin;
+      return container;
+    }, {});
+
+    return {
+      ...plainObjAttribs,
+      _meta: R.omit(attributesKey, cognitoUser)
+    };
   }
 
   getByCognitoUsername(cognitoUserName, userPoolId) {
@@ -34,24 +55,14 @@ export default class UserModel {
     return this.cognito
       .adminGetUser(params)
       .promise()
-      .then(data => data.UserAttributes.reduce((container, attr) => {
-        const key = UserModel.attribNameMapper(attr.Name);
-
-        container[key] = attr.Value;  // eslint-disable-line
-        return container;
-      }, {}));
+      .then(UserModel.extractAttribFromCognitoUser);
   }
 
   getByAccessToken(accessToken) {
     return this.cognito
       .getUser({ AccessToken: accessToken })
       .promise()
-      .then(data => data.UserAttributes.reduce((container, attr) => {
-        const key = UserModel.attribNameMapper(attr.Name);
-
-        container[key] = attr.Value;  // eslint-disable-line
-        return container;
-      }, {}));
+      .then(UserModel.extractAttribFromCognitoUser);
   }
 
   fetchByAttribute(attribName, attribValue, userPoolId) {
@@ -64,7 +75,7 @@ export default class UserModel {
     return this.cognito
       .listUsers(params)
       .promise()
-      .then(data => data.Users);
+      .then(data => data.Users.map(user => UserModel.mextractAttribFromCognitoUser(user, 'Attributes')));
   }
 
   addUserToGroup(cognitoUserName, groupName, userPoolId) {
@@ -83,7 +94,23 @@ export default class UserModel {
     const params = {
       UserPoolId: userPoolId || process.env.COGNITO_POOL_ID,
       Username: cognitoUserName,
-      UserAttributes: attributes
+      UserAttributes:
+        R.compose(
+          R.map((attribName) => {
+            if (attribName === 'familyIds') {
+              return {
+                Name: 'custom:familyIds',
+                Value: attributes[attribName].join(',')
+              };
+            }
+
+            return {
+              Name: UserModel.attribNameMapper(attribName, true),
+              Value: attributes[attribName].join(',')
+            };
+          }),
+          R.keys
+        )(attributes)
     };
 
     return this.cognito

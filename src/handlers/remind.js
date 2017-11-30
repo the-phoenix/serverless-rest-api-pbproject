@@ -28,10 +28,13 @@ export async function forgotUsername(event, context, callback) {
     }
 
     const data = await family.getFamilyUsernames(body.email);
+    const emailSendPromises = data.map((users) => {
+      const usernames = users.map(one => one.username);
 
-    const usernames = data.map(one => one.username);
-    const emailResp = await sendFamilyUsernamesReminder(body.email, usernames.join('<br/>'));
+      return sendFamilyUsernamesReminder(body.email, usernames.join('<br/>'));
+    });
 
+    const emailResp = await Promise.all(emailSendPromises);
     response = success(emailResp);
   } catch (e) {
     response = failure(e);

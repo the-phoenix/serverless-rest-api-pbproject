@@ -2,12 +2,20 @@ import { path, pathOr, pick } from 'ramda';
 import User from 'models/User';
 
 export function parseCognitoUser(user) {
-  const WHITE_LIST = ['sub', 'cognito:username', 'custom:type', 'cognito:groups', 'email', 'preferred_username', 'phone_number', 'name'];
+  const WHITE_LIST = [
+    'sub', 'cognito:username', 'custom:type', 'custom:familyIds', 'cognito:groups',
+    'email', 'preferred_username', 'phone_number', 'name'
+  ];
 
   return Object.keys(pick(WHITE_LIST, user)).reduce((container, attribName) => {
     const newAttribName = User.attribNameMapper(attribName);
 
-    container[newAttribName] = user[attribName];  // eslint-disable-line
+    if (newAttribName === 'familyIds') {
+      container[newAttribName] = user[attribName] ? user[attribName].split(',') : [];  // eslint-disable-line
+    } else {
+      container[newAttribName] = user[attribName];  // eslint-disable-line
+    }
+
     return container;
   }, {});
 }
@@ -54,6 +62,7 @@ export function parseCognitoEvent(event) {
   "authorizer": {
     "claims": {
       "custom:type": "parent",
+      "custom:familyIds": "",
       "sub": "a2f5acbc-6e3e-4acf-b13f-9ea98e474237",
       "cognito:groups": "Parent",
       "email_verified": "true",

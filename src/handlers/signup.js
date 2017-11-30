@@ -1,6 +1,9 @@
-import { path } from 'ramda';
+import * as R from 'ramda';
 import { parseCognitoEvent } from 'utils/parser';
 import UserController from 'controllers/User';
+import {
+  sendWelcome
+} from 'utils/mailer';
 
 const user = new UserController();
 
@@ -10,7 +13,7 @@ export async function preSignup(event, context) {
     validationData,
   } = parseCognitoEvent(event);
 
-  const pureUserName = path(['pureUserName'], validationData);
+  const pureUserName = R.path(['pureUserName'], validationData);
 
   if (!pureUserName) {
     return context.done(JSON.stringify({
@@ -61,10 +64,20 @@ export async function postConfirmation(event, context) {
   } = parseCognitoEvent(event);
 
   try {
+    const getAttribValue = attribName => R.compose(
+      R.path(['Value']),
+      R.find(R.propEq('Name', attribName)),
+    );
+    const userType = getAttribValue('custom:type')(attributes);
+    const email = getAttribValue('email')(attributes);
+
     await user.postConfirmation(cognitoUserName, attributes, userPoolId);
+    if (userType === 'parent') {
+      console.log('Welcome email sent', await sendWelcome(email));
+    }
   } catch (e) {
     return context.done(JSON.stringify({
-      errorType: 'add user to group',
+      errorType: 'postConfirmation error',
       errorMessage: e.toString()
     }), event);
   }

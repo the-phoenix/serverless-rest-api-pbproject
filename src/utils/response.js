@@ -21,9 +21,9 @@ export function success(body, isCreated) {
 export function failure(err) {
   if (boom.isBoom(err)) {
     needBoomLogging && console.log(err);
-    return buildResponse(err.output.statusCode, err.output.payload);
+    return buildResponse(err.output.statusCode, JSON.stringify(err.output.payload));
   }
 
   needCriticalLogging && console.log(err);
-  return buildResponse(500, err);
+  return buildResponse(500, err.toString());
 }
