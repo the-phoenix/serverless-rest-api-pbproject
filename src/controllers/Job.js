@@ -1,6 +1,5 @@
 import Boom from 'boom';
 import { pick } from 'ramda';
-import { isOffline } from 'utils/db-client';
 import JobModel from 'models/Job';
 import FamilyModel from 'models/Family';
 import TransactionModel from 'models/Transaction';
@@ -23,31 +22,19 @@ export default class JobController {
   }
 
   async listByFamily(userId, familyId, lastEvaluatedKey, limit) {
-    // check if user is family member
-    if (!(isOffline() || await this.family.checkIsFamilyMember(familyId, userId))) {
-      throw Boom.badRequest('Disallowed to see other family\'s data');
-    }
-
     return this.job.fetchByFamilyId(familyId, lastEvaluatedKey, limit);
   }
 
   async listByFamilyMember(userId, familyId, lastEvaluatedKey, limit) {
     // check if user is family member
-    if (!(isOffline() || await this.family.checkIsFamilyMember(familyId, userId))) {
-      throw Boom.badRequest('Disallowed to see other family\'s data');
+    if (await this.family.checkIsFamilyMember(familyId, userId)) {
+      throw Boom.badRequest('given user is not given family member');
     }
 
     return this.job.fetchByFamilyMember(familyId, userId, lastEvaluatedKey, limit);
   }
 
   async create(currentUser, reqParam) {
-    // check if user is family member
-    if (!(isOffline() ||
-      await this.family.checkIsFamilyMember(reqParam.familyId, currentUser.userId)
-    )) {
-      throw Boom.badRequest('Disallowed to set other family\'s data');
-    }
-
     let jobData = pick(['familyId', 'jobSummary', 'childUserId'], reqParam);
 
     if (currentUser.type === 'parent') {

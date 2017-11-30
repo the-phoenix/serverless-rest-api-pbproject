@@ -4,8 +4,6 @@ import WithdrawalModel from 'models/Withdrawal';
 import TransactionModel from 'models/Transaction';
 import FamilyModel from 'models/Family';
 
-import { isOffline } from 'utils/db-client';
-
 import {
   checkAllowedWithdrawalStatusSafeUpdate as checkSafeStatus
 } from 'utils/validation';
@@ -24,11 +22,6 @@ export default class WithdrawalController {
   }
 
   async listByFamily(userId, familyId, status, lastEvaluatedKey, limit) {
-    // check if user is family member
-    if (!(isOffline() || await this.family.checkIsFamilyMember(familyId, userId))) {
-      throw Boom.badRequest('Disallowed to see other family\'s data');
-    }
-
     const wanted = Array.isArray(status)
       ? status.map(one => one.toUpperCase())
       : [status.toUpperCase()];
@@ -38,8 +31,8 @@ export default class WithdrawalController {
 
   async listByFamilyMember(userId, familyId, status, lastEvaluatedKey, limit) {
     // check if user is family member
-    if (!(isOffline() || await this.family.checkIsFamilyMember(familyId, userId))) {
-      throw Boom.badRequest('Disallowed to see other family\'s data');
+    if (await this.family.checkIsFamilyMember(familyId, userId)) {
+      throw Boom.badRequest('given user is not given family member');
     }
 
     const wanted = Array.isArray(status)
@@ -58,13 +51,6 @@ export default class WithdrawalController {
 
   async create(currentUser, reqParam) {
     const withdrawalData = pick(['familyId', 'amount', 'childUserId'], reqParam);
-
-    // check if user is family member
-    if (!(isOffline() ||
-      await this.family.checkIsFamilyMember(withdrawalData.familyId, currentUser.userId)
-    )) {
-      throw Boom.badRequest('Disallowed to set other family\'s data');
-    }
 
     if (currentUser.type === 'child') {
       withdrawalData.childUserId = currentUser.userId;
@@ -96,9 +82,7 @@ export default class WithdrawalController {
     }
 
     // check if user is family member
-    if (!(isOffline() ||
-      await this.family.checkIsFamilyMember(withdrawalData.familyId, currentUser.userId)
-    )) {
+    if (await this.family.checkIsFamilyMember(withdrawalData.familyId, currentUser.userId)) {
       throw Boom.badRequest('Disallowed to set other family\'s data');
     }
 

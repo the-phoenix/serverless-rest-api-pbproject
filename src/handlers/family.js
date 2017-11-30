@@ -29,7 +29,7 @@ export async function create(event, context, callback) {
 
     if (currentUser.type !== 'parent') {
       throw Boom.badRequest('Only Parent user can create family');
-    } else if (currentUser.familyIds.join(',').length > 2) {
+    } else if (currentUser.familyIds.length > 2) {
       throw Boom.badRequest('maximum available families are 2');
     }
 
@@ -51,7 +51,7 @@ export async function join(event, context, callback) {
 
     if (!body.familyId) {
       throw Boom.badRequest('familyId is missing in request body');
-    } else if (currentUser.familyIds.join(',').length > 2) {
+    } else if (currentUser.familyIds.length > 2) {
       throw Boom.badRequest('can\'t join more than 2 families');
     } else if (currentUser.familyIds.includes(body.familyId)) {
       throw Boom.badRequest('already member of target family');
