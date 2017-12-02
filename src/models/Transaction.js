@@ -81,10 +81,10 @@ export default class TransactionModel {
     return this._create(params);  // eslint-disable-line
   }
 
-  createFromWithdrawal(balanceAfter, approvedWithdrawal) {
+  createFromWithdrawal(balanceAfter, approvedWithdrawal, issuedByParent) {
     const params = {
       ...pick(['familyId', 'childUserId'], approvedWithdrawal),
-      description: 'Cash Request',
+      description: `Cash Request issued by ${issuedByParent ? 'Parent' : 'Child'}`,
       amount: approvedWithdrawal.amount,
       balanceAfter,
       meta: {

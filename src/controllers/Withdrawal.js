@@ -68,7 +68,7 @@ export default class WithdrawalController {
     if (currentUser.type === 'parent') {
       newWithdrawal = await this.withdrawal.updateStatus(currentUser.userId, 'APPROVED', newWithdrawal);
       const { userSummary } = await this.family.updateFamilyMemberAfterWithdrawal(newWithdrawal);
-      await this.transaction.createFromWithdrawal(userSummary.balance, newWithdrawal);
+      await this.transaction.createFromWithdrawal(userSummary.balance, newWithdrawal, true);
     }
 
     return newWithdrawal;
