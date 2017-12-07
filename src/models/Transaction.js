@@ -9,7 +9,7 @@ export default class TransactionModel {
     this.dbClient = dbClient;
   }
 
-  fetchByFamilyId(familyId, lastEvaluatedKey, limit = 10) {
+  fetchByFamilyId(familyId, lastEvaluatedKey, limit = 20) {
     const params = {
       TableName: TRANSACTION_TABLENAME,
       Limit: limit,
@@ -27,7 +27,7 @@ export default class TransactionModel {
       .then(data => ({ ...data, Limit: limit }));
   }
 
-  fetchByFamilyMember(familyId, userId, lastEvaluatedKey, limit = 10) {
+  fetchByFamilyMember(familyId, userId, lastEvaluatedKey, limit = 20) {
     const params = {
       TableName: TRANSACTION_TABLENAME,
       Limit: limit,

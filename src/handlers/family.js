@@ -1,6 +1,6 @@
 import Boom from 'boom';
 import { success, failure } from 'utils/response';
-import parseEvent from 'utils/parser';
+import { parseAPIGatewayEvent } from 'utils/parser';
 import FamilyController from 'controllers/Family';
 
 const family = new FamilyController();
@@ -9,7 +9,7 @@ export async function get(event, context, callback) {
   let response;
 
   try {
-    const { params, queryParams } = parseEvent(event);
+    const { params, queryParams } = parseAPIGatewayEvent(event);
     const data = await family.get(params.familyId, queryParams.scope);
 
     response = success(data);
@@ -25,7 +25,7 @@ export async function create(event, context, callback) {
   let response;
 
   try {
-    const { currentUser } = parseEvent(event);
+    const { currentUser } = parseAPIGatewayEvent(event);
 
     if (currentUser.type !== 'parent') {
       throw Boom.badRequest('Only Parent user can create family');
@@ -47,7 +47,7 @@ export async function join(event, context, callback) {
   let response;
 
   try {
-    const { currentUser, body } = parseEvent(event);
+    const { currentUser, body } = parseAPIGatewayEvent(event);
 
     if (!body.familyId) {
       throw Boom.badRequest('familyId is missing in request body');

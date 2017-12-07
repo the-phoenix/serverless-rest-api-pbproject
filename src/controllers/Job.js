@@ -3,6 +3,7 @@ import { pick } from 'ramda';
 import JobModel from 'models/Job';
 import FamilyModel from 'models/Family';
 import TransactionModel from 'models/Transaction';
+import { trigger as triggerNotification } from 'utils/noti/index';
 
 import {
   checkAllowedJobStatusSafeUpdate as checkSafeStatus
@@ -57,6 +58,13 @@ export default class JobController {
       }, newJob);
     }
 
+    await triggerNotification({
+      message: currentUser.type === 'parent'
+        ? 'kid.jobCreated.parent'
+        : 'parent.jobCreated.kid',
+      jobId: newJob.id
+    });
+
     return newJob;
   }
 
@@ -76,6 +84,13 @@ export default class JobController {
       const { userSummary } = await this.family.updateFamilyMemberAfterJobCompletion(updatedJob);
       await this.transaction.createFromJobCompletion(userSummary.balance, updatedJob);
     }
+
+    // await triggerNotification({
+    //   message: currentUser.type === 'parent'
+    //     ? 'kid.jobCreated.parent'
+    //     : 'parent.jobCreated.kid',
+    //   jobId: newJob.id
+    // });
 
     return updatedJob;
   }

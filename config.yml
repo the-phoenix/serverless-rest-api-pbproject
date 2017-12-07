@@ -3,11 +3,13 @@ dev:
   COGNITO_POOL_ARN: arn:aws:cognito-idp:us-east-1:501132611696:userpool/us-east-1_TMmCoPWuF
   COGNITO_POOL_ID: us-east-1_TMmCoPWuF
   ERROR_LEVEL: VERBOSE
+  SNS_NOTI_TRIGGER_ARN: arn:aws:sns:us-east-1:501132611696:pennyboxapp-dev-noti_trigger-pipe
 prod:
   DB_PREFIX: prod
   COGNITO_POOL_ARN: arn:aws:cognito-idp:us-east-1:501132611696:userpool/us-east-1_QqqAe7XcE
   COGNITO_POOL_ID: us-east-1_QqqAe7XcE
   ERROR_LEVEL: CRITICAL
+  SNS_NOTI_TRIGGER_ARN: arn:aws:sns:us-east-1:501132611696:pennyboxapp-dev-noti_trigger-pipe
 test:
   DB_PREFIX: test
   COGNITO_POOL_ARN: arn:aws:cognito-idp:us-east-1:501132611696:userpool/us-east-1_TMmCoPWuF

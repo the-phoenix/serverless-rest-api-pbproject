@@ -24,6 +24,7 @@ provider:
     DB_PREFIX: ${self:custom.DB_PREFIX}
     COGNITO_POOL_ID: ${self:custom.COGNITO_POOL_ID}
     SEND_IN_BLUE: ${file(./cred.yml):${self:custom.stage}.SEND_IN_BLUE}
+    SNS_NOTI_TRIGGER_ARN: ${file(./config.yml):${self:custom.stage}.SNS_NOTI_TRIGGER_ARN}
     ERROR_LEVEL: ${file(./config.yml):${self:custom.stage}.ERROR_LEVEL}
   iamRoleStatements:
     - Effect: Allow
@@ -36,7 +37,11 @@ provider:
         - "cognito-idp:*"
       Resource:
         - "arn:aws:cognito-idp:us-east-1:*"
-
+    - Effect: Allow
+      Action:
+        - "SNS:Publish"
+      Resource:
+        - "arn:aws:sns:us-east-1:*"
 custom:
   stage: ${opt:stage, self:provider.stage}
   DB_PREFIX: ${self:service}-${file(./config.yml):${self:custom.stage}.DB_PREFIX}
@@ -61,6 +66,8 @@ custom:
             sources: [./fixtures/offline-seeds/withdrawal.json]
           - table: ${file(fixtures/migrations/transaction.yml):Properties.TableName}
             sources: [./fixtures/offline-seeds/transaction.json]
+          - table: ${file(fixtures/migrations/notification.yml):Properties.TableName}
+            sources: [./fixtures/offline-seeds/notification.json]
 #  serverless-mocha-plugin:
 #    preTestCommands:
 #      - bash ./test/support/startOffline.sh
@@ -297,7 +304,26 @@ functions:
           path: remind/forgot_pincode
           cors: true
           #authorizer: aws_iam
-
+  listMyNotifications:
+    handler: src/handlers/notification.listMine
+    events:
+      - http:
+          method: POST
+          path: user/me/notifications/{familyId}
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+  markSingleNotificationAsRead:
+    handler: src/handlers/notification.markOneAsRead
+    events:
+      - http:
+          method: PUT
+          path: notification/{notificationId}
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
 
 # you can add CloudFormation resource templates here
 # resources:
@@ -317,3 +343,4 @@ resources:
     JobDynamoDBTable: ${file(fixtures/migrations/job.yml)}
     WithdrawalDynamoDBTable: ${file(fixtures/migrations/withdrawal.yml)}
     TransactionDynamoDBTable: ${file(fixtures/migrations/transaction.yml)}
+    NotificationDynamoDBTable: ${file(fixtures/migrations/notification.yml)}

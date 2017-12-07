@@ -3,6 +3,7 @@ import { pick } from 'ramda';
 import WithdrawalModel from 'models/Withdrawal';
 import TransactionModel from 'models/Transaction';
 import FamilyModel from 'models/Family';
+import Noti from 'utils/noti';
 
 import {
   checkAllowedWithdrawalStatusSafeUpdate as checkSafeStatus
@@ -70,6 +71,7 @@ export default class WithdrawalController {
       const { userSummary } = await this.family.updateFamilyMemberAfterWithdrawal(newWithdrawal);
       await this.transaction.createFromWithdrawal(userSummary.balance, newWithdrawal, true);
     }
+    Noti.notifyWithdrawalRequestCreated(newWithdrawal.id);
 
     return newWithdrawal;
   }
@@ -82,7 +84,7 @@ export default class WithdrawalController {
     }
 
     // check if user is family member
-    if (await this.family.checkIsFamilyMember(withdrawalData.familyId, currentUser.userId)) {
+    if (!(await this.family.checkIsFamilyMember(withdrawalData.familyId, currentUser.userId))) {
       throw Boom.badRequest('Disallowed to set other family\'s data');
     }
 

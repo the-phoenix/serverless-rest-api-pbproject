@@ -11,7 +11,8 @@ module.exports = {
     "prefer-promise-reject-errors": 1,
     "comma-dangle": "off",
     "no-unused-expressions": "off",
-    "no-console": 'off'
+    "no-console": "off",
+    "function-paren-newline": "off",
   },
   "env": {
     "mocha": true

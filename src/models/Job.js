@@ -58,7 +58,7 @@ export default class JobModel {
       .then(data => data.Items[0]);
   }
 
-  fetchByFamilyId(familyId, lastEvaluatedKey, limit = 10) {
+  fetchByFamilyId(familyId, lastEvaluatedKey, limit = 20) {
     const params = {
       TableName: JOB_TABLENAME,
       Limit: limit,
@@ -76,7 +76,7 @@ export default class JobModel {
       .then(data => ({ ...data, Limit: limit }));
   }
 
-  fetchByFamilyMember(familyId, userId, lastEvaluatedKey, limit = 10) {
+  fetchByFamilyMember(familyId, userId, lastEvaluatedKey, limit = 20) {
     const params = {
       TableName: JOB_TABLENAME,
       Limit: limit,

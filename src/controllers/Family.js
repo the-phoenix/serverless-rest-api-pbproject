@@ -2,7 +2,7 @@ import Boom from 'boom';
 import * as R from 'ramda';
 import FamilyModel from 'models/Family';
 import UserModel from 'models/User';
-
+import Noti from 'utils/noti/index';
 
 export default class FamilyController {
   constructor() {
@@ -62,6 +62,12 @@ export default class FamilyController {
       newAttribs.email = family.adminSummary.email;
       newAttribs.email_verified = 'true';
     }
+
+    await Noti.trigger({
+      content: user.type === 'child' ? 'family.familyJoined.child' : 'family.familyJoined.parent',
+      familyId: targetFamilyId,
+      userId: user.userId
+    });
 
     return this.user.updateAttributes(user['cognito:username'], newAttribs);
   }

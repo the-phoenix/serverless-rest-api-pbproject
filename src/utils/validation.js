@@ -4,6 +4,7 @@ import joi from 'joi';
 import * as R from 'ramda';
 import { availableJobStatus } from 'models/Job';
 import { availableWithdrawalStatus } from 'models/Withdrawal';
+import { AVAILABLE_NOTIFICATIONS } from 'utils/noti';
 
 // const getPlainError = joiError => R.compose(
 //   R.map(R.prop('message')),
@@ -110,3 +111,6 @@ export const checkforgotPasswordSchema = (rawData) => {
 
   return getPlainError(joi.validate(rawData, schema));
 };
+
+export const checkValidNotiTriggerMessage = message =>
+  !message.content || !Object.keys(AVAILABLE_NOTIFICATIONS).includes(message.content);

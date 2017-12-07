@@ -1,6 +1,6 @@
 import Boom from 'boom';
 import { success, failure } from 'utils/response';
-import parseEvent from 'utils/parser';
+import { parseAPIGatewayEvent } from 'utils/parser';
 import JobController from 'controllers/Job';
 import {
   checkCreateJobDataSchema,
@@ -13,7 +13,7 @@ export async function get(event, context, callback) {
   let response;
 
   try {
-    const { params } = parseEvent(event);
+    const { params } = parseAPIGatewayEvent(event);
     const data = await job.get(params.jobId);
 
     if (!data) {
@@ -32,16 +32,16 @@ export async function create(event, context, callback) {
   let response;
 
   try {
-    const { currentUser, body } = parseEvent(event);
+    const { currentUser, body } = parseAPIGatewayEvent(event);
     const validationError = checkCreateJobDataSchema(body);
 
     if (validationError) {
       throw Boom.preconditionFailed(validationError);
     } else if (currentUser.type === 'parent' && !body.childUserId) {
       throw Boom.preconditionFailed('"childUserId" is required');
-    } else if (!currentUser.familyIds.includes(body.familyId)) {
+    }/* else if (!currentUser.familyIds.includes(body.familyId)) {
       throw Boom.badRequest('Disallowed to create for other family');
-    }
+    }*/
 
     const created = await job.create(currentUser, body);
 
@@ -57,7 +57,7 @@ export async function updateStatus(event, context, callback) {
   let response;
 
   try {
-    const { currentUser, body, params } = parseEvent(event);
+    const { currentUser, body, params } = parseAPIGatewayEvent(event);
 
     const validationError = checkUpdateJobStatusSchema(body);
     if (validationError) {
@@ -77,7 +77,7 @@ export async function listByFamily(event, context, callback) {
   let response;
 
   try {
-    const { params, currentUser, body } = parseEvent(event);
+    const { params, currentUser, body } = parseAPIGatewayEvent(event);
 
     if (currentUser.type === 'child') {
       throw Boom.badRequest('Only parent can get family data');
@@ -107,7 +107,7 @@ export async function listByFamilyMember(event, context, callback) {
   let response;
 
   try {
-    const { params, currentUser, body } = parseEvent(event);
+    const { params, currentUser, body } = parseAPIGatewayEvent(event);
     const userId = params.userId || currentUser.userId;
     if (currentUser.type === 'parent') {
       throw Boom.badRequest('Parent doesn\'t have jobs');

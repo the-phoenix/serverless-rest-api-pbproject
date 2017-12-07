@@ -56,4 +56,10 @@ export default class User {
 
     return this.user.addUserToGroup(cognitoUserName, groupName, userPoolId);
   }
+
+  // async addDeviceToken(cognitoUserName, tokenData) {
+  //   return this.user.updateAttributes(cognitoUserName, {
+  //     deviceTokens:
+  //   });
+  // }
 }

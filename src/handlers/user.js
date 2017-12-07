@@ -1,5 +1,5 @@
 import { success, failure } from 'utils/response';
-import parseEvent from 'utils/parser';
+import { parseAPIGatewayEvent } from 'utils/parser';
 import FamilyController from 'controllers/Family';
 
 const family = new FamilyController();
@@ -8,7 +8,7 @@ export async function getMe(event, context, callback) {
   let response;
 
   try {
-    const { currentUser } = parseEvent(event);
+    const { currentUser } = parseAPIGatewayEvent(event);
 
     const familyInfo = await family.fetchByUserId(currentUser.userId);
     currentUser.family = familyInfo;
@@ -26,6 +26,23 @@ export async function remove(event, context, callback) {
     statusCode: 200,
     body: 'Not implemented yet',
   });
+}
+
+export async function addDeviceToken(event, context, callback) {
+  let response;
+
+  try {
+    const { currentUser } = parseAPIGatewayEvent(event);
+
+    const familyInfo = await family.fetchByUserId(currentUser.userId);
+    currentUser.family = familyInfo;
+
+    response = success(currentUser);
+  } catch (e) {
+    response = failure(e);
+  }
+
+  callback(null, response);
 }
 
 export default { getMe };

@@ -1,6 +1,6 @@
 [{
   "id": "1506423488524-c796d733-9779-45c5-a130-20fd1fd0b652",
-  "familyId": "c796d733-9779-45c5-a130-20fd1fd0b652",
+  "familyId": "287ef3f0-d79f-11e7-a2eb-bb9bea49fda2",
   "description": "Walk the dog",
   "childUserId": "a2f5acbc-6e3e-4acf-b13f-9ea98e474237",
   "balanceAfter": 10,
@@ -13,7 +13,7 @@
   }
 }, {
   "id": "c796d733-9779-45c5-a130-20fd1fd0b653",
-  "familyId": "c796d733-9779-45c5-a130-20fd1fd0b652",
+  "familyId": "287ef3f0-d79f-11e7-a2eb-bb9bea49fda2",
   "description": "Brush the teeth of dog",
   "childUserId": "a2f5acbc-6e3e-4acf-b13f-9ea98e474237",
   "balanceAfter": 13,

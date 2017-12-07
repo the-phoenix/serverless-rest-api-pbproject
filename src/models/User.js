@@ -12,7 +12,8 @@ export default class UserModel {
       'preferred_username': 'username', // eslint-disable-line
       'custom:type': 'type',
       'cognito:groups': 'groups',
-      'custom:familyIds': 'familyIds'
+      'custom:familyIds': 'familyIds',
+      'custom:deviceTokens': 'deviceTokens'
     };
 
     if (inversed) {
@@ -56,6 +57,12 @@ export default class UserModel {
       .adminGetUser(params)
       .promise()
       .then(UserModel.extractAttribFromCognitoUser);
+  }
+
+  fetchById(userId, userPoolId) {
+    return this
+      .fetchByAttribute('sub', userId, userPoolId)
+      .then(Users => Users[0]);
   }
 
   getByAccessToken(accessToken) {
@@ -106,7 +113,7 @@ export default class UserModel {
 
             return {
               Name: UserModel.attribNameMapper(attribName, true),
-              Value: attributes[attribName].join(',')
+              Value: attributes[attribName]
             };
           }),
           R.keys

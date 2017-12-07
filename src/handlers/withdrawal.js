@@ -1,6 +1,6 @@
 import Boom from 'boom';
 import { success, failure } from 'utils/response';
-import parseEvent from 'utils/parser';
+import { parseAPIGatewayEvent } from 'utils/parser';
 import WithdrawalController from 'controllers/Withdrawal';
 import {
   checkCreateWithdrawalDataSchema,
@@ -13,7 +13,7 @@ export async function get(event, context, callback) {
   let response;
 
   try {
-    const { params } = parseEvent(event);
+    const { params } = parseAPIGatewayEvent(event);
     const data = await withdrawal.get(params.withdrawalId);
 
     if (!data) {
@@ -32,7 +32,7 @@ export async function create(event, context, callback) {
   let response;
 
   try {
-    const { currentUser, body } = parseEvent(event);
+    const { currentUser, body } = parseAPIGatewayEvent(event);
     const validationError = checkCreateWithdrawalDataSchema(body);
 
     if (validationError) {
@@ -57,7 +57,7 @@ export async function updateStatus(event, context, callback) {
   let response;
 
   try {
-    const { currentUser, body, params } = parseEvent(event);
+    const { currentUser, body, params } = parseAPIGatewayEvent(event);
 
     const validationError = checkUpdateWithdrawalStatusSchema(body);
     if (validationError) {
@@ -79,7 +79,7 @@ export async function listByFamily(event, context, callback) {
   try {
     const {
       params, currentUser, body, queryParams
-    } = parseEvent(event);
+    } = parseAPIGatewayEvent(event);
 
     if (currentUser.type === 'child') {
       throw Boom.badRequest('Only parent can get family data');
@@ -115,7 +115,7 @@ export async function listByFamilyMember(event, context, callback) {
   try {
     const {
       params, currentUser, body, queryParams
-    } = parseEvent(event);
+    } = parseAPIGatewayEvent(event);
 
     const userId = params.userId || currentUser.userId;
     if (currentUser.type === 'parent') {

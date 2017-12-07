@@ -1,7 +1,7 @@
 import Boom from 'boom';
 import * as R from 'ramda';
 import { success, failure } from 'utils/response';
-import parseEvent from 'utils/parser';
+import { parseAPIGatewayEvent } from 'utils/parser';
 import FamilyController from 'controllers/Family';
 import UserController from 'controllers/User';
 import {
@@ -20,7 +20,7 @@ export async function forgotUsername(event, context, callback) {
   let response;
 
   try {
-    const { body } = parseEvent(event);
+    const { body } = parseAPIGatewayEvent(event);
     const validationError = checkforgotUsernameSchema(body);
 
     if (validationError) {
@@ -47,7 +47,7 @@ export async function forgotPincode(event, context, callback) {
   let response;
 
   try {
-    const { body } = parseEvent(event);
+    const { body } = parseAPIGatewayEvent(event);
     const validationError = checkforgotPasswordSchema(body);
 
     if (validationError) {

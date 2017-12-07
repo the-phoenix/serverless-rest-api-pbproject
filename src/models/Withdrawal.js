@@ -38,7 +38,7 @@ export default class WithdrawalModel {
       .then(data => data.Items[0]);
   }
 
-  fetchByFamilyId(familyId, statusList, lastEvaluatedKey, limit = 10) {
+  fetchByFamilyId(familyId, statusList, lastEvaluatedKey, limit = 20) {
     const safeStatus = statusList
       .filter(one => Object.keys(availableWithdrawalStatus).includes(one))
       .reduce((acc, curr, idx) => {
@@ -69,7 +69,7 @@ export default class WithdrawalModel {
       .then(data => ({ ...data, Limit: limit }));
   }
 
-  fetchByFamilyMember(familyId, userId, statusList, lastEvaluatedKey, limit = 10) {
+  fetchByFamilyMember(familyId, userId, statusList, lastEvaluatedKey, limit = 20) {
     const safeStatus = statusList
       .filter(one => Object.keys(availableWithdrawalStatus).includes(one))
       .reduce((acc, curr, idx) => {
