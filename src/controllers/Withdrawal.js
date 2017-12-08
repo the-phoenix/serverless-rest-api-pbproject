@@ -32,7 +32,7 @@ export default class WithdrawalController {
 
   async listByFamilyMember(userId, familyId, status, lastEvaluatedKey, limit) {
     // check if user is family member
-    if (await this.family.checkIsFamilyMember(familyId, userId)) {
+    if (!(await this.family.checkIsFamilyMember(familyId, userId))) {
       throw Boom.badRequest('given user is not given family member');
     }
 

@@ -12,6 +12,7 @@ module.exports = {
     "comma-dangle": "off",
     "no-unused-expressions": "off",
     "no-console": "off",
+    "no-underscore-dangle": 1,
     "function-paren-newline": "off",
   },
   "env": {

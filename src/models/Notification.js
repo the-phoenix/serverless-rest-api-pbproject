@@ -21,7 +21,7 @@ export default class NotificationModel {
       ExclusiveStartKey: lastEvaluatedKey
     };
 
-    return this.dbClient('query', params);
+    return this.dbClient('query', params).then(({ Items }) => Items);
   }
 
   create(userId, content, familyId = 'NO_FAMILY_ID', meta = {}) {

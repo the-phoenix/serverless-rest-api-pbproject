@@ -20,7 +20,7 @@ export default class NotiController {
   }
 
   listByUser(userId, lastEvaluatedKey, limit) {
-    return this.job.fetchByUser(userId, lastEvaluatedKey, limit);
+    return this.noti.fetchByUser(userId, lastEvaluatedKey, limit);
   }
 
   async _getUserIdsFromFamily(familyId, wantedType) {
@@ -60,12 +60,12 @@ export default class NotiController {
 
   async notifyNewFamilyMemberJoined(familyId, newMemberId, snsMessage) {
     const newMember = await this.user.fetchById(newMemberId);
-    let targetUserIds = await this._getUserIdsFromFamily(job.familyId, 'all'); // eslint-disable-line
+    let targetUserIds = await this._getUserIdsFromFamily(familyId, 'all');
 
     // prevent send notification to issuedBy
-    targetUserIds = R.filter(user => user.userId !== newMember.userId, targetUserIds);
+    targetUserIds = R.filter(userId => userId !== newMemberId, targetUserIds);
 
-    return this._createInppNotifications(targetUserIds, // eslint-disable-line
+    return this._createInppNotifications(targetUserIds,
       {
         issuedBy: newMemberId,
         username: newMember.username,
@@ -82,14 +82,14 @@ export default class NotiController {
     const lastHistory = R.last(job.history);
 
     if (['CREATED_BY_CHILD', 'FINISHED', 'STARTED'].includes(status)) {
-      targetUserIds = await this._getUserIdsFromFamily(job.familyId, 'parent'); // eslint-disable-line
+      targetUserIds = await this._getUserIdsFromFamily(job.familyId, 'parent');
     } else if (['START_DECLINED', 'START_APPROVED', 'FINISH_DECLINED', 'PAID'].includes(status)) {
       targetUserIds = [job.childUserId];
     } else {
       throw Boom.badImplementation('Can\'t recognize job status');
     }
 
-    return this._createInppNotifications(targetUserIds, { // eslint-disable-line
+    return this._createInppNotifications(targetUserIds, {
       issuedBy: lastHistory.issuedBy,
       amount: job.jobSummary.price,
       title: job.jobSummary.title,

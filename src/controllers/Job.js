@@ -28,7 +28,7 @@ export default class JobController {
 
   async listByFamilyMember(userId, familyId, lastEvaluatedKey, limit) {
     // check if user is family member
-    if (await this.family.checkIsFamilyMember(familyId, userId)) {
+    if (!(await this.family.checkIsFamilyMember(familyId, userId))) {
       throw Boom.badRequest('given user is not given family member');
     }
 
