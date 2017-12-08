@@ -113,4 +113,4 @@ export const checkforgotPasswordSchema = (rawData) => {
 };
 
 export const checkValidNotiTriggerMessage = message =>
-  !message.content || !Object.keys(AVAILABLE_NOTIFICATIONS).includes(message.content);
+  message.content && Object.keys(AVAILABLE_NOTIFICATIONS).includes(message.content);

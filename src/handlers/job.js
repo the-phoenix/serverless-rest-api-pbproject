@@ -22,7 +22,7 @@ export async function get(event, context, callback) {
 
     response = success(data);
   } catch (e) {
-    response = failure(e);
+    response = failure(e, event);
   }
 
   callback(null, response);
@@ -47,7 +47,7 @@ export async function create(event, context, callback) {
 
     response = success(created, true);
   } catch (e) {
-    response = failure(e);
+    response = failure(e, event);
   }
 
   callback(null, response);
@@ -67,7 +67,7 @@ export async function updateStatus(event, context, callback) {
     const updated = await job.safeUpdateStatus(currentUser, params.jobId, body);
     response = success(updated);
   } catch (e) {
-    response = failure(e);
+    response = failure(e, event);
   }
 
   callback(null, response);
@@ -97,7 +97,7 @@ export async function listByFamily(event, context, callback) {
 
     response = success(data);
   } catch (e) {
-    response = failure(e);
+    response = failure(e, event);
   }
 
   callback(null, response);
@@ -125,7 +125,7 @@ export async function listByFamilyMember(event, context, callback) {
 
     response = success(data);
   } catch (e) {
-    response = failure(e);
+    response = failure(e, event);
   }
 
   callback(null, response);

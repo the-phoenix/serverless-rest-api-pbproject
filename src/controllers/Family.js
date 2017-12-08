@@ -2,7 +2,7 @@ import Boom from 'boom';
 import * as R from 'ramda';
 import FamilyModel from 'models/Family';
 import UserModel from 'models/User';
-import Noti from 'utils/noti/index';
+import { notifyNewFamilyMemberJoined } from 'utils/noti/index';
 
 export default class FamilyController {
   constructor() {
@@ -51,11 +51,11 @@ export default class FamilyController {
       throw Boom.notFound('not existing family');
     }
 
-    await this.family.join(targetFamilyId, user);
+    const familyMember = await this.family.join(targetFamilyId, user);
 
     // Update cognito user attribute
     const newAttribs = {
-      familyIds: user.familyIds.conat([targetFamilyId]),
+      familyIds: user.familyIds.concat([targetFamilyId]),
     };
 
     if (user.type === 'child'/* && !user.email */) {
@@ -63,11 +63,7 @@ export default class FamilyController {
       newAttribs.email_verified = 'true';
     }
 
-    await Noti.trigger({
-      content: user.type === 'child' ? 'family.familyJoined.child' : 'family.familyJoined.parent',
-      familyId: targetFamilyId,
-      userId: user.userId
-    });
+    await notifyNewFamilyMemberJoined(familyMember);
 
     return this.user.updateAttributes(user['cognito:username'], newAttribs);
   }

@@ -24,7 +24,7 @@ export default class NotificationModel {
     return this.dbClient('query', params);
   }
 
-  create(userId, content, familyId = null, meta = {}) {
+  create(userId, content, familyId = 'NO_FAMILY_ID', meta = {}) {
     const now = new Date();
     const params = {
       TableName: NOTIFICATION,

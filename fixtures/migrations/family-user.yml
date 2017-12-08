@@ -1,4 +1,5 @@
 Type: AWS::DynamoDB::Table
+DependsOn: FamilyDynamoDBTable
 DeletionPolicy : Retain
 Properties:
   TableName: ${self:custom.DB_PREFIX}-FamiliesUsers

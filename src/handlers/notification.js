@@ -21,7 +21,7 @@ export async function send(event, context, callback) {
     if (startsWith('job', performedAction)) {
       response = await noti.notifyJob(message.jobId, message);
     } else if (startsWith('withdrawal', performedAction)) {
-      response = await noti.notifyWithdrawal(message.jobId, message);
+      response = await noti.notifyWithdrawal(message.withdrawalId, message);
     } else if (performedAction === 'familyJoined') {
       response = await noti.notifyNewFamilyMemberJoined(message.familyId, message.userId, message);
     }
@@ -52,7 +52,7 @@ export async function listMine(event, context, callback) {
 
     response = success(data);
   } catch (e) {
-    response = failure(e);
+    response = failure(e, event);
   }
 
   callback(null, response);
@@ -68,7 +68,7 @@ export async function markOneAsRead(event, context, callback) {
     const updated = await noti.markOneAsRead(params.jobId);
     response = success(updated);
   } catch (e) {
-    response = failure(e);
+    response = failure(e, event);
   }
 
   callback(null, response);

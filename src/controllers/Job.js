@@ -52,13 +52,13 @@ export default class JobController {
     }
 
     let newJob = await this.job.create(currentUser.userId, jobData);
+    await notifyJob(newJob);
+
     if (currentUser.type === 'parent') {
       newJob = await this.job.updateStatus(currentUser.userId, {
         status: 'START_APPROVED'
       }, newJob);
     }
-
-    await notifyJob(newJob);
 
     return newJob;
   }

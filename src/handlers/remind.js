@@ -37,7 +37,7 @@ export async function forgotUsername(event, context, callback) {
     const emailResp = await Promise.all(emailSendPromises);
     response = success(emailResp);
   } catch (e) {
-    response = failure(e);
+    response = failure(e, event);
   }
 
   callback(null, response);
@@ -76,7 +76,7 @@ export async function forgotPincode(event, context, callback) {
 
     response = success(emailResp);
   } catch (e) {
-    response = failure(e);
+    response = failure(e, event);
   }
 
   callback(null, response);

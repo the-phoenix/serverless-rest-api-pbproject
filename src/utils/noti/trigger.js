@@ -28,28 +28,28 @@ export const notifyJob = (job) => {
 
   switch (job.status) {
     default: case 'CREATED_BY_PARENT':
-      performedAction = 'kid.jobCreated.parent';
+      performedAction = 'child.job.CREATED_BY_PARENT';
       break;
     case 'CREATED_BY_CHILD':
-      performedAction = 'parent.jobCreated.kid';
+      performedAction = 'parent.job.CREATED_BY_CHILD';
       break;
     case 'START_APPROVED':
-      performedAction = 'kid.jobStartApproved.parent';
+      performedAction = 'child.job.START_APPROVED';
       break;
     case 'START_DECLINED':
-      performedAction = 'kid.jobStartDeclined.parent';
+      performedAction = 'child.job.START_DECLINED';
       break;
     case 'STARTED':
-      performedAction = 'parent.jobStarted.kid';
+      performedAction = 'parent.job.STARTED';
       break;
     case 'FINISHED':
-      performedAction = 'parent.jobFinished.kid';
+      performedAction = 'parent.job.FINISHED';
       break;
     case 'FINISH_DECLINED':
-      performedAction = 'parent.jobFinishDeclined.kid';
+      performedAction = 'parent.job.FINISH_DECLINED';
       break;
     case 'PAID':
-      performedAction = 'kid.jobPaid.kid';
+      performedAction = 'child.job.PAID';
       break;
   }
 
@@ -64,16 +64,27 @@ export const notifyWithdrawal = (withdrawal) => {
 
   if (withdrawal.status === 'CREATED_BY_CHILD') {
     performedAction = 'parent.withdrawal.CREATED_BY_CHILD';
+  } else if (withdrawal.status === 'CREATED_BY_PARENT') {
+    performedAction = 'child.withdrawal.CREATED_BY_PARENT';
   } else if (withdrawal.status === 'APPROVED') {
-    const earlierHistory = withdrawal.history[0];
-    performedAction = earlierHistory.status === 'CREATED_BY_PARENT'
-      ? 'child.withdrawal.CREATED_BY_PARENT'
-      : 'child.withdrawal.APPROVED';
+    performedAction = 'child.withdrawal.APPROVED';
   }
   // todo: notify when withdrawal request is rejected
 
   return trigger({
     content: performedAction,
     withdrawalId: withdrawal.id
+  });
+};
+
+export const notifyNewFamilyMemberJoined = (familyMember) => {
+  const performedAction = familyMember.userSummary.type === 'parent'
+    ? 'family.familyJoined.parent'
+    : 'family.familyJoined.child';
+
+  return trigger({
+    content: performedAction,
+    familyId: familyMember.familyId,
+    userId: familyMember.userId
   });
 };

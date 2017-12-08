@@ -82,7 +82,7 @@ export default class UserModel {
     return this.cognito
       .listUsers(params)
       .promise()
-      .then(data => data.Users.map(user => UserModel.mextractAttribFromCognitoUser(user, 'Attributes')));
+      .then(data => data.Users.map(user => UserModel.extractAttribFromCognitoUser(user, 'Attributes')));
   }
 
   addUserToGroup(cognitoUserName, groupName, userPoolId) {

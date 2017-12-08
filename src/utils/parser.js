@@ -2,7 +2,6 @@ import { path, pathOr } from 'ramda';
 import User from 'models/User';
 
 export function parseCognitoUser(user) {
-  console.log('hey user go here', user);
   const WHITE_LIST = [
     'sub', 'cognito:username', 'cognito:groups',
     'custom:type', 'custom:familyIds', 'custom:deviceTokens',

@@ -15,7 +15,7 @@ export async function getMe(event, context, callback) {
 
     response = success(currentUser);
   } catch (e) {
-    response = failure(e);
+    response = failure(e, event);
   }
 
   callback(null, response);
@@ -39,7 +39,7 @@ export async function addDeviceToken(event, context, callback) {
 
     response = success(currentUser);
   } catch (e) {
-    response = failure(e);
+    response = failure(e, event);
   }
 
   callback(null, response);

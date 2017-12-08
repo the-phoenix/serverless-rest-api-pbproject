@@ -101,7 +101,8 @@ export default class FamilyModel {
         id: uuidv1(),
         name: `${familyAdminUser.name || familyAdminUser.username}'s Family`,
         created: (new Date()).toISOString(),
-        adminSummary: pick(SUMMARY_WHITE_LIST, familyAdminUser)
+        adminSummary: pick(SUMMARY_WHITE_LIST, familyAdminUser),
+        familyEmail: familyAdminUser.email
       }
     };
 

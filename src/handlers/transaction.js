@@ -18,7 +18,7 @@ export async function get(event, context, callback) {
 
     response = success(data);
   } catch (e) {
-    response = failure(e);
+    response = failure(e, event);
   }
 
   callback(null, response);
@@ -48,7 +48,7 @@ export async function listByFamily(event, context, callback) {
 
     response = success(data);
   } catch (e) {
-    response = failure(e);
+    response = failure(e, event);
   }
 
   callback(null, response);
@@ -77,7 +77,7 @@ export async function listByFamilyMember(event, context, callback) {
 
     response = success(data);
   } catch (e) {
-    response = failure(e);
+    response = failure(e, event);
   }
 
   callback(null, response);

@@ -14,7 +14,7 @@ export async function get(event, context, callback) {
 
     response = success(data);
   } catch (e) {
-    response = failure(e);
+    response = failure(e, event);
   }
 
   callback(null, response);
@@ -37,7 +37,7 @@ export async function create(event, context, callback) {
 
     response = success(data, true);
   } catch (e) {
-    response = failure(e);
+    response = failure(e, event);
   }
 
   callback(null, response);
@@ -61,7 +61,7 @@ export async function join(event, context, callback) {
 
     response = success({ message: 'joined ' });
   } catch (e) {
-    response = failure(e);
+    response = failure(e, event);
   }
 
   callback(null, response);

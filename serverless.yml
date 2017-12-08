@@ -304,12 +304,16 @@ functions:
           path: remind/forgot_pincode
           cors: true
           #authorizer: aws_iam
+  sendNotification:
+    handler: src/handlers/notification.send
+    events:
+      - sns: ${file(./config.yml):${self:custom.stage}.SNS_NOTI_TRIGGER_ARN}
   listMyNotifications:
     handler: src/handlers/notification.listMine
     events:
       - http:
           method: POST
-          path: user/me/notifications/{familyId}
+          path: user/me/notifications
           cors: true
           authorizer:
             name: authorizer

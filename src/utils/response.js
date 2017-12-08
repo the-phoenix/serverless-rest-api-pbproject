@@ -18,12 +18,14 @@ export function success(body, isCreated) {
   return buildResponse(isCreated ? 201 : 200, JSON.stringify(body));
 }
 
-export function failure(err) {
+export function failure(err, event) {
   if (boom.isBoom(err)) {
     needBoomLogging && console.log(err);
+    needBoomLogging && event && console.log(JSON.stringify(event, null, 4));
     return buildResponse(err.output.statusCode, JSON.stringify(err.output.payload));
   }
 
   needCriticalLogging && console.log(err);
+  needCriticalLogging && event && console.log(JSON.stringify(event, null, 4));
   return buildResponse(500, err.toString());
 }

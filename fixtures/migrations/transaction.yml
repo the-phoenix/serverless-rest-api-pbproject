@@ -1,4 +1,5 @@
 Type: AWS::DynamoDB::Table
+DependsOn: WithdrawalDynamoDBTable
 DeletionPolicy : Retain
 Properties:
   TableName: ${self:custom.DB_PREFIX}-Transactions
