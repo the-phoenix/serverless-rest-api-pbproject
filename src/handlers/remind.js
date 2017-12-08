@@ -20,7 +20,7 @@ export async function forgotUsername(event, context, callback) {
   let response;
 
   try {
-    const { body } = parseAPIGatewayEvent(event);
+    const { body } = await parseAPIGatewayEvent(event);
     const validationError = checkforgotUsernameSchema(body);
 
     if (validationError) {
@@ -47,7 +47,7 @@ export async function forgotPincode(event, context, callback) {
   let response;
 
   try {
-    const { body } = parseAPIGatewayEvent(event);
+    const { body } = await parseAPIGatewayEvent(event);
     const validationError = checkforgotPasswordSchema(body);
 
     if (validationError) {

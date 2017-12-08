@@ -9,7 +9,7 @@ export async function get(event, context, callback) {
   let response;
 
   try {
-    const { params, queryParams } = parseAPIGatewayEvent(event);
+    const { params, queryParams } = await parseAPIGatewayEvent(event);
     const data = await family.get(params.familyId, queryParams.scope);
 
     response = success(data);
@@ -25,7 +25,7 @@ export async function create(event, context, callback) {
   let response;
 
   try {
-    const { currentUser } = parseAPIGatewayEvent(event);
+    const { currentUser } = await parseAPIGatewayEvent(event);
 
     if (currentUser.type !== 'parent') {
       throw Boom.badRequest('Only Parent user can create family');
@@ -47,7 +47,7 @@ export async function join(event, context, callback) {
   let response;
 
   try {
-    const { currentUser, body } = parseAPIGatewayEvent(event);
+    const { currentUser, body } = await parseAPIGatewayEvent(event);
 
     if (!body.familyId) {
       throw Boom.badRequest('familyId is missing in request body');

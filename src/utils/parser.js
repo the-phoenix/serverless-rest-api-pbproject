@@ -38,7 +38,6 @@ export async function parseAPIGatewayEvent(event) {
   let currentUser = parseCognitoUser(pathOr({}, ['requestContext', 'authorizer', 'claims'], event));
   if (currentUser && currentUser['cognito:username']) {
     const freshCognitoUser = await user.getByCognitoUsername(currentUser['cognito:username']);
-
     currentUser = {
       ...currentUser,
       ...freshCognitoUser

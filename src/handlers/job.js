@@ -13,7 +13,7 @@ export async function get(event, context, callback) {
   let response;
 
   try {
-    const { params } = parseAPIGatewayEvent(event);
+    const { params } = await parseAPIGatewayEvent(event);
     const data = await job.get(params.jobId);
 
     if (!data) {
@@ -32,7 +32,7 @@ export async function create(event, context, callback) {
   let response;
 
   try {
-    const { currentUser, body } = parseAPIGatewayEvent(event);
+    const { currentUser, body } = await parseAPIGatewayEvent(event);
     const validationError = checkCreateJobDataSchema(body);
 
     if (validationError) {
@@ -57,7 +57,7 @@ export async function updateStatus(event, context, callback) {
   let response;
 
   try {
-    const { currentUser, body, params } = parseAPIGatewayEvent(event);
+    const { currentUser, body, params } = await parseAPIGatewayEvent(event);
 
     const validationError = checkUpdateJobStatusSchema(body);
     if (validationError) {
@@ -77,7 +77,7 @@ export async function listByFamily(event, context, callback) {
   let response;
 
   try {
-    const { params, currentUser, body } = parseAPIGatewayEvent(event);
+    const { params, currentUser, body } = await parseAPIGatewayEvent(event);
 
     if (currentUser.type === 'child') {
       throw Boom.badRequest('Only parent can get family data');
@@ -107,7 +107,7 @@ export async function listByFamilyMember(event, context, callback) {
   let response;
 
   try {
-    const { params, currentUser, body } = parseAPIGatewayEvent(event);
+    const { params, currentUser, body } = await parseAPIGatewayEvent(event);
     const userId = params.userId || currentUser.userId;
     if (currentUser.type === 'parent') {
       throw Boom.badRequest('Parent doesn\'t have jobs');

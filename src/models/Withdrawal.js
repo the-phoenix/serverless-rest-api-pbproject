@@ -104,7 +104,7 @@ export default class WithdrawalModel {
   create(currentUserId, payload) {
     const now = new Date();
     const timestamp = now.getTime();
-    const WHITE_LIST = ['familyId', 'amount', 'childUserId'];
+    const WHITE_LIST = ['familyId', 'amount', 'childUserId', 'status'];
 
     const params = {
       TableName: WITHDRAWAL_TABLENAME,
@@ -113,10 +113,9 @@ export default class WithdrawalModel {
         id: uuidv1(),
         modified: now.toISOString(),
         childUserId__createdTimestamp: `${payload.childUserId}__${timestamp}`,
-        status: 'PENDING',
         history: [
           {
-            status: 'PENDING',
+            status: payload.status,
             issuedAt: timestamp,
             issuedBy: currentUserId
           }
@@ -162,12 +161,13 @@ export default class WithdrawalModel {
       TableName: WITHDRAWAL_TABLENAME,
       ScanIndexForward: false,
       KeyConditionExpression: 'familyId = :hkey AND begins_with(childUserId__createdTimestamp, :rkey)',
-      FilterExpression: '#st = :s',
+      FilterExpression: '#st IN (:status1,:status2)',
       ExpressionAttributeNames: {
         '#st': 'status'
       },
       ExpressionAttributeValues: {
-        ':s': 'PENDING',
+        ':status1': 'CREATED_BY_CHILD',
+        ':status2': 'CREATED_BY_PARENT',
         ':hkey': familyId,
         ':rkey': childUserId
       }

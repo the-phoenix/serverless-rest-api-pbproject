@@ -9,7 +9,7 @@ export async function get(event, context, callback) {
   let response;
 
   try {
-    const { params } = parseAPIGatewayEvent(event);
+    const { params } = await parseAPIGatewayEvent(event);
     const data = await transaction.get(params.transactionId);
 
     if (!data) {
@@ -28,7 +28,7 @@ export async function listByFamily(event, context, callback) {
   let response;
 
   try {
-    const { params, currentUser, body } = parseAPIGatewayEvent(event);
+    const { params, currentUser, body } = await parseAPIGatewayEvent(event);
 
     if (currentUser.type === 'child') {
       throw Boom.badRequest('Only parent can get family data');
@@ -58,7 +58,7 @@ export async function listByFamilyMember(event, context, callback) {
   let response;
 
   try {
-    const { params, currentUser, body } = parseAPIGatewayEvent(event);
+    const { params, currentUser, body } = await parseAPIGatewayEvent(event);
     const userId = params.userId || currentUser.userId;
 
     if (currentUser.type === 'parent') {

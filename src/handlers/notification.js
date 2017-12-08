@@ -37,7 +37,7 @@ export async function listMine(event, context, callback) {
   let response;
 
   try {
-    const { currentUser, body } = parseAPIGatewayEvent(event);
+    const { currentUser, body } = await parseAPIGatewayEvent(event);
     const { userId } = currentUser;
 
     const ctrlParams = [
@@ -62,7 +62,7 @@ export async function markOneAsRead(event, context, callback) {
   let response;
 
   try {
-    const { /* currentUser, body, */ params } = parseAPIGatewayEvent(event);
+    const { /* currentUser, body, */ params } = await parseAPIGatewayEvent(event);
     // Todos: check if currentUser is the owner of this notification
 
     const updated = await noti.markOneAsRead(params.jobId);

@@ -8,7 +8,7 @@ export async function getMe(event, context, callback) {
   let response;
 
   try {
-    const { currentUser } = parseAPIGatewayEvent(event);
+    const { currentUser } = await parseAPIGatewayEvent(event);
 
     const familyInfo = await family.fetchByUserId(currentUser.userId);
     currentUser.family = familyInfo;
@@ -32,7 +32,7 @@ export async function addDeviceToken(event, context, callback) {
   let response;
 
   try {
-    const { currentUser } = parseAPIGatewayEvent(event);
+    const { currentUser } = await parseAPIGatewayEvent(event);
 
     const familyInfo = await family.fetchByUserId(currentUser.userId);
     currentUser.family = familyInfo;
