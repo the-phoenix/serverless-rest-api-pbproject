@@ -130,7 +130,7 @@ export default class FamilyModel {
       };
     }
 
-    return this.dbClient('put', params);
+    return this.dbClient('put', params).then(() => params.Item);
   }
 
   checkIsFamilyMember(familyId, userId) {

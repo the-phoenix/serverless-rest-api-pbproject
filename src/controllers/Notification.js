@@ -44,8 +44,8 @@ export default class NotiController {
       this.noti.create(
         userId,
         {
-          text: strFormat(inappMessage, params),
-          ...R.pick(['amount, issuedBy'], params)
+          ...R.pick(['amount', 'issuedBy'], params),
+          text: strFormat(inappMessage, params)
         },
         params.familyId,
         snsMessage
@@ -93,6 +93,7 @@ export default class NotiController {
       issuedBy: lastHistory.issuedBy,
       amount: job.jobSummary.price,
       title: job.jobSummary.title,
+      familyId: job.familyId
     }, snsMessage);
   }
 
@@ -115,6 +116,7 @@ export default class NotiController {
     return this._createInppNotifications(targetUserIds, { // eslint-disable-line
       issuedBy: lastHistory.issuedBy,
       amount: withdrawal.amount,
+      familyId: withdrawal.familyId
     }, snsMessage);
   }
 }

@@ -42,6 +42,13 @@ export default class FamilyController {
 
     await this.family.join(newFamily.id, familyAdmin);
 
+    // Update cognito user attribute
+    const newAttribs = {
+      familyIds: familyAdmin.familyIds.concat([newFamily.id]),
+    };
+
+    await this.user.updateAttributes(familyAdmin['cognito:username'], newAttribs);
+
     return newFamily;
   }
 
