@@ -1,17 +1,32 @@
-// import { pick } from 'ramda';
+import { pick } from 'ramda';
 import uuidv1 from 'uuid/v1';
 import dbClient from 'utils/db-client';
 
-const NOTIFICATION = 'Notifications';
+const NOTIFICATION_TABLENAME = 'Notifications';
 
 export default class NotificationModel {
   constructor() {
     this.dbClient = dbClient;
   }
 
+  fetchById(id) {
+    const params = {
+      TableName: NOTIFICATION_TABLENAME,
+      IndexName: 'id-index',
+      KeyConditionExpression: 'id = :hkey',
+      ExpressionAttributeValues: {
+        ':hkey': id
+      }
+    };
+
+    return this
+      .dbClient('query', params)
+      .then(data => data.Items[0]);
+  }
+
   fetchByUser(userId, lastEvaluatedKey, limit = 20) {
     const params = {
-      TableName: NOTIFICATION,
+      TableName: NOTIFICATION_TABLENAME,
       Limit: limit,
       ScanIndexForward: false,
       KeyConditionExpression: 'userId = :hkey',
@@ -27,7 +42,7 @@ export default class NotificationModel {
   create(userId, content, familyId = 'NO_FAMILY_ID', meta = {}) {
     const now = new Date();
     const params = {
-      TableName: NOTIFICATION,
+      TableName: NOTIFICATION_TABLENAME,
       Item: {
         id: uuidv1(),
         userId,
@@ -42,15 +57,14 @@ export default class NotificationModel {
     return this.dbClient('put', params).then(() => params.Item);
   }
 
-  markOneAsRead(notiId) {
+  markOneAsRead(notiData) {
     const now = new Date();
 
+    const primaryKeys = ['userId', 'created'];
+
     const params = {
-      TableName: NOTIFICATION,
-      IndexName: 'id-index',
-      Key: {
-        id: notiId
-      },
+      TableName: NOTIFICATION_TABLENAME,
+      Key: pick(primaryKeys, notiData),
       UpdateExpression: [
         'SET alreadyRead = :read',
         'modified = :m'

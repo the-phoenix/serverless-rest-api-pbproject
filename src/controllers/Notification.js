@@ -3,6 +3,7 @@ import * as R from 'ramda';
 import NotiModel from 'models/Notification';
 import FamilyModel from 'models/Family';
 import UserModel from 'models/User';
+import WithdrawalModel from 'models/Withdrawal';
 import JobModel from 'models/Job';
 import strFormat from 'string-template';
 import { AVAILABLE_NOTIFICATIONS } from 'utils/noti';
@@ -13,10 +14,13 @@ export default class NotiController {
     this.family = new FamilyModel();
     this.user = new UserModel();
     this.job = new JobModel();
+    this.withdrawal = new WithdrawalModel();
   }
 
-  markOneAsRead(notiId) {
-    return this.noti.markOneAsRead(notiId);
+  async markOneAsRead(notiId) {
+    const notiData = await this.noti.fetchById(notiId);
+
+    return this.noti.markOneAsRead(notiData);
   }
 
   listByUser(userId, lastEvaluatedKey, limit) {

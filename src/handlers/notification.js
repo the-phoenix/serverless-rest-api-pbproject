@@ -65,7 +65,7 @@ export async function markOneAsRead(event, context, callback) {
     const { /* currentUser, body, */ params } = await parseAPIGatewayEvent(event);
     // Todos: check if currentUser is the owner of this notification
 
-    const updated = await noti.markOneAsRead(params.jobId);
+    const updated = await noti.markOneAsRead(params.notificationId);
     response = success(updated);
   } catch (e) {
     response = failure(e, event);

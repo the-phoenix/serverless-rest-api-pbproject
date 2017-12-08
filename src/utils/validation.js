@@ -85,7 +85,7 @@ export const checkUpdateWithdrawalStatusSchema = (rawData) => {
 };
 
 export const checkAllowedWithdrawalStatusSafeUpdate = (userType, original, newone) => {
-  if (original !== 'PENDING') {
+  if (original !== 'CREATED_BY_CHILD' || original !== 'CREATED_BY_PARENT') {
     return 'Withdrawal request is already disposed';
   }
 

@@ -14,7 +14,7 @@ export default class WithdrawalController {
 
   async listByFamilyMember(userId, familyId, lastEvaluatedKey, limit) {
     // check if user is family member
-    if (await this.family.checkIsFamilyMember(familyId, userId)) {
+    if (!(await this.family.checkIsFamilyMember(familyId, userId))) {
       throw Boom.badRequest('Disallowed to see other family\'s data');
     }
 
