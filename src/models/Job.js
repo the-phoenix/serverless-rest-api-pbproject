@@ -2,38 +2,38 @@ import { omit, pick } from 'ramda';
 import uuidv1 from 'uuid/v1';
 import dbClient from 'utils/db-client';
 
-const JOB_TABLENAME = 'Jobs';
+export const JOB_TABLENAME = 'Jobs';
 export const availableJobStatus = {
   CREATED_BY_PARENT: {
-    allowedRole: ['parent'],
+    allowedRoles: ['parent'],
     availableNextMove: ['START_APPROVED', 'START_DECLINED']
   },
   CREATED_BY_CHILD: {
-    allowedRole: ['child'],
+    allowedRoles: ['child'],
     availableNextMove: ['START_APPROVED', 'START_DECLINED']
   },
   START_APPROVED: {
-    allowedRole: ['parent'],
+    allowedRoles: ['parent'],
     availableNextMove: ['STARTED']
   },
   START_DECLINED: {
-    allowedRole: ['parent'],
+    allowedRoles: ['parent'],
     availableNextMove: []
   },
   STARTED: {
-    allowedRole: ['child'],
+    allowedRoles: ['child'],
     availableNextMove: ['FINISHED']
   },
   FINISHED: {
-    allowedRole: ['child'],
+    allowedRoles: ['child'],
     availableNextMove: ['FINISH_DECLINED', 'PAID']
   },
   FINISH_DECLINED: {
-    allowedRole: ['parent'],
+    allowedRoles: ['parent'],
     availableNextMove: ['FINISHED']
   },
   PAID: {
-    allowedRole: ['parent'],
+    allowedRoles: ['parent'],
     availableNextMove: []
   }
 };

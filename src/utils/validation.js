@@ -55,7 +55,7 @@ export const checkUpdateJobStatusSchema = (rawData) => {
 };
 
 export const checkAllowedJobStatusSafeUpdate = (userType, original, newone) => {
-  if (!availableJobStatus[newone].allowedRole.includes(userType)) {
+  if (!availableJobStatus[newone].allowedRoles.include(userType)) {
     return 'This user type is not allowed to update job to target status';
   }
 
@@ -89,7 +89,7 @@ export const checkAllowedWithdrawalStatusSafeUpdate = (userType, original, newon
     return 'Withdrawal request is already disposed';
   }
 
-  if (!availableWithdrawalStatus[newone].allowedRole.includes(userType)) {
+  if (!availableWithdrawalStatus[newone].allowedRoles.includes(userType)) {
     return 'This user type is not allowed to update withdrawal request to target status';
   }
 

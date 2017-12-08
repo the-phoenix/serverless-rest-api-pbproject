@@ -1,6 +1,8 @@
 import { pick } from 'ramda';
 import uuidv1 from 'uuid/v1';
 import dbClient from 'utils/db-client';
+import { WITHDRAWAL_TABLENAME } from './Withdrawal';
+import { JOB_TABLENAME } from './Job';
 
 const TRANSACTION_TABLENAME = 'Transactions';
 
@@ -73,7 +75,7 @@ export default class TransactionModel {
       amount: completedJob.jobSummary.price,
       balanceAfter,
       meta: {
-        referenceTable: 'Jobs',
+        referenceTable: JOB_TABLENAME,
         referenceId: completedJob.id
       }
     };
@@ -88,7 +90,7 @@ export default class TransactionModel {
       amount: approvedWithdrawal.amount,
       balanceAfter,
       meta: {
-        referenceTable: 'Withdrawals',
+        referenceTable: WITHDRAWAL_TABLENAME,
         referenceId: approvedWithdrawal.id
       }
     };

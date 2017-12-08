@@ -3,20 +3,23 @@ import uuidv1 from 'uuid/v1';
 import dbClient from 'utils/db-client';
 
 export const availableWithdrawalStatus = {
-  PENDING: {
-    allowedRole: ['parent', 'child']
+  CREATED_BY_CHILD: {
+    allowedRoles: ['child']
+  },
+  CREATED_BY_PARENT: {
+    allowedRoles: ['parent']
   },
   APPROVED: {
-    allowedRole: ['parent']
+    allowedRoles: ['parent']
   },
   REJECTED: {
-    allowedRole: ['parent']
+    allowedRoles: ['parent']
   },
   CANCELED: {
-    allowedRole: ['child']
+    allowedRoles: ['child']
   }
 };
-const WITHDRAWAL_TABLENAME = 'Withdrawals';
+export const WITHDRAWAL_TABLENAME = 'WithdrawalRequests';
 
 export default class WithdrawalModel {
   constructor() {

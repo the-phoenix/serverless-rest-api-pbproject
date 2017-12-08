@@ -10,7 +10,10 @@
         "Signature": "EXAMPLE",
         "SigningCertUrl": "EXAMPLE",
         "MessageId": "95df01b4-ee98-5cb9-9903-4c221d41eb5e",
-        "Message": "Hello from SNS!",
+        "Message": "{
+          \"content\": \"kid.jobStartApproved.parent\",
+          \"jobId\": \"938a9070-dbfd-11e7-930f-cf705c3ac03c\"
+        }",
         "MessageAttributes": {
           "Test": {
             "Type": "String",

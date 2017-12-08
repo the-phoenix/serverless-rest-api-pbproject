@@ -1,7 +1,7 @@
 Type: AWS::DynamoDB::Table
 DeletionPolicy : Retain
 Properties:
-  TableName: ${self:custom.DB_PREFIX}-Withdrawals
+  TableName: ${self:custom.DB_PREFIX}-WithdrawalRequests
   AttributeDefinitions:
     - AttributeName: familyId
       AttributeType: S

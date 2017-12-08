@@ -1,49 +1,49 @@
 {
-  "kid.jobCreated.parent": {
+  "child.job.CREATED_BY_PARENT": {
     "push": "You've received a new job from {username} for {amount}.\n{title}",
     "inapp": "Received a new job!\n{title}"
   },
-  "parent.jobCreated.kid": {
+  "parent.job.CREATED_BY_CHILD": {
     "push": "{username} has sent you a new job for {amount}.\n{title}",
     "inapp": "Sent a new job!\n{title}"
   },
-  "kid.jobStartApproved.parent": {
+  "child.job.START_APPROVED": {
     "push": "Your job has been accepted by {username} for {amount}.\n{title}",
     "inapp": "Job accepted. Start now!\n{title}"
   },
-  "kid.jobStartDeclined.parent": {
+  "child.job.START_DECLINED": {
     "push": "Your job has been rejected by {username}. Try another one!\n{title}",
     "inapp": "Job rejected. Try another!\n"
   },
-  "parent.jobStarted.kid": {
+  "parent.job.STARTED": {
     "push": "{username} has started this job!\n{title}",
     "inapp": "Started a job!\n{title}"
   },
-  "parent.jobFinished.kid": {
+  "parent.job.FINISHED": {
     "push": "{username} has marked this job as completed!\n{title}",
     "inapp": "Job completed. Pay it now!\n{title}"
   },
-  "kid.jobFinishDeclined.parent": {
+  "child.job.FINISH_DECLINED": {
     "push": "Your job has been sent back by {username}. Fix it now so you can get paid!\n{title}",
     "inapp": "Job sent back. Fix it now!\n{title}"
   },
-  "kid.jobPaid.parent": {
+  "child.job.PAID": {
     "push": "Nice one! You've been paid {amount} by {username}\n{title}",
     "inapp": "You've been paid!\n{title}"
   },
-  "parent.withdrawalCreated.kid": {
+  "parent.withdrawal.CREATED_BY_CHILD": {
     "push": "{username} has requested a cash out for {amount}.\nPay it now?",
     "inapp": "Cash out requested\nPay it now?"
   },
-  "kid.withdrawalApproved.parent": {
+  "child.withdrawal.APPROVED": {
     "push": "Your cash out request for {amount} approved by {username}.\nCollect your money!",
     "inapp": "Approved cash out\nCollect your money!"
   },
-  "kid.withdrawalCreated.parent": {
+  "child.withdrawal.CREATED_BY_PARENT": {
     "push": "{username} has taken {amount} from your account.\nCollect your money!",
     "inapp": "Approved cash out\nCollect your money!"
   },
-  "kid.createFirstJob": {
+  "child.createFirstJob": {
     "push": "Send a task or job to get started!\nIt's easy! Tap to send one now.",
     "inapp": "Send your first task today\nTo start using Pennybox!"
   },
@@ -51,7 +51,7 @@
     "push": "Send a task or job to get started!\nIt's easy! Tap to send one now.",
     "inapp": "Send your first task today\nTo start using Pennybox!"
   },
-  "kid.inviteParents": {
+  "child.inviteParents": {
     "push": "Have you added your parents yet?\nTap to add them now. It's easy!",
     "inapp": "Add your parents today\nSo you can get paid for jobs!"
   },

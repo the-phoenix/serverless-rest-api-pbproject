@@ -1,9 +1,9 @@
 import Boom from 'boom';
 import { pick } from 'ramda';
-import WithdrawalModel from 'models/Withdrawal';
+import WithdrawalModel, { availableWithdrawalStatus } from 'models/Withdrawal';
 import TransactionModel from 'models/Transaction';
 import FamilyModel from 'models/Family';
-import Noti from 'utils/noti';
+import { notifyWithdrawal } from 'utils/noti/index';
 
 import {
   checkAllowedWithdrawalStatusSafeUpdate as checkSafeStatus
@@ -23,9 +23,9 @@ export default class WithdrawalController {
   }
 
   async listByFamily(userId, familyId, status, lastEvaluatedKey, limit) {
-    const wanted = Array.isArray(status)
-      ? status.map(one => one.toUpperCase())
-      : [status.toUpperCase()];
+    const wanted = status === 'pending'
+      ? ['CREATED_BY_PARENT', 'CREATED_BY_CHILD']
+      : Object.keys(availableWithdrawalStatus);
 
     return this.withdrawal.fetchByFamilyId(familyId, wanted, lastEvaluatedKey, limit);
   }
@@ -36,7 +36,11 @@ export default class WithdrawalController {
       throw Boom.badRequest('given user is not given family member');
     }
 
-    const wanted = Array.isArray(status)
+    const wanted = status === 'pending'
+      ? ['CREATED_BY_PARENT', 'CREATED_BY_CHILD']
+      : Object.keys(availableWithdrawalStatus);
+
+    Array.isArray(status)
       ? status.map(one => one.toUpperCase())
       : [status.toUpperCase()];
 
@@ -51,10 +55,19 @@ export default class WithdrawalController {
   }
 
   async create(currentUser, reqParam) {
-    const withdrawalData = pick(['familyId', 'amount', 'childUserId'], reqParam);
+    let withdrawalData = pick(['familyId', 'amount', 'childUserId'], reqParam);
 
-    if (currentUser.type === 'child') {
-      withdrawalData.childUserId = currentUser.userId;
+    if (currentUser.type === 'parent') {
+      withdrawalData = {
+        ...withdrawalData,
+        status: 'CREATED_BY_PARENT'
+      };
+    } else if (currentUser.type === 'child') {
+      withdrawalData = {
+        ...withdrawalData,
+        status: 'CREATED_BY_CHILD',
+        childUserId: currentUser.userId
+      };
     }
 
     // check if available to withdraw
@@ -71,7 +84,8 @@ export default class WithdrawalController {
       const { userSummary } = await this.family.updateFamilyMemberAfterWithdrawal(newWithdrawal);
       await this.transaction.createFromWithdrawal(userSummary.balance, newWithdrawal, true);
     }
-    Noti.notifyWithdrawalRequestCreated(newWithdrawal.id);
+
+    await notifyWithdrawal(newWithdrawal);
 
     return newWithdrawal;
   }
@@ -101,6 +115,8 @@ export default class WithdrawalController {
         .updateFamilyMemberAfterWithdrawal(updatedWithdrawal);
       await this.transaction.createFromWithdrawal(userSummary.balance, updatedWithdrawal);
     }
+
+    await notifyWithdrawal(updatedWithdrawal);
 
     return updatedWithdrawal;
   }
