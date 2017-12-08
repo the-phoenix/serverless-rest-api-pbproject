@@ -39,9 +39,9 @@ export async function create(event, context, callback) {
       throw Boom.preconditionFailed(validationError);
     } else if (currentUser.type === 'parent' && !body.childUserId) {
       throw Boom.preconditionFailed('"childUserId" is required');
-    }/* else if (!currentUser.familyIds.includes(body.familyId)) {
+    } else if (!currentUser.familyIds.includes(body.familyId)) {
       throw Boom.badRequest('Disallowed to create for other family');
-    }*/
+    }
 
     const created = await job.create(currentUser, body);
 
@@ -81,9 +81,9 @@ export async function listByFamily(event, context, callback) {
 
     if (currentUser.type === 'child') {
       throw Boom.badRequest('Only parent can get family data');
-    } /* else if (!currentUser.familyIds.includes(params.familyId)) {
+    } else if (!currentUser.familyIds.includes(params.familyId)) {
       throw Boom.badRequest('Disallowed to see other family\'s data');
-    } */
+    }
 
     const ctrlParams = [
       currentUser.userId, params.familyId, body.lastEvaluatedKey, body.limit

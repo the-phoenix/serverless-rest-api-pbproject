@@ -32,9 +32,9 @@ export async function listByFamily(event, context, callback) {
 
     if (currentUser.type === 'child') {
       throw Boom.badRequest('Only parent can get family data');
-    } /* else if (!currentUser.familyIds.includes(params.familyId)) {
+    } else if (!currentUser.familyIds.includes(params.familyId)) {
       throw Boom.badRequest('Disallowed to see other family\'s data');
-    } */
+    }
 
     const ctrlParams = [
       currentUser.userId, params.familyId, body.lastEvaluatedKey, body.limit

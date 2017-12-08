@@ -34,7 +34,8 @@ export default class NotificationModel {
         content,
         familyId,
         created: now.toISOString(),
-        meta
+        meta,
+        alreadyRead: false
       }
     };
 
