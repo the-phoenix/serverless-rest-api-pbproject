@@ -1,8 +1,14 @@
+import Boom from 'boom';
 import { success, failure } from 'utils/response';
 import { parseAPIGatewayEvent } from 'utils/parser';
 import FamilyController from 'controllers/Family';
+import UserController from 'controllers/User';
+import {
+  checkAddDeviceTokenSchema,
+} from 'utils/validation';
 
 const family = new FamilyController();
+const user = new UserController();
 
 export async function getMe(event, context, callback) {
   let response;
@@ -32,12 +38,16 @@ export async function addDeviceToken(event, context, callback) {
   let response;
 
   try {
-    const { currentUser } = await parseAPIGatewayEvent(event);
+    const { currentUser, body } = await parseAPIGatewayEvent(event);
+    const validationError = checkAddDeviceTokenSchema(body);
 
-    const familyInfo = await family.fetchByUserId(currentUser.userId);
-    currentUser.family = familyInfo;
+    if (validationError) {
+      throw Boom.preconditionFailed(validationError);
+    }
 
-    response = success(currentUser);
+    const updatedUser = await user.addDeviceToken(currentUser, body);
+
+    response = success(updatedUser);
   } catch (e) {
     response = failure(e, event);
   }
@@ -45,4 +55,23 @@ export async function addDeviceToken(event, context, callback) {
   callback(null, response);
 }
 
-export default { getMe };
+export async function removeDeviceToken(event, context, callback) {
+  let response;
+
+  try {
+    const { currentUser, params } = await parseAPIGatewayEvent(event);
+    const tokenData = {
+      token: params.token
+    };
+
+    const updatedUser = await user.removeDeviceToken(currentUser, tokenData);
+
+    response = success(updatedUser);
+  } catch (e) {
+    response = failure(e, event);
+  }
+
+  callback(null, response);
+}
+
+export default { getMe, addDeviceToken, removeDeviceToken };

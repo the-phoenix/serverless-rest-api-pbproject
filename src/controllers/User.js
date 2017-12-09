@@ -1,4 +1,4 @@
-import { pathOr } from 'ramda';
+import * as R from 'ramda';
 import UserModel from 'models/User';
 import { checkIfReserved, checkIfProfane } from 'utils/validation';
 
@@ -45,7 +45,7 @@ export default class User {
   }
 
   async postConfirmation(cognitoUserName, attributes, userPoolId) {
-    const groupName = pathOr('child', ['custom:type'], attributes) === 'child'
+    const groupName = R.pathOr('child', ['custom:type'], attributes) === 'child'
       ? 'Child' : 'Parent';
 
     if (groupName === 'Parent') {
@@ -57,9 +57,33 @@ export default class User {
     return this.user.addUserToGroup(cognitoUserName, groupName, userPoolId);
   }
 
-  // async addDeviceToken(cognitoUserName, tokenData) {
-  //   return this.user.updateAttributes(cognitoUserName, {
-  //     deviceTokens:
-  //   });
-  // }
+  addDeviceToken(targetUser, tokenData) {
+    const hasDuplicatedToken = R.compose(
+      R.find(R.propEq('token', tokenData.token)),
+      R.pathOr([], ['deviceTokens'])
+    );
+
+    if (hasDuplicatedToken(targetUser)) {
+      return targetUser;
+    }
+
+    const deviceTokens = (targetUser.deviceTokens || []).concat([tokenData]);
+
+    return this.user.updateAttributes(targetUser['cognito:username'], {
+      deviceTokens: JSON.stringify(deviceTokens)
+    });
+  }
+
+  async removeDeviceToken(targetUser, tokenData) {
+    const removeToken = R.compose(
+      R.filter(({ token }) => token !== tokenData.token),
+      R.pathOr([], ['deviceTokens'])
+    );
+
+    const deviceTokens = removeToken(targetUser);
+
+    return this.user.updateAttributes(targetUser['cognito:username'], {
+      deviceTokens: (!deviceTokens || !deviceTokens.length) ? '' : JSON.stringify(deviceTokens)
+    });
+  }
 }

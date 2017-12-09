@@ -25,6 +25,7 @@ provider:
     COGNITO_POOL_ID: ${self:custom.COGNITO_POOL_ID}
     SEND_IN_BLUE: ${file(./cred.yml):${self:custom.stage}.SEND_IN_BLUE}
     SNS_NOTI_TRIGGER_ARN: ${file(./config.yml):${self:custom.stage}.SNS_NOTI_TRIGGER_ARN}
+    SNS_PUSH_APN_ARN: ${file(./config.yml):${self:custom.stage}.SNS_PUSH_APN_ARN}
     ERROR_LEVEL: ${file(./config.yml):${self:custom.stage}.ERROR_LEVEL}
   iamRoleStatements:
     - Effect: Allow
@@ -324,6 +325,26 @@ functions:
       - http:
           method: PUT
           path: notification/{notificationId}
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+  addMyDeviceToken:
+    handler: src/handlers/user.addDeviceToken
+    events:
+      - http:
+          method: POST
+          path: user/me/tokens
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+  removeMyDeviceToken:
+    handler: src/handlers/user.removeDeviceToken
+    events:
+      - http:
+          method: DELETE
+          path: user/me/tokens/{token}
           cors: true
           authorizer:
             name: authorizer

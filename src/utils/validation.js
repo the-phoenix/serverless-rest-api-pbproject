@@ -112,5 +112,14 @@ export const checkforgotPasswordSchema = (rawData) => {
   return getPlainError(joi.validate(rawData, schema));
 };
 
+export const checkAddDeviceTokenSchema = (rawData) => {
+  const schema = joi.object().keys({
+    model: joi.string().required(),
+    token: joi.string().required()
+  });
+
+  return getPlainError(joi.validate(rawData, schema));
+};
+
 export const checkValidNotiTriggerMessage = message =>
   message.content && Object.keys(AVAILABLE_NOTIFICATIONS).includes(message.content);
