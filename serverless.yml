@@ -39,7 +39,7 @@ provider:
         - "arn:aws:cognito-idp:us-east-1:*"
     - Effect: Allow
       Action:
-        - "SNS:Publish"
+        - "SNS:*"
       Resource:
         - "arn:aws:sns:us-east-1:*"
 custom:

@@ -37,12 +37,13 @@ export function sendAPNToSingleDevice(token, msgText) {
 }
 
 export const sendPush = (deviceTokens, msgText) => {
+  console.log('Received push request to', JSON.stringify(deviceTokens, null, 4));
   const iosTokens = R.compose(
     R.map(R.prop('token')),
     R.filter(is_iOS_token)
   )(deviceTokens);
 
-  console.log('Trying to send push to ', deviceTokens);
+  console.log('Please send push to ', iosTokens);
   console.log('With this content:', msgText);
 
   return Promise.all(iosTokens.map(token => sendAPNToSingleDevice(token, msgText)));

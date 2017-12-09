@@ -15,6 +15,8 @@ export function parseCognitoUser(rawUser) {
 
     if (newAttribName === 'familyIds') {
       container[newAttribName] = rawUser[attribName] ? rawUser[attribName].split(',') : [];  // eslint-disable-line
+    } else if (newAttribName === 'deviceTokens') {
+      try { container[newAttribName] = JSON.parse(rawUser[attribName]); } catch (e) { container[newAttribName] = []; } // eslint-disable-line
     } else {
       container[newAttribName] = rawUser[attribName];  // eslint-disable-line
     }
