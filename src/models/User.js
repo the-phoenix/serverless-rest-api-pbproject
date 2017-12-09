@@ -34,6 +34,8 @@ export default class UserModel {
 
       if (key === 'familyIds') {
         container[key] = attr.Value ? attr.Value.split(',') : []; // eslint-disable-line
+      } else if (key === 'deviceTokens') {
+        try { container[key] = JSON.parse(attr.Value); } catch (e) { container[key] = []; } // eslint-disable-line
       } else {
         container[key] = attr.Value;  // eslint-disable-line
       }

@@ -6,7 +6,8 @@ import UserModel from 'models/User';
 import WithdrawalModel from 'models/Withdrawal';
 import JobModel from 'models/Job';
 import strFormat from 'string-template';
-import { AVAILABLE_NOTIFICATIONS } from 'utils/noti';
+
+import { AVAILABLE_NOTIFICATIONS, sendPush } from 'utils/noti';
 
 export default class NotiController {
   constructor() {
@@ -17,8 +18,11 @@ export default class NotiController {
     this.withdrawal = new WithdrawalModel();
   }
 
-  async markOneAsRead(notiId) {
+  async markOneAsRead(notiId, currentUser) {
     const notiData = await this.noti.fetchById(notiId);
+    if (notiData.userId !== currentUser.userId) {
+      throw Boom.badRequest('Not allowed to update other\'s notification status');
+    }
 
     return this.noti.markOneAsRead(notiData);
   }
@@ -27,100 +31,125 @@ export default class NotiController {
     return this.noti.fetchByUser(userId, lastEvaluatedKey, limit);
   }
 
-  async _getUserIdsFromFamily(familyId, wantedType) {
+  async _getUsersFromFamily(familyId, wantedType) {
     const fms = await this.family.fetchMembersByFamilyId(familyId);
-    const mapUserIdFn = R.map(R.prop('userId'));
 
     if (wantedType === 'parent' || wantedType === 'child') {
       return R.compose(
-        mapUserIdFn,
         R.filter(R.pathEq(['userSummary', 'type'], wantedType))
       )(fms);
     }
 
-    return mapUserIdFn(fms);
+    return fms;
   }
 
-  async _createInppNotifications(targetUserIds, params, snsMessage) {
-    const inappMessage = AVAILABLE_NOTIFICATIONS[snsMessage.content].inapp;
+  _sendPushNotification(targetUser, params, snsOriginMessage) { // eslint-disable-line
+    const pushMessage = AVAILABLE_NOTIFICATIONS[snsOriginMessage.content].push;
+    if (!pushMessage) {
+      return Promise.resolve(`No push message defined for ${snsOriginMessage.content}`);
+    }
 
-    const createSingleNotiFN = userId =>
-      this.noti.create(
-        userId,
-        {
-          ...R.pick(['amount', 'issuedBy'], params),
-          text: strFormat(inappMessage, params)
-        },
-        params.familyId,
-        snsMessage
-      );
-
-    // todos: exclude issuedBy from targetUserIds
-
-    return targetUserIds.length
-      ? Promise.all(targetUserIds.map(createSingleNotiFN))
-      : Promise.resolve(true);
+    return sendPush(targetUser.deviceTokens, strFormat(pushMessage, params));
   }
 
-  async notifyNewFamilyMemberJoined(familyId, newMemberId, snsMessage) {
+  _createInppNotification(targetUser, params, snsOriginMessage) {
+    const inappMessage = AVAILABLE_NOTIFICATIONS[snsOriginMessage.content].inapp;
+
+    return this.noti.create(
+      targetUser.userId,
+      {
+        ...R.pick(['amount', 'issuedBy'], params),
+        text: strFormat(inappMessage, params)
+      },
+      params.familyId,
+      snsOriginMessage
+    );
+  }
+
+  sendNotifications(targetUsers, params, snsOriginMessage) {
+    return Promise.all(
+      targetUsers.map(
+        targetUser => Promise.all([
+          this._sendPushNotification(targetUser, params, snsOriginMessage),
+          this._createInppNotification(targetUser, params, snsOriginMessage),
+        ])
+      )
+    );
+  }
+
+  async notifyNewFamilyMemberJoined(familyId, newMemberId, snsOriginMessage) {
     const newMember = await this.user.fetchById(newMemberId);
-    let targetUserIds = await this._getUserIdsFromFamily(familyId, 'all');
+    let targetUsers = await this._getUsersFromFamily(familyId, 'all');
 
     // prevent send notification to issuedBy
-    targetUserIds = R.filter(userId => userId !== newMemberId, targetUserIds);
+    targetUsers = R.filter(({ userId }) => userId !== newMemberId, targetUsers);
 
-    return this._createInppNotifications(targetUserIds,
+    return this.sendNotifications(
+      targetUsers,
       {
         issuedBy: newMemberId,
         username: newMember.username,
         familyId,
-      }, snsMessage
+      }, snsOriginMessage
     );
   }
 
-  async notifyJob(jobId, snsMessage) {
+  async notifyJob(jobId, snsOriginMessage) {
     const job = await this.job.fetchById(jobId);
 
-    let targetUserIds;
+    let targetUsers;
     const { status } = job;
     const lastHistory = R.last(job.history);
+    const { username } = await this.user.fetchById(lastHistory.issuedBy);
 
     if (['CREATED_BY_CHILD', 'FINISHED', 'STARTED'].includes(status)) {
-      targetUserIds = await this._getUserIdsFromFamily(job.familyId, 'parent');
+      targetUsers = await this._getUsersFromFamily(job.familyId, 'parent');
     } else if (['START_DECLINED', 'START_APPROVED', 'FINISH_DECLINED', 'PAID'].includes(status)) {
-      targetUserIds = [job.childUserId];
+      targetUsers = [
+        await this.user.fetchById(job.childUserId)
+      ];
     } else {
       throw Boom.badImplementation('Can\'t recognize job status');
     }
 
-    return this._createInppNotifications(targetUserIds, {
-      issuedBy: lastHistory.issuedBy,
-      amount: job.jobSummary.price,
-      title: job.jobSummary.title,
-      familyId: job.familyId
-    }, snsMessage);
+    return this.sendNotifications(
+      targetUsers,
+      {
+        username,
+        issuedBy: lastHistory.issuedBy,
+        amount: job.jobSummary.price,
+        title: job.jobSummary.title,
+        familyId: job.familyId
+      }, snsOriginMessage);
   }
 
-  async notifyWithdrawal(withdrawalId, snsMessage) {
+  async notifyWithdrawal(withdrawalId, snsOriginMessage) {
     const withdrawal = await this.withdrawal.fetchById(withdrawalId);
 
-    let targetUserIds;
+    let targetUsers;
     const { status } = withdrawal;
     const lastHistory = R.last(withdrawal.history);
+    const { username } = await this.user.fetchById(lastHistory.issuedBy);
 
     if (status === 'APPROVED') {
-      targetUserIds = [withdrawal.childUserId];
+      targetUsers = [
+        await this.user.fetchById(withdrawal.childUserId)
+      ];
     } else if (status === 'CREATED_BY_CHILD') {
-      targetUserIds = await this._getUserIdsFromFamily(withdrawal.familyId, 'parent'); // eslint-disable-line
+      targetUsers = await this._getUsersFromFamily(withdrawal.familyId, 'parent'); // eslint-disable-line
     } else {
       // todos: check when withdrawal request is rejected or canceled
       throw Boom.badImplementation('Can\'t recognize withdrawal status');
     }
 
-    return this._createInppNotifications(targetUserIds, { // eslint-disable-line
-      issuedBy: lastHistory.issuedBy,
-      amount: withdrawal.amount,
-      familyId: withdrawal.familyId
-    }, snsMessage);
+    return this.sendNotifications(
+      targetUsers,
+      { // eslint-disable-line
+        username,
+        issuedBy: lastHistory.issuedBy,
+        amount: withdrawal.amount,
+        familyId: withdrawal.familyId
+      }, snsOriginMessage
+    );
   }
 }

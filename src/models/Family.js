@@ -52,7 +52,7 @@ export default class FamilyModel {
   }
 
   fetchMembersByFamilyId(id) {
-    const PULL_FROM_COGNITO = ['picture', 'username', 'email'];
+    const PULL_FROM_COGNITO = ['picture', 'username', 'email', 'deviceTokens'];
 
     const params = {
       TableName: FAMILY_USER_TABLENAME,
