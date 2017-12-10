@@ -1,5 +1,4 @@
 import Boom from 'boom';
-import * as R from 'ramda';
 import { success, failure } from 'utils/response';
 import { parseAPIGatewayEvent } from 'utils/parser';
 import FamilyController from 'controllers/Family';
@@ -59,16 +58,11 @@ export async function forgotPincode(event, context, callback) {
       throw Boom.notFound('Not existing user');
     }
 
-    const getAttribValue = attribName => R.compose(
-      R.path(['Value']),
-      R.find(R.propEq('Name', attribName)),
-    );
-    const userType = getAttribValue('custom:type')(wantedUser.Attributes);
-    const email = getAttribValue('email')(wantedUser.Attributes);
+    const { type, email } = wantedUser;
 
-    if (userType === 'parent') {
+    if (type === 'parent') {
       throw Boom.badRequest('parent user is not allowed.');
-    } else if (userType === 'child' && !email) {
+    } else if (type === 'child' && !email) {
       throw Boom.badRequest('child user with no family. please contact pennybox admin.');
     }
 

@@ -11,7 +11,10 @@ const is_iOS_token = ({ model }) => startsWith('iPhone', model) || startsWith('i
 export function sendAPNToSingleDevice(token, msgText) {
   const createEndpointParams = {
     PlatformApplicationArn: process.env.SNS_PUSH_APN_ARN,
-    Token: token
+    Token: token,
+    Attributes: {
+      Enabled: 'true'
+    }
   };
 
   sns

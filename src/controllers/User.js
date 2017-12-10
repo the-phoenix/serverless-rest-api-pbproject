@@ -71,7 +71,7 @@ export default class User {
 
     return this.user.updateAttributes(targetUser['cognito:username'], {
       deviceTokens: JSON.stringify(deviceTokens)
-    });
+    }).then(() => deviceTokens);
   }
 
   async removeDeviceToken(targetUser, tokenData) {
@@ -84,6 +84,6 @@ export default class User {
 
     return this.user.updateAttributes(targetUser['cognito:username'], {
       deviceTokens: (!deviceTokens || !deviceTokens.length) ? '' : JSON.stringify(deviceTokens)
-    });
+    }).then(() => deviceTokens);
   }
 }

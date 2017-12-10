@@ -106,12 +106,17 @@ export default class NotiController {
     const lastHistory = R.last(job.history);
     const { username } = await this.user.fetchById(lastHistory.issuedBy);
 
+    console.log('RECEIVED ACTION: ', snsOriginMessage.content);
+    console.log('CURRENT JOB STATUS: ', status);
+
     if (['CREATED_BY_CHILD', 'FINISHED', 'STARTED'].includes(status)) {
       targetUsers = await this._getUsersFromFamily(job.familyId, 'parent');
     } else if (['START_DECLINED', 'START_APPROVED', 'FINISH_DECLINED', 'PAID'].includes(status)) {
+      console.log('am i came here?', job.childUserId);
       targetUsers = [
         await this.user.fetchById(job.childUserId)
       ];
+      console.log('so what i get', targetUsers);
     } else {
       throw Boom.badImplementation('Can\'t recognize job status');
     }

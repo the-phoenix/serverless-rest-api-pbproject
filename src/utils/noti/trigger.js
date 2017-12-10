@@ -7,7 +7,7 @@ const sns = new SNS({
 
 export function trigger (message) { // eslint-disable-line
   if (!checkValidNotiTriggerMessage(message)) {
-    throw new Error('Invalid notification trigger message passed to trigger');
+    throw new Error(`Invalid notification trigger message passed to trigger: ${message.content}`);
   }
 
   const params = {
@@ -46,7 +46,7 @@ export const notifyJob = (job) => {
       performedAction = 'parent.job.FINISHED';
       break;
     case 'FINISH_DECLINED':
-      performedAction = 'parent.job.FINISH_DECLINED';
+      performedAction = 'child.job.FINISH_DECLINED';
       break;
     case 'PAID':
       performedAction = 'child.job.PAID';
