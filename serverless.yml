@@ -13,6 +13,7 @@ plugins:
   - serverless-dynamodb-local
   - serverless-offline # This order is important. should be below of dynamodb-local
   # - serverless-dynamodb-autoscaling
+  - serverless-plugin-split-stacks
 
 provider:
   name: aws
@@ -21,7 +22,7 @@ provider:
   region: us-east-1
   environment:
     SERVICE_NAME: ${self:service}
-    AWS_REGION: ${self:provider.region}
+    REGION: ${self:provider.region}
     DB_PREFIX: ${self:custom.DB_PREFIX}
     COGNITO_POOL_ID: ${self:custom.COGNITO_POOL_ID}
     SEND_IN_BLUE: ${file(./cred.yml):${self:custom.stage}.SEND_IN_BLUE}

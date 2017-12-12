@@ -4,7 +4,7 @@ import * as R from 'ramda';
 export default class UserModel {
   constructor() {
     this.cognito = new CognitoIdentityServiceProvider({
-      region: process.env.AWS_REGION
+      region: process.env.REGION
     });
   }
 

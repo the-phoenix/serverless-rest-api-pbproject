@@ -10,7 +10,7 @@ export const isOffline = () => process.env.IS_OFFLINE;
 export const db = isOffline()
   ? new DynamoDB.DocumentClient(dynamodbOfflineOptions)
   : new DynamoDB.DocumentClient({
-    region: process.env.AWS_REGION
+    region: process.env.REGION
   });
 
 export const DB_PREFIX = process.env.IS_OFFLINE ? `${process.env.SERVICE_NAME}-dev` : process.env.DB_PREFIX;

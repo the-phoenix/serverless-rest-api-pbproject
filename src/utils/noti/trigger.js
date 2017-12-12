@@ -2,7 +2,7 @@ import { SNS } from 'aws-sdk';
 import { checkValidNotiTriggerMessage } from 'utils/validation';
 
 const sns = new SNS({
-  region: process.env.AWS_REGION
+  region: process.env.REGION
 });
 
 export function trigger (message) { // eslint-disable-line
