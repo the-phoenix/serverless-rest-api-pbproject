@@ -73,6 +73,45 @@ export async function markOneAsRead(event, context, callback) {
   callback(null, response);
 }
 
+export async function getUnreadCount(event, context, callback) {
+  let response;
+  const reflect = promise => promise.then(
+    v => ({ v, status: 'resolved' }),
+    e => ({ e, status: 'rejected' })
+  );
+
+  try {
+    const { queryParams } = await parseAPIGatewayEvent(event);
+    let { usernames } = queryParams;
+
+    if (!usernames) {
+      throw Boom.preconditionFailed('\'usernames\' is missing in query params');
+    }
+
+    if (!Array.isArray(usernames)) {
+      usernames = [usernames];
+    }
+
+    const data = await Promise.all(usernames
+      .filter(u => !!u)
+      .map(u => noti.getUnreadNotifications(u))
+      .map(reflect)
+    );
+
+    const final = data.reduce((acc, item, idx) => {
+      acc[usernames[idx]] = item.status === 'rejected' ? item.e.toString() : item.v;
+
+      return acc;
+    }, {});
+
+    response = success(final);
+  } catch (e) {
+    response = failure(e, event);
+  }
+
+  callback(null, response);
+}
+
 export default {
-  listMine, markOneAsRead, send
+  listMine, markOneAsRead, send, getUnreadCount
 };

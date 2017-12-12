@@ -43,7 +43,7 @@ export default class NotiController {
     return fms;
   }
 
-  _sendPushNotification(targetUser, params, snsOriginMessage) { // eslint-disable-line
+  _sendPushNotification(targetUser, params, snsOriginMessage, inappNotificationId) { // eslint-disable-line
     const pushMessage = AVAILABLE_NOTIFICATIONS[snsOriginMessage.content].push;
     const deviceTokens = targetUser.deviceTokens || R.path(['userSummary', 'deviceTokens'], targetUser);
 
@@ -52,8 +52,14 @@ export default class NotiController {
     } else if (!deviceTokens || !deviceTokens.length) {
       return Promise.resolve(`No device token for ${targetUser.userId}`);
     }
+    if (params.amount) {
+      params.amount = (params.amount / 100).toFixed(2); //eslint-disable-line
+    }
 
-    return sendPush(deviceTokens, strFormat(pushMessage, params));
+    return sendPush(deviceTokens, strFormat(pushMessage, params), {
+      ...snsOriginMessage,
+      notificationId: inappNotificationId
+    });
   }
 
   _createInppNotification(targetUser, params, snsOriginMessage) {
@@ -73,10 +79,11 @@ export default class NotiController {
   sendNotifications(targetUsers, params, snsOriginMessage) {
     return Promise.all(
       targetUsers.map(
-        targetUser => Promise.all([
-          this._sendPushNotification(targetUser, params, snsOriginMessage),
-          this._createInppNotification(targetUser, params, snsOriginMessage),
-        ])
+        targetUser => this
+          ._createInppNotification(targetUser, params, snsOriginMessage)
+          .then(inappNoti =>
+            this._sendPushNotification(targetUser, params, snsOriginMessage, inappNoti.id)
+          )
       )
     );
   }
@@ -160,5 +167,17 @@ export default class NotiController {
         familyId: withdrawal.familyId
       }, snsOriginMessage
     );
+  }
+
+  getUnreadNotifications(username) {
+    return this.user
+      .fetchByAttribute('preferred_username', username)
+      .then(([cognitoUser]) => {
+        if (!cognitoUser) {
+          return Promise.reject(Boom.notFound('Not existing user'));
+        }
+
+        return this.noti.fetchUnreadCountByUserId(cognitoUser.userId);
+      });
   }
 }

@@ -8,7 +8,7 @@ const sns = new SNS({
 const startsWith = R.curry((prefix, xs) => R.equals(R.take(prefix.length, xs), prefix));
 const is_iOS_token = ({ model }) => startsWith('iPhone', model) || startsWith('iPad', model) || startsWith('iPod', model); // eslint-disable-line
 
-export function sendAPNToSingleDevice(token, msgText) {
+export function sendAPNToSingleDevice(token, msgText, meta) {
   const createEndpointParams = {
     PlatformApplicationArn: process.env.SNS_PUSH_APN_ARN,
     Token: token,
@@ -27,7 +27,8 @@ export function sendAPNToSingleDevice(token, msgText) {
             alert: msgText,
             sound: 'default',
             badge: 1
-          }
+          },
+          meta
         })
       };
 
@@ -39,7 +40,7 @@ export function sendAPNToSingleDevice(token, msgText) {
     });
 }
 
-export const sendPush = (deviceTokens, msgText) => {
+export const sendPush = (deviceTokens, msgText, meta = {}) => {
   console.log('Received push request to', JSON.stringify(deviceTokens, null, 4));
   const iosTokens = R.compose(
     R.map(R.prop('token')),
@@ -49,5 +50,5 @@ export const sendPush = (deviceTokens, msgText) => {
   console.log('Please send push to ', iosTokens);
   console.log('With this content:', msgText);
 
-  return Promise.all(iosTokens.map(token => sendAPNToSingleDevice(token, msgText)));
+  return Promise.all(iosTokens.map(token => sendAPNToSingleDevice(token, msgText, meta)));
 };

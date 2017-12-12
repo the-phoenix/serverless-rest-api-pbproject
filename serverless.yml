@@ -136,18 +136,18 @@ functions:
             arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
   preSignup:
     handler: src/handlers/signup.preSignup
-    events:
-      - cognitoUserPool:
-          pool: PennyboxAppUsers-${self:custom.stage}
-          trigger: PreSignUp
-          timeout: 5
+    # events:
+    #   - cognitoUserPool:
+    #       pool: PennyboxAppUsers-${self:custom.stage}
+    #       trigger: PreSignUp
+    #       timeout: 5
 
   postConfirmation:
     handler: src/handlers/signup.postConfirmation
-    events:
-      - cognitoUserPool:
-          pool: PennyboxAppUsers-${self:custom.stage}
-          trigger: PostConfirmation
+    # events:
+    #   - cognitoUserPool:
+    #       pool: PennyboxAppUsers-${self:custom.stage}
+    #       trigger: PostConfirmation
   getJob:
     handler: src/handlers/job.get
     events:
@@ -329,6 +329,13 @@ functions:
           authorizer:
             name: authorizer
             arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+  getUnreadNotificationsCount:
+    handler: src/handlers/notification.getUnreadCount
+    events:
+      - http:
+          method: GET
+          path: notification/unread
+          cors: true
   addMyDeviceToken:
     handler: src/handlers/user.addDeviceToken
     events:

@@ -78,4 +78,19 @@ export default class NotificationModel {
 
     return this.dbClient('update', params).then(data => data.Attributes);
   }
+
+  fetchUnreadCountByUserId(userId) {
+    const params = {
+      TableName: NOTIFICATION_TABLENAME,
+      ScanIndexForward: false,
+      KeyConditionExpression: 'userId = :hkey',
+      ExpressionAttributeValues: {
+        ':hkey': `${userId}`,
+        ':unread': false
+      },
+      FilterExpression: 'alreadyRead = :unread'
+    };
+
+    return this.dbClient('query', params).then(({ Count }) => Count);
+  }
 }
