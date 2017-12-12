@@ -3,7 +3,9 @@ import * as R from 'ramda';
 
 export default class UserModel {
   constructor() {
-    this.cognito = new CognitoIdentityServiceProvider({ region: 'us-east-1' });
+    this.cognito = new CognitoIdentityServiceProvider({
+      region: process.env.AWS_REGION
+    });
   }
 
   static attribNameMapper(origin, inversed) { // eslint-disable-line

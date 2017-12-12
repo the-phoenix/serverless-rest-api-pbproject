@@ -2,7 +2,7 @@ import * as R from 'ramda';
 import { SNS } from 'aws-sdk';
 
 const sns = new SNS({
-  region: 'us-east-1'
+  region: process.env.AWS_REGION
 });
 
 const startsWith = R.curry((prefix, xs) => R.equals(R.take(prefix.length, xs), prefix));
