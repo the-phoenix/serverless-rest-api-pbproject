@@ -87,10 +87,7 @@ export async function getUnreadCount(event, context, callback) {
     if (!usernames) {
       throw Boom.preconditionFailed('\'usernames\' is missing in query params');
     }
-
-    if (!Array.isArray(usernames)) {
-      usernames = [usernames];
-    }
+    usernames = usernames.split(',').map(u => u.trim());
 
     const data = await Promise.all(usernames
       .filter(u => !!u)

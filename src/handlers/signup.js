@@ -22,6 +22,7 @@ export async function preSignup(event, context) {
     }), event);
   }
 
+
   const offlineValidationMsg = user.validateUserNameOffline(pureUserName);
 
   if (offlineValidationMsg) {
@@ -30,7 +31,6 @@ export async function preSignup(event, context) {
       errorMessage: offlineValidationMsg
     }), event);
   }
-
   try {
     if (await user.getByPreferredUsername(pureUserName)) {
       return context.done(JSON.stringify({

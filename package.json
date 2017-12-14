@@ -13,7 +13,8 @@
     "serve": "sls offline start --location .webpack/service",
     "test": "sls invoke test -r .webpack/service",
     "newtest": "sls offline start --location .webpack/service --exec \"./startIntegrationTests.sh\"",
-    "postinstall": "sls dynamodb install"
+    "postinstall": "sls dynamodb install",
+    "invoke-local-single": "serverless invoke local --function preSignup --path fixtures/event-mocks/event.json"
   },
   "keywords": [
     "pennybox",

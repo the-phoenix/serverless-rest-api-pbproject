@@ -31,10 +31,7 @@ export default class User {
           return false;
         }
 
-        return Users.find(user =>
-          user.Attributes.filter(attrib =>
-            (attrib.Name === 'custom:type' && attrib.Value === 'parent') ||
-            (attrib.Name === 'email' && attrib.Value === email)).length === 2); // Todos: no need of this line
+        return Users.find(user => user.type === 'parent');
       });
   }
 

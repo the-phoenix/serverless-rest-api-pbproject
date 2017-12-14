@@ -4,12 +4,11 @@
   "request": {
     "userAttributes": {
       "custom:type": "parent",
-      "name": "James",
-      "phone_number": "+12345550100",
-      "email": "jameslin@gmx.hk"
+      "name": "james",
+      "email": "ptest1000@mailinator.com"
     },
     "validationData": {
-      "pureUserName": "james"
+      "pureUserName": "ptest123213"
     }
   },
   "response": {}
