@@ -14,6 +14,7 @@ export async function preSignup(event, context) {
   } = parseCognitoEvent(event);
 
   const pureUserName = R.path(['pureUserName'], validationData);
+  const avoidValidation = R.path(['avoidValidation'], validationData);
 
   if (!pureUserName) {
     return context.done(JSON.stringify({
@@ -25,7 +26,7 @@ export async function preSignup(event, context) {
 
   const offlineValidationMsg = user.validateUserNameOffline(pureUserName);
 
-  if (offlineValidationMsg) {
+  if (offlineValidationMsg && !avoidValidation) {
     return context.done(JSON.stringify({
       errorType: 'username validation error',
       errorMessage: offlineValidationMsg

@@ -1,7 +1,7 @@
 dev:
   DB_PREFIX: dev
-  COGNITO_POOL_ARN: arn:aws:cognito-idp:us-east-1:501132611696:userpool/us-east-1_TMmCoPWuF
-  COGNITO_POOL_ID: us-east-1_TMmCoPWuF
+  COGNITO_POOL_ARN: arn:aws:cognito-idp:us-east-1:501132611696:userpool/us-east-1_3dnItvcPE
+  COGNITO_POOL_ID: us-east-1_3dnItvcPE
   ERROR_LEVEL: VERBOSE
   SNS_NOTI_TRIGGER_ARN: arn:aws:sns:us-east-1:501132611696:pennyboxapp-dev-noti_trigger-pipe
   #SNS_PUSH_APN_ARN: arn:aws:sns:us-east-1:501132611696:app/APNS_SANDBOX/PennyboxApp-Dev
@@ -15,8 +15,8 @@ prod:
   SNS_PUSH_APN_ARN: arn:aws:sns:us-east-1:501132611696:app/APNS/PennyboxApp-Prod
 test:
   DB_PREFIX: test
-  COGNITO_POOL_ARN: arn:aws:cognito-idp:us-east-1:501132611696:userpool/us-east-1_TMmCoPWuF
-  COGNITO_POOL_ID: us-east-1_TMmCoPWuF
+  COGNITO_POOL_ARN: arn:aws:cognito-idp:us-east-1:501132611696:userpool/us-east-1_29L5zgBLc
+  COGNITO_POOL_ID: us-east-1_29L5zgBLc
   ERROR_LEVEL: NONE
   SNS_NOTI_TRIGGER_ARN: arn:aws:sns:us-east-1:501132611696:pennyboxapp-dev-noti_trigger-pipe
   SNS_PUSH_APN_ARN: arn:aws:sns:us-east-1:501132611696:app/APNS_SANDBOX/PennyboxApp-Dev
