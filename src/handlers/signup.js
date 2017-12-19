@@ -65,12 +65,8 @@ export async function postConfirmation(event, context) {
   } = parseCognitoEvent(event);
 
   try {
-    const getAttribValue = attribName => R.compose(
-      R.path(['Value']),
-      R.find(R.propEq('Name', attribName)),
-    );
-    const userType = getAttribValue('custom:type')(attributes);
-    const email = getAttribValue('email')(attributes);
+    const userType = R.prop('custom:type', attributes);
+    const email = R.prop('email', attributes);
 
     await user.postConfirmation(cognitoUserName, attributes, userPoolId);
     if (userType === 'parent') {
