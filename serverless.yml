@@ -14,6 +14,7 @@ plugins:
   - serverless-offline # This order is important. should be below of dynamodb-local
   # - serverless-dynamodb-autoscaling
   - serverless-plugin-split-stacks
+  - serverless-domain-manager
 
 provider:
   name: aws
@@ -50,6 +51,11 @@ custom:
   DB_PREFIX: ${self:service}-${file(./config.yml):${self:custom.stage}.DB_PREFIX}
   COGNITO_POOL_ID: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ID}
   webpackIncludeModules: true
+  customDomain:
+    domainName: ${file(./config.yml):${self:custom.stage}.CUSTOM_DOMAIN_NAME}
+    basePath: 'v2'
+    stage: ${self:custom.stage}
+    createRoute53Record: true
   dynamodb:
     start:
       port: 8000

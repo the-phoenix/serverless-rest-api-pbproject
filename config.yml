@@ -6,13 +6,15 @@ dev:
   SNS_NOTI_TRIGGER_ARN: arn:aws:sns:us-east-1:501132611696:pennyboxapp-dev-noti_trigger-pipe
   #SNS_PUSH_APN_ARN: arn:aws:sns:us-east-1:501132611696:app/APNS_SANDBOX/PennyboxApp-Dev
   SNS_PUSH_APN_ARN: arn:aws:sns:us-east-1:501132611696:app/APNS/PennyboxApp-Prod
+  CUSTOM_DOMAIN_NAME: api-stage.pennybox.com
 prod:
   DB_PREFIX: prod
-  COGNITO_POOL_ARN: arn:aws:cognito-idp:us-east-1:501132611696:userpool/us-east-1_QqqAe7XcE
-  COGNITO_POOL_ID: us-east-1_QqqAe7XcE
+  COGNITO_POOL_ARN: arn:aws:cognito-idp:us-east-1:501132611696:userpool/us-east-1_HSo98n6V8
+  COGNITO_POOL_ID: us-east-1_HSo98n6V8
   ERROR_LEVEL: CRITICAL
   SNS_NOTI_TRIGGER_ARN: arn:aws:sns:us-east-1:501132611696:pennyboxapp-dev-noti_trigger-pipe
   SNS_PUSH_APN_ARN: arn:aws:sns:us-east-1:501132611696:app/APNS/PennyboxApp-Prod
+  CUSTOM_DOMAIN_NAME: api-prod.pennybox.com
 test:
   DB_PREFIX: test
   COGNITO_POOL_ARN: arn:aws:cognito-idp:us-east-1:501132611696:userpool/us-east-1_29L5zgBLc

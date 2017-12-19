@@ -39,6 +39,7 @@
     "eslint-import-resolver-webpack": "^0.8.3",
     "eslint-plugin-import": "^2.7.0",
     "mocha": "^4.0.1",
+    "serverless-domain-manager": "^2.0.1",
     "serverless-dynamodb-autoscaling": "^0.6.2",
     "serverless-dynamodb-local": "^0.2.25",
     "serverless-mocha-plugin": "^1.7.0",
