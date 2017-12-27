@@ -1,9 +1,11 @@
-import { CognitoIdentityServiceProvider } from 'aws-sdk';
+import AWSXRay from 'aws-xray-sdk-core';
 import * as R from 'ramda';
+
+const AWS = AWSXRay.captureAWS(require('aws-sdk'));
 
 export default class UserModel {
   constructor() {
-    this.cognito = new CognitoIdentityServiceProvider({
+    this.cognito = new AWS.CognitoIdentityServiceProvider({
       region: process.env.REGION
     });
   }

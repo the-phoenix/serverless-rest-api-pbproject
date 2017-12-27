@@ -15,12 +15,14 @@ plugins:
   # - serverless-dynamodb-autoscaling
   - serverless-plugin-split-stacks
   - serverless-domain-manager
+  - serverless-plugin-tracing
 
 provider:
   name: aws
   runtime: nodejs6.10
   stage: dev # prod
   region: us-east-1
+  tracing: true # enable xray
   environment:
     SERVICE_NAME: ${self:service}
     REGION: ${self:provider.region}
@@ -30,6 +32,7 @@ provider:
     SNS_NOTI_TRIGGER_ARN: ${file(./config.yml):${self:custom.stage}.SNS_NOTI_TRIGGER_ARN}
     SNS_PUSH_APN_ARN: ${file(./config.yml):${self:custom.stage}.SNS_PUSH_APN_ARN}
     ERROR_LEVEL: ${file(./config.yml):${self:custom.stage}.ERROR_LEVEL}
+    AWS_XRAY_CONTEXT_MISSING: LOG_ERROR
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -46,6 +49,12 @@ provider:
         - "SNS:*"
       Resource:
         - "arn:aws:sns:us-east-1:*"
+    - Effect: Allow
+      Action:
+        - "xray:PutTraceSegments"
+        - "xray:PutTelemetryRecords"
+      Resource:
+        - "*"
 custom:
   stage: ${opt:stage, self:provider.stage}
   DB_PREFIX: ${self:service}-${file(./config.yml):${self:custom.stage}.DB_PREFIX}
@@ -96,6 +105,7 @@ custom:
 functions:
   checkHealth:
     handler: src/handlers/misc.health
+    tracing: false
     events:
       - http:
           method: GET

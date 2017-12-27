@@ -1,5 +1,7 @@
-import { DynamoDB } from 'aws-sdk';
+import AWSXRay from 'aws-xray-sdk-core';
 import R from 'ramda';
+
+const AWS = AWSXRay.captureAWS(require('aws-sdk'));
 
 const dynamodbOfflineOptions = {
   region: 'localhost',
@@ -8,8 +10,8 @@ const dynamodbOfflineOptions = {
 export const isOffline = () => process.env.IS_OFFLINE;
 
 export const db = isOffline()
-  ? new DynamoDB.DocumentClient(dynamodbOfflineOptions)
-  : new DynamoDB.DocumentClient({
+  ? new AWS.DynamoDB.DocumentClient(dynamodbOfflineOptions)
+  : new AWS.DynamoDB.DocumentClient({
     region: process.env.REGION
   });
 

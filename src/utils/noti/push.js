@@ -1,7 +1,9 @@
+import AWSXRay from 'aws-xray-sdk-core';
 import * as R from 'ramda';
-import { SNS } from 'aws-sdk';
 
-const sns = new SNS({
+const AWS = AWSXRay.captureAWS(require('aws-sdk'));
+
+const sns = new AWS.SNS({
   region: process.env.REGION
 });
 

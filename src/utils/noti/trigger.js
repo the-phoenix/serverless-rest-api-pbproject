@@ -1,7 +1,9 @@
-import { SNS } from 'aws-sdk';
+import AWSXRay from 'aws-xray-sdk-core';
 import { checkValidNotiTriggerMessage } from 'utils/validation';
 
-const sns = new SNS({
+const AWS = AWSXRay.captureAWS(require('aws-sdk'));
+
+const sns = new AWS.SNS({
   region: process.env.REGION
 });
 
