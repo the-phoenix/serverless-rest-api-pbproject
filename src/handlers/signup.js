@@ -67,10 +67,14 @@ export async function postConfirmation(event, context) {
   try {
     const userType = R.prop('custom:type', attributes);
     const email = R.prop('email', attributes);
+    const isNewSignUp = !R.has('cognito:token_nbf', attributes);
+    // postConfirmation trigger's also invoked when updating password with confirmation code
 
-    await user.postConfirmation(cognitoUserName, attributes, userPoolId);
-    if (userType === 'parent') {
-      console.log('Welcome email sent', await sendWelcome(email));
+    if (isNewSignUp) {
+      await user.postConfirmation(cognitoUserName, attributes, userPoolId);
+      if (userType === 'parent') {
+        console.log('Welcome email sent', await sendWelcome(email));
+      }
     }
   } catch (e) {
     return context.done(JSON.stringify({
@@ -82,4 +86,4 @@ export async function postConfirmation(event, context) {
   return context.done(null, event);
 }
 
-export default { preSignup, postConfirmation }; // Add this for test
+export default { preSignup, postConfirmation };

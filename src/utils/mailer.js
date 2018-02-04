@@ -41,7 +41,7 @@ export const sendForgotPincodeReminder = (familyAdminEmail, username) => {
 
 export const sendWelcome = (email) => {
   const params = {
-    id: 5, // sendinblue id of welcome email
+    id: 38, // sendinblue id of welcome email
     to: email
   };
 
