@@ -127,8 +127,6 @@ export default class NotiController {
       } else {
         throw Boom.teapot('No need to notify for the premature jobs');
       }
-    ) {
-      targetUsers = [await this.user.fetchById(job.childUserId)];
     } else {
       throw Boom.badImplementation('Can\'t recognize job status');
     }
