@@ -8,7 +8,7 @@
     "modifiedTimestamp__familyId": "1506423488524__c796d733-9779-45c5-a130-20fd1fd0b652",
     "status": "CREATED_BY_PARENT",
     "jobSummary": {
-      "_available_status": "CREATED_BY_PARENT, CREATED_BY_CHILD, START_APPROVED, START_DECLINED, STARTED, FINISHED, FINISH_DECLINED, PAID",
+      "_available_status": "CREATED_BY_PARENT, CREATED_BY_CHILD, START_APPROVED, START_DECLINED, STARTED, FINISHED, FINISH_DECLINED, PAID, REMOVED",
       "title": "Walk the dog",
       "price": 3,
       "backdropResource": "image or video url here"

@@ -6,34 +6,38 @@ export const JOB_TABLENAME = 'Jobs';
 export const availableJobStatus = {
   CREATED_BY_PARENT: {
     allowedRoles: ['parent'],
-    availableNextMove: ['START_APPROVED', 'START_DECLINED']
+    availableNextMove: ['START_APPROVED']
   },
   CREATED_BY_CHILD: {
     allowedRoles: ['child'],
-    availableNextMove: ['START_APPROVED', 'START_DECLINED']
+    availableNextMove: ['START_APPROVED', 'START_DECLINED', 'REMOVED']
   },
   START_APPROVED: {
     allowedRoles: ['parent'],
-    availableNextMove: ['STARTED']
+    availableNextMove: ['STARTED', 'REMOVED']
   },
   START_DECLINED: {
     allowedRoles: ['parent'],
-    availableNextMove: []
+    availableNextMove: ['REMOVED']
   },
   STARTED: {
     allowedRoles: ['child'],
-    availableNextMove: ['FINISHED']
+    availableNextMove: ['FINISHED', 'REMOVED']
   },
   FINISHED: {
     allowedRoles: ['child'],
-    availableNextMove: ['FINISH_DECLINED', 'PAID']
+    availableNextMove: ['FINISH_DECLINED', 'PAID', 'REMOVED']
   },
   FINISH_DECLINED: {
     allowedRoles: ['parent'],
-    availableNextMove: ['FINISHED']
+    availableNextMove: ['FINISHED', 'REMOVED']
   },
   PAID: {
     allowedRoles: ['parent'],
+    availableNextMove: []
+  },
+  REMOVED: {
+    allowedRoles: ['parent', 'child'],
     availableNextMove: []
   }
 };

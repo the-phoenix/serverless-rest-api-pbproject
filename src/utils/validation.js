@@ -63,6 +63,12 @@ export const checkAllowedJobStatusSafeUpdate = (userType, original, newone) => {
     return 'Forbidden job status update';
   }
 
+  if (newone === 'REMOVED'
+    && userType === 'child'
+    && original !== 'CREATED_BY_CHILD') {
+    return 'Child can only delete job before its accepted by parent';
+  }
+
   return null;
 };
 

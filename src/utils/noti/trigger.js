@@ -53,6 +53,9 @@ export const notifyJob = (job) => {
     case 'PAID':
       performedAction = 'child.job.PAID';
       break;
+    case 'REMOVED':
+      performedAction = 'child.job.REMOVED';
+      break;
   }
 
   return trigger({

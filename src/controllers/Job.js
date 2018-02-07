@@ -69,6 +69,8 @@ export default class JobController {
       throw Boom.notFound('Not existing job');
     }
 
+    // TODO: child user can only update the job that created for him.
+    // TODO: parent user can only update the job that created for his family.
     const safetyError = checkSafeStatus(currentUser.type, jobData.status, reqParam.status);
     if (safetyError) {
       throw Boom.badRequest(safetyError);
@@ -83,5 +85,12 @@ export default class JobController {
     await notifyJob(updatedJob);
 
     return updatedJob;
+  }
+}
+
+function test(updatedJobStatus, currentUserType) {
+  if (updatedJobStatus !== 'REMOVED' ||
+      (updatedJobStatus === 'REMOVED' && currentUserType === 'PARENT')) {
+    console.log('Send notification');
   }
 }

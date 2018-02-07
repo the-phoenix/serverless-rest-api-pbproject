@@ -31,6 +31,10 @@
     "push": "Nice one! You've been paid {amount} by {username}\n{title}",
     "inapp": "You've been paid!\n{title}"
   },
+  "child.job.REMOVED": {
+    "push": "{username} has deleted this job\n{title}",
+    "inapp": "Job deleted\n{title}"
+  },
   "parent.withdrawal.CREATED_BY_CHILD": {
     "push": "{username} has requested a cash out for {amount}.\nPay it now?",
     "inapp": "Cash out requested\nPay it now?"
