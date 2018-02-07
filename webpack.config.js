@@ -1,7 +1,11 @@
 const path = require('path');
 const slsw = require('serverless-webpack');
+const argv = require('yargs').argv;
 const nodeExternals = require('webpack-node-externals');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const noop = require('noop-webpack-plugin');
+
+const STAGE = argv.stage || argv.s || 'dev';
 
 module.exports = {
   entry: slsw.lib.entries,
@@ -28,6 +32,6 @@ module.exports = {
     ]
   },
   plugins: [
-    new UglifyJsPlugin()
+    STAGE === 'prod' ? new UglifyJsPlugin() : noop()
   ]
 };

@@ -1,4 +1,5 @@
 import AWSXRay from 'aws-xray-sdk-core';
+import * as R from 'ramda';
 import { checkValidNotiTriggerMessage } from 'utils/validation';
 
 const AWS = AWSXRay.captureAWS(require('aws-sdk'));
@@ -27,6 +28,12 @@ export function trigger (message) { // eslint-disable-line
 
 export const notifyJob = (job) => {
   let performedAction;
+  if (R.last(job.history).status === 'SUMMARY_UPDATED') {
+    return trigger({
+      content: 'child.job.SUMMARY_UPDATED',
+      jobId: job.id
+    });
+  }
 
   switch (job.status) {
     default: case 'CREATED_BY_PARENT':

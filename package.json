@@ -39,6 +39,7 @@
     "eslint-import-resolver-webpack": "^0.8.3",
     "eslint-plugin-import": "^2.7.0",
     "mocha": "^4.0.1",
+    "noop-webpack-plugin": "^1.0.1",
     "serverless-domain-manager": "^2.0.1",
     "serverless-dynamodb-autoscaling": "^0.6.2",
     "serverless-dynamodb-local": "^0.2.25",
@@ -49,7 +50,8 @@
     "serverless-webpack": "^4.1.0",
     "uglifyjs-webpack-plugin": "^1.1.4",
     "webpack": "^3.10.0",
-    "webpack-node-externals": "^1.6.0"
+    "webpack-node-externals": "^1.6.0",
+    "yargs": "^11.0.0"
   },
   "dependencies": {
     "aws-sdk": "^2.122.0",

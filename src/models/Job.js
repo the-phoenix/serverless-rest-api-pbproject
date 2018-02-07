@@ -1,4 +1,4 @@
-import { omit, pick } from 'ramda';
+import { omit, pick, merge } from 'ramda';
 import uuidv1 from 'uuid/v1';
 import dbClient from 'utils/db-client';
 
@@ -145,9 +145,46 @@ export default class JobModel {
         ':h': [{
           ...newData,
           issuedAt: now.getTime(),
-          issuedBy: currentUserId
+          issuedBy: currentUserId,
+          description: 'STATUS UPDATED'
         }],
         ':s': newData.status,
+        ':m': now.toISOString(),
+        ':cm': `${currentJob.childUserId}__${now.getTime()}`,
+        ':mf': `${now.getTime()}__${currentJob.familyId}`
+      },
+      ReturnValues: 'ALL_NEW'
+    };
+
+    return this.dbClient('update', params).then(data => data.Attributes);
+  }
+
+  updateSummary(currentUserId, summaryUpdate, currentJob) {
+    const now = new Date();
+    const primaryKeys = ['familyId', 'childUserId__createdTimestamp'];
+    const newSummary = merge(currentJob.jobSummary, summaryUpdate);
+
+    const params = {
+      TableName: JOB_TABLENAME,
+      Key: pick(primaryKeys, currentJob),
+      UpdateExpression: [
+        'SET history = list_append(history, :h)',
+        'jobSummary = :summary',
+        'modified = :m',
+        'childUserId__modifiedTimestamp = :cm',
+        'modifiedTimestamp__familyId = :mf'
+      ].join(', '),
+      ExpressionAttributeValues: {
+        ':h': [{
+          issuedAt: now.getTime(),
+          issuedBy: currentUserId,
+          meta: {
+            before: currentJob.jobSummary,
+            after: newSummary
+          },
+          description: 'SUMMARY UPDATED'
+        }],
+        ':summary': newSummary,
         ':m': now.toISOString(),
         ':cm': `${currentJob.childUserId}__${now.getTime()}`,
         ':mf': `${now.getTime()}__${currentJob.familyId}`

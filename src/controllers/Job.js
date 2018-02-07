@@ -6,7 +6,8 @@ import TransactionModel from 'models/Transaction';
 import { notifyJob } from 'utils/noti/index';
 
 import {
-  checkAllowedJobStatusSafeUpdate as checkSafeStatus
+  checkAllowedJobStatusSafeUpdate as checkSafeStatus,
+  checkAllowedJobSummarySafeUpdate as checkSafeSummary
 } from 'utils/validation';
 
 export default class JobController {
@@ -86,11 +87,24 @@ export default class JobController {
 
     return updatedJob;
   }
-}
 
-function test(updatedJobStatus, currentUserType) {
-  if (updatedJobStatus !== 'REMOVED' ||
-      (updatedJobStatus === 'REMOVED' && currentUserType === 'PARENT')) {
-    console.log('Send notification');
+  async safeUpdateSummary(currentUser, jobId, reqParam) {
+    const jobData = await this.job.fetchById(jobId);
+    if (!jobData) {
+      throw Boom.notFound('Not existing job');
+    }
+
+    // TODO: child user can only update the job that created for him.
+    // TODO: parent user can only update the job that created for his family.
+    const safetyError = checkSafeSummary(currentUser.type, jobData.status);
+    if (safetyError) {
+      throw Boom.badRequest(safetyError);
+    }
+
+    const updatedJob = await this.job.updateSummary(currentUser.userId, reqParam, jobData);
+
+    await notifyJob(updatedJob);
+
+    return updatedJob;
   }
 }

@@ -38,7 +38,7 @@ export const checkCreateJobDataSchema = (rawData) => {
     jobSummary: joi.object().keys({
       title: joi.string().required(),
       price: joi.number().required(),
-      backdropResource: joi.string().uri()
+      backdropResource: joi.string().uri().allow(null)
     }),
   });
 
@@ -54,19 +54,41 @@ export const checkUpdateJobStatusSchema = (rawData) => {
   return getPlainError(joi.validate(rawData, schema));
 };
 
-export const checkAllowedJobStatusSafeUpdate = (userType, original, newone) => {
-  if (!availableJobStatus[newone].allowedRoles.includes(userType)) {
+export const checkUpdateJobSummarySchema = (rawData) => {
+  const schema = joi.object().keys({
+    title: joi.string().required(),
+    price: joi.number().required(),
+    backdropResource: joi.string().uri().allow(null)
+  });
+
+  return getPlainError(joi.validate(rawData, schema));
+};
+
+export const checkAllowedJobStatusSafeUpdate = (userType, originStatus, newStatus) => {
+  if (!availableJobStatus[newStatus].allowedRoles.includes(userType)) {
     return 'This user type is not allowed to update job to target status';
   }
 
-  if (!availableJobStatus[original].availableNextMove.includes(newone)) {
+  if (!availableJobStatus[originStatus].availableNextMove.includes(newStatus)) {
     return 'Forbidden job status update';
   }
 
-  if (newone === 'REMOVED'
+  if (newStatus === 'REMOVED'
     && userType === 'child'
-    && original !== 'CREATED_BY_CHILD') {
+    && originStatus !== 'CREATED_BY_CHILD') {
     return 'Child can only delete job before its accepted by parent';
+  }
+
+  return null;
+};
+
+export const checkAllowedJobSummarySafeUpdate = (userType, currentStatus) => {
+  if (['REMOVED', 'PAID', 'START_DECLINED'].includes(currentStatus)) {
+    return 'Forbidden job summary update';
+  }
+
+  if (userType === 'child' && currentStatus !== 'CREATED_BY_CHILD') {
+    return 'Child can only update job before its accepted by parent';
   }
 
   return null;

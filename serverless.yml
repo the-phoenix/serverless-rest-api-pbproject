@@ -196,6 +196,16 @@ functions:
           authorizer:
             name: authorizer
             arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
+  updateJobSummary:
+    handler: src/handlers/job.updateSummary
+    events:
+      - http:
+          method: PUT
+          path: job/{jobId}/summary
+          cors: true
+          authorizer:
+            name: authorizer
+            arn: ${file(./config.yml):${self:custom.stage}.COGNITO_POOL_ARN}
   listJobsByFamilyMember:
     handler: src/handlers/job.listByFamilyMember
     events:

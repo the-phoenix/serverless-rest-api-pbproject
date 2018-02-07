@@ -5,6 +5,7 @@ import JobController from 'controllers/Job';
 import {
   checkCreateJobDataSchema,
   checkUpdateJobStatusSchema,
+  checkUpdateJobSummarySchema,
 } from 'utils/validation';
 
 const job = new JobController();
@@ -65,6 +66,26 @@ export async function updateStatus(event, context, callback) {
     }
 
     const updated = await job.safeUpdateStatus(currentUser, params.jobId, body);
+    response = success(updated);
+  } catch (e) {
+    response = failure(e, event);
+  }
+
+  callback(null, response);
+}
+
+export async function updateSummary(event, context, callback) {
+  let response;
+
+  try {
+    const { currentUser, body, params } = await parseAPIGatewayEvent(event);
+
+    const validationError = checkUpdateJobSummarySchema(body);
+    if (validationError) {
+      throw Boom.preconditionFailed(validationError);
+    }
+
+    const updated = await job.safeUpdateSummary(currentUser, params.jobId, body);
     response = success(updated);
   } catch (e) {
     response = failure(e, event);

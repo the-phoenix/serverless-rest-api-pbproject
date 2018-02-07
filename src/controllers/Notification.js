@@ -107,17 +107,26 @@ export default class NotiController {
 
   async notifyJob(jobId, snsOriginMessage) {
     const job = await this.job.fetchById(jobId);
+    if (!job) {
+      throw Boom.notFound(`Not existing job with id ${jobId}`);
+    }
 
     let targetUsers;
     const { status } = job;
-    const lastHistory = R.last(job.history);
-    const prevLastHistory = R.pipe(R.takeLast(2), R.first)(job.history);
+    const jobHistory = R.filter(h => h.status, job.history);
+    const lastHistory = R.last(jobHistory);
+    const prevLastHistory = R.pipe(R.takeLast(2), R.head)(jobHistory);
     const { username, type } = await this.user.fetchById(lastHistory.issuedBy);
 
     console.log('RECEIVED ACTION: ', snsOriginMessage.content);
     console.log('CURRENT JOB STATUS: ', status);
-
-    if (['CREATED_BY_CHILD', 'FINISHED', 'STARTED'].includes(status)) {
+    if (snsOriginMessage.content === 'child.job.SUMMARY_UPDATED') {
+      if (type === 'parent' && !['CREATED_BY_CHILD', 'START_DECLINED'].includes(prevLastHistory.status)) {
+        targetUsers = [await this.user.fetchById(job.childUserId)];
+      } else {
+        throw Boom.teapot('No need to notify for the premature jobs');
+      }
+    } else if (['CREATED_BY_CHILD', 'FINISHED', 'STARTED'].includes(status)) {
       targetUsers = await this._getUsersFromFamily(job.familyId, 'parent');
     } else if (['START_DECLINED', 'START_APPROVED', 'FINISH_DECLINED', 'PAID'].includes(status)) {
       targetUsers = [await this.user.fetchById(job.childUserId)];
@@ -144,6 +153,9 @@ export default class NotiController {
 
   async notifyWithdrawal(withdrawalId, snsOriginMessage) {
     const withdrawal = await this.withdrawal.fetchById(withdrawalId);
+    if (!withdrawal) {
+      throw Boom.notFound(`Not existing withdrawal request with id ${withdrawalId}`);
+    }
 
     let targetUsers;
     const { status } = withdrawal;
