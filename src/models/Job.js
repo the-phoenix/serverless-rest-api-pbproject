@@ -146,7 +146,7 @@ export default class JobModel {
           ...newData,
           issuedAt: now.getTime(),
           issuedBy: currentUserId,
-          description: 'STATUS UPDATED'
+          description: 'STATUS_UPDATED'
         }],
         ':s': newData.status,
         ':m': now.toISOString(),
@@ -182,7 +182,7 @@ export default class JobModel {
             before: currentJob.jobSummary,
             after: newSummary
           },
-          description: 'SUMMARY UPDATED'
+          description: 'SUMMARY_UPDATED'
         }],
         ':summary': newSummary,
         ':m': now.toISOString(),

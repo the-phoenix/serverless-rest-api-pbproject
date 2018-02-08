@@ -28,7 +28,10 @@ export function trigger (message) { // eslint-disable-line
 
 export const notifyJob = (job) => {
   let performedAction;
-  if (R.last(job.history).status === 'SUMMARY_UPDATED') {
+  if (
+    R.last(job.history).description &&
+    R.last(job.history).description === 'SUMMARY_UPDATED'
+  ) {
     return trigger({
       content: 'child.job.SUMMARY_UPDATED',
       jobId: job.id
