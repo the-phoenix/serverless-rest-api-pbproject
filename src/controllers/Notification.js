@@ -124,7 +124,7 @@ export default class NotiController {
       if (type === 'parent' && !['CREATED_BY_CHILD', 'START_DECLINED'].includes(prevLastHistory.status)) {
         targetUsers = [await this.user.fetchById(job.childUserId)];
       } else {
-        throw Boom.teapot('No need to notify for the premature jobs');
+        throw Boom.teapot(`No need to notify for updating summary of the premature job - ${jobId}`);
       }
     } else if (['CREATED_BY_CHILD', 'FINISHED', 'STARTED'].includes(status)) {
       targetUsers = await this._getUsersFromFamily(job.familyId, 'parent');
@@ -134,7 +134,7 @@ export default class NotiController {
       if (type === 'parent' && !['CREATED_BY_CHILD', 'START_DECLINED'].includes(prevLastHistory.status)) {
         targetUsers = [await this.user.fetchById(job.childUserId)];
       } else {
-        throw Boom.teapot('No need to notify for the premature jobs');
+        throw Boom.teapot(`No need to notify for removing the premature job - ${jobId}`);
       }
     } else {
       throw Boom.badImplementation('Can\'t recognize job status');
