@@ -32,12 +32,12 @@
     "inapp": "You've been paid!\n{title}"
   },
   "child.job.REMOVED": {
-    "push": "{username} has deleted this job\n{title}",
-    "inapp": "Job deleted\n{title}"
+    "push": "{username} has removed this job\n{title}",
+    "inapp": "Job has been removed\n{title}"
   },
   "child.job.SUMMARY_UPDATED": {
     "push": "{username} has edited this job\n{title} for {amount}",
-    "inapp": "Job detail's changed\n{title}"
+    "inapp": "Job details have changed\n{title}"
   },
   "parent.withdrawal.CREATED_BY_CHILD": {
     "push": "{username} has requested a cash out for {amount}.\nPay it now?",
