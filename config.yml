@@ -4,8 +4,8 @@ dev:
   COGNITO_POOL_ID: us-east-1_3dnItvcPE
   ERROR_LEVEL: VERBOSE
   SNS_NOTI_TRIGGER_ARN: arn:aws:sns:us-east-1:501132611696:pennyboxapp-dev-noti_trigger-pipe
-  #SNS_PUSH_APN_ARN: arn:aws:sns:us-east-1:501132611696:app/APNS_SANDBOX/PennyboxApp-Dev
-  SNS_PUSH_APN_ARN: arn:aws:sns:us-east-1:501132611696:app/APNS/PennyboxApp-Prod
+  SNS_PUSH_APN_ARN: arn:aws:sns:us-east-1:501132611696:app/APNS_SANDBOX/PennyboxApp-Dev
+  #SNS_PUSH_APN_ARN: arn:aws:sns:us-east-1:501132611696:app/APNS/PennyboxApp-Prod
   CUSTOM_DOMAIN_NAME: api-stage.pennybox.com
 prod:
   DB_PREFIX: prod
