@@ -50,7 +50,7 @@ export const sendPush = (deviceTokens, msgText, meta = {}) => {
   )(deviceTokens);
 
   console.log('Please send push to ', iosTokens);
-  console.log('With this content:', msgText);
+  console.log('With this content:', msgText, meta);
 
   return Promise.all(iosTokens.map(token => sendAPNToSingleDevice(token, msgText, meta)));
 };

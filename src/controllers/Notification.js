@@ -53,7 +53,11 @@ export default class NotiController {
       return Promise.resolve(`No device token for ${targetUser.userId}`);
     }
     if (params.amount) {
+      console.log('HERES amount', params.amount);
       params.amount = (params.amount / 100).toFixed(2); //eslint-disable-line
+      console.log('HERES updated amount', params.amount);
+      console.log('inappNotificationId: ', inappNotificationId);
+      console.log('params: ', params);
     }
 
     return sendPush(deviceTokens, strFormat(pushMessage, params), {
@@ -113,15 +117,16 @@ export default class NotiController {
 
     let targetUsers;
     const { status } = job;
-    const jobHistory = R.filter(h => h.status, job.history);
-    const lastHistory = R.last(jobHistory);
-    const prevLastHistory = R.pipe(R.takeLast(2), R.head)(jobHistory);
+    const lastHistory = R.last(job.history);
+    const statusUpdateLastHistory = R.findLast(R.prop('status'))(job.history);
+
     const { username, type } = await this.user.fetchById(lastHistory.issuedBy);
 
     console.log('RECEIVED ACTION: ', snsOriginMessage.content);
-    console.log('CURRENT JOB STATUS: ', status);
+    console.log('CURRENT JOB STATUS: ', status, jobId, R.path(['jobSummary', 'title'], job));
+
     if (snsOriginMessage.content === 'child.job.SUMMARY_UPDATED') {
-      if (type === 'parent' && !['CREATED_BY_CHILD', 'START_DECLINED'].includes(prevLastHistory.status)) {
+      if (type === 'parent' && !['CREATED_BY_CHILD', 'START_DECLINED'].includes(statusUpdateLastHistory.status)) {
         targetUsers = [await this.user.fetchById(job.childUserId)];
       } else {
         throw Boom.teapot(`No need to notify for updating summary of the premature job - ${jobId}`);
@@ -131,7 +136,7 @@ export default class NotiController {
     } else if (['START_DECLINED', 'START_APPROVED', 'FINISH_DECLINED', 'PAID'].includes(status)) {
       targetUsers = [await this.user.fetchById(job.childUserId)];
     } else if (status === 'REMOVED') {
-      if (type === 'parent' && !['CREATED_BY_CHILD', 'START_DECLINED'].includes(prevLastHistory.status)) {
+      if (type === 'parent' && !['CREATED_BY_CHILD', 'START_DECLINED'].includes(statusUpdateLastHistory.status)) {
         targetUsers = [await this.user.fetchById(job.childUserId)];
       } else {
         throw Boom.teapot(`No need to notify for removing the premature job - ${jobId}`);
