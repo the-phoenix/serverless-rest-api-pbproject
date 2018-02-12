@@ -75,7 +75,7 @@ export const checkAllowedJobStatusSafeUpdate = (userType, originStatus, newStatu
 
   if (newStatus === 'REMOVED'
     && userType === 'child'
-    && originStatus !== 'CREATED_BY_CHILD') {
+    && !['CREATED_BY_CHILD', 'START_DECLINED'].includes(originStatus)) {
     return 'Child can only delete job before its accepted by parent';
   }
 
