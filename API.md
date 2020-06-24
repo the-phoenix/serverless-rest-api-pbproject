@@ -2,8 +2,8 @@
 
 ## Endpoint
 
-Prod endpoint: `https://api-prod.pennybox.com/v2` <br/>
-Staging endpoint: `https://api-stage.pennybox.com/v2`
+Prod endpoint: `https://api-prod.pbox.com/v2` <br/>
+Staging endpoint: `https://api-stage.pbox.com/v2`
 
 ## Authorization
 
@@ -19,10 +19,12 @@ The public apis (doesn't need to send `Authorization` header) are checkHealth, g
   No params required, returns current user's detail information.
 
 - listJobsByFamilyMember:
+
   - `GET user/me/jobs/{familyId}` -> List my jobs
   - `GET user/{userId}/jobs/{familyId}`-> List specific user's job
 
 - listWithdrawalsByFamilyMember:
+
   - `GET user/me/withdrawals/{familyId}` -> List my withdrawal requests
   - `GET user/{userId}/withdrawals/{familyId}`-> List specific user's withdrawal requests
 
@@ -45,6 +47,7 @@ The public apis (doesn't need to send `Authorization` header) are checkHealth, g
 - joinFamily: `POST family/join`
 
   request parameter
+
   ```
   { familyId: "string" }
   ```
@@ -67,6 +70,7 @@ The public apis (doesn't need to send `Authorization` header) are checkHealth, g
   Create a single job. Any type of users can do this op.
 
   request parameter
+
   ```
   {
     familyId: "string",
@@ -85,6 +89,7 @@ The public apis (doesn't need to send `Authorization` header) are checkHealth, g
   Available job status: `CREATED_BY_PARENT`, `CREATED_BY_CHILD`, `START_APPROVED`, `START_DECLINED`, `STARTED`, `FINISHED`, `FINISH_DECLINED`, `PAID`
 
   request parameter
+
   ```
     status: "string",
     meta: {}  // Object includes any meta information
@@ -101,6 +106,7 @@ The public apis (doesn't need to send `Authorization` header) are checkHealth, g
   Create a single withdrawal request. Any type of users can do this op.
 
   request parameter
+
   ```
   {
     familyId: "string",
@@ -116,6 +122,7 @@ The public apis (doesn't need to send `Authorization` header) are checkHealth, g
   Only return success when user has available balance or have pending withdrawal request less than 2.
 
   request parameter
+
   ```
     status: "string",
     meta: {}  // Object includes any meta information
@@ -140,6 +147,7 @@ The public apis (doesn't need to send `Authorization` header) are checkHealth, g
   Register my iOS device token to get push
 
   request parameter:
+
   ```
     {
       model: "string" // device model
@@ -158,6 +166,7 @@ The public apis (doesn't need to send `Authorization` header) are checkHealth, g
   Send email with all family member's username
 
   request parameter:
+
   ```
     email: "string" // Email address of family user
   ```
@@ -169,6 +178,7 @@ The public apis (doesn't need to send `Authorization` header) are checkHealth, g
   Doable role: Only child user can do this op.
 
   request parameter:
+
   ```
     username: "string" // Child user name
   ```
